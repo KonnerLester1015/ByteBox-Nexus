@@ -1,5 +1,6 @@
 # Hugo configuration file
 title: ByteBox Nexus
+baseURL: https://konnerlester1015.github.io/ByteBox-Nexus/
 
 enableRobotsTXT: true
 enableGitInfo: true
