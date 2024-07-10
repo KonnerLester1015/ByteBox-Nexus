@@ -1,18 +1,28 @@
 ---
-title: Documentation
-next: first-page
+type: docs
+next: docs/ceph/
+linkTitle: Documentation
 ---
+# Welcome to My Documentation! 🎉
 
-This is a demo of the theme's documentation layout.
+Here you can explore specific posts that delve deeper into detailed how-tos and guides.
 
-## Hello, World!
+### Overview
 
-```go {filename="main.go"}
-package main
+This documentation section is divided into several categories pertaining to specific technology applications. To help you find the information you need, use the search function to find specific topics.
 
-import "fmt"
+> Documentation is a love letter that you write to your future self.  
+> — Damian Conway
 
-func main() {
-    fmt.Println("Hello, World!")
-}
-```
+
+### Quickstart
+Everything you need to know!
+
+{{< cards >}} 
+{{< card link="ceph" title="Ceph Docs" subtitle="Deploy and configure a Ceph cluster." icon="server" >}} 
+
+{{< card link="linux" title="Linux" subtitle="Guides and tutorials for various Linux distributions and tools." icon="terminal" >}} 
+
+{{< card link="servicenow" title="ServiceNow" subtitle="Learn to develop and administrate a SerivceNow instance." icon="globe-alt" >}} 
+
+{{< /cards >}}

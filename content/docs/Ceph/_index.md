@@ -1,8 +1,8 @@
 ---
-title: Folder
+title: Ceph
 type: docs
-prev: docs/first-page
-next: docs/folder/leaf
+prev: docs/
+next: docs/
 sidebar:
   open: true
 ---
