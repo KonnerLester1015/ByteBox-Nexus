@@ -201,7 +201,7 @@ This section covers creating a user called **qemu**, applying capabilities (Ceph
 
 {{< callout type="warning" >}}
   ***Note**:* 
-If you have a lot of pools and users to make you can utilze a bash script that will create the pool, set the quota, and create the users with the correct permissions. Refer to [Bulk Create RBD Pools and Users](docs/ceph/bulk-create-rbd-pools-and-users/)
+If you have a lot of pools and users to make you can utilze a bash script that will create the pool, set the quota, and create the users with the correct permissions. Refer to [Bulk Create RBD Pools and Users](/ByteBox-Nexus/docs/ceph/bulk-create-rbd-pools-and-users/)
 {{< /callout >}}
 
 ## Prepare Client Machine
