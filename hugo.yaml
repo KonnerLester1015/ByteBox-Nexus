@@ -73,7 +73,7 @@ params:
   footer:
     enable: true
     displayCopyright: false
-    displayPoweredBy: true
+    displayPoweredBy: false
     width: wide
 
   displayUpdatedDate: true
