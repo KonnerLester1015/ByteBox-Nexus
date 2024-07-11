@@ -45,7 +45,7 @@ width: normal
   >}}
   {{< hextra/feature-card
     title="About Me"
-    subtitle="Learn more about me and how to get into contact."
+    subtitle="Learn more about me and how to get in touch."
     class="hx-aspect-auto md:hx-aspect-[1.1/1] max-lg:hx-min-h-[340px]"
     link="/about"
     image="images/profile.png"
