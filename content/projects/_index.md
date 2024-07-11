@@ -23,7 +23,7 @@ Everything you need to know!
   {{< card
         link="pi-cluster"
         title="Raspberry Pi Cluster"
-        subtitle="Full deployment of Ceph Development Cluster, goes over running boot strapper, adding hosts, creating OSDs, and Running VMs off a created RBD pool."
+        subtitle="Cluster of Raspberry Pi's created to work with K3"
         image="/images/raspberry-pi-1.jpg"
         imageStyle="object-fit:cover; aspect-ratio:16/9;"
   >}}
@@ -31,6 +31,7 @@ Everything you need to know!
   {{< card
         link="subnet-calculator"
         title="Subnet Calculator"
+        subtitle="Calculator made to calculate network information provided with host IP and mac and subnet address."
         image="/images/subnetcalculator.png"
         imageStyle="object-fit:cover; aspect-ratio:16/9;"
   >}}
