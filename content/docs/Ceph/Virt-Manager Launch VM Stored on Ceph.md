@@ -32,7 +32,7 @@ qemu-img convert -f qcow2 -O raw windows_server_2022_2023_12_06.qcow2 rbd:rbd/wi
 
 
 ## Launch Image Stored on Ceph Cluster
-Once an image exists on the Ceph Cluster an end user will be able to launch it from Virt-Manager. Refer to [Attaching RBD Storage Pool to Virt-Manager](/ByteBox-Nexus/doc/ceph/attaching-rbd-storage-pool-to-virt-manager/) for steps to access the Ceph pool from Virt-Manager.
+Once an image exists on the Ceph Cluster an end user will be able to launch it from Virt-Manager. Refer to [Attaching RBD Storage Pool to Virt-Manager](/ByteBox-Nexus/docs/ceph/attaching-rbd-storage-pool-to-virt-manager/) for steps to access the Ceph pool from Virt-Manager.
 1. Launch **virt-manager**
    ```bash {filename="bash"}
    sudo virt-manager
