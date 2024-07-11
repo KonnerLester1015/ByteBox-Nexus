@@ -16,7 +16,7 @@ To verify that the `ceph-common` is installed run the `which` command on a comma
    ```
    /usr/bin/rbd
    ```
-If the `ceph-common` is not installed then refer to [Install Client Ceph Packages](https://konnerlester1015.github.io/ByteBox-Nexus/docs/ceph/install-ceph-packages/) for getting that package added to your linux environment. 
+If the `ceph-common` is not installed then refer to [Install Client Ceph Packages](/docs/ceph/install-client-ceph-packages/) for getting that package added to your linux environment. 
 
 ## Move/Convert VM Disk Image to Ceph Cluster
 If you have a existing qcow file or some other vm disk file that needs to be added onto the Ceph Cluster, follow the below procedure in order to store the disk image on an <abbr title="RADOS Block Device">RBD</abbr> pool.
@@ -32,7 +32,7 @@ qemu-img convert -f qcow2 -O raw windows_server_2022_2023_12_06.qcow2 rbd:rbd/wi
 
 
 ## Launch Image Stored on Ceph Cluster
-Once an image exists on the Ceph Cluster an end user will be able to launch it from Virt-Manager. Refer to [Attaching RBD Storage Pool to Virt-Manager](/doc/ceph/attach-rbd-to-virt-manager/) for steps to access the Ceph pool from Virt-Manager.
+Once an image exists on the Ceph Cluster an end user will be able to launch it from Virt-Manager. Refer to [Attaching RBD Storage Pool to Virt-Manager](/doc/ceph/attaching-rbd-storage-pool-to-virt-manager/) for steps to access the Ceph pool from Virt-Manager.
 1. Launch **virt-manager**
    ```bash {filename="bash"}
    sudo virt-manager
