@@ -1,8 +1,7 @@
 ---
-weight: 2
-title: Overview
-type: docs
-linkTitle: Documentation
+title: Project Showcase ✨
+sidebar:
+  exclude: true
 ---
 
 {{< hextra/hero-subtitle >}}
@@ -10,18 +9,10 @@ linkTitle: Documentation
 {{< /hextra/hero-subtitle >}}
 
 {{< cards >}} 
-{{< card link="ceph" title="Ceph Docs" subtitle="Covering anything Ceph.io" icon="server" >}} 
+{{< card link="ceph-deployment" title="Ceph Deployment" subtitle="Full deployment of Ceph Development Cluster, goes over running boot strapper, adding hosts, creating OSDs, and Running VMs off a created RBD pool." icon="server" >}} 
 
-{{< card link="configuration" title="Configuration" icon="markdown" >}} 
+{{< card link="pi-cluster" title="Raspberry Pi Cluster" icon="chip" >}} 
 
-{{< card link="markdown" title="Markdown" icon="markdown" >}} 
-
-{{< card link="syntax-highlighting" title="Syntax Highlighting" icon="sparkles" >}} 
-
-{{< card link="latex" title="LaTeX" icon="variable" >}} 
-
-{{< card link="diagrams" title="Diagrams" icon="chart-square-bar" >}} 
-
-{{< card link="shortcodes" title="Shortcodes" icon="template" >}} 
+{{< card link="subnet-calculator" title="Subnet Calculator" icon="calculator" >}} 
 
 {{< /cards >}}
