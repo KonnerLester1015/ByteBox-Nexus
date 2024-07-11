@@ -9,7 +9,7 @@ sidebar:
 
 {{< cards >}} 
 
-{{< card link="ceph/attaching-rbd-storage-pool-to-virt-manager/" title="Attaching RBD Storage Pool to Virt-Manager" " icon="database" >}} 
+{{< card link="ceph/attaching-rbd-storage-pool-to-virt-manager/" title="Attaching RBD Storage Pool to Virt-Manager" icon="database" >}} 
 
 {{< card link="ceph/bulk-create-rbd-pools-and-users/" title="Bulk Create RBD Pools and Users" icon="user-group" >}} 
 
