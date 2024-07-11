@@ -62,7 +62,7 @@ params:
       dark: images/logo-dark.svg
       width: 175
       # height: 20
-      link: /
+      link: /ByteBox-Nexus/
 
   page:
     # full (100%), wide (90rem), normal (1280px)
