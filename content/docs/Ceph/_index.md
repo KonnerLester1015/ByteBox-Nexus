@@ -4,7 +4,7 @@ type: docs
 prev: docs/
 next: docs/ceph/attaching-rbd-storage-pool-to-virt-manager
 sidebar:
-  open: true
+  open: false
 ---
 
 {{< cards >}} 

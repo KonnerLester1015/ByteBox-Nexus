@@ -4,7 +4,7 @@ type: docs
 prev: docs/
 next: docs/servicenow/create-unified-navigation-menu
 sidebar:
-  open: true
+  open: false
 ---
 
 {{< cards >}} 
