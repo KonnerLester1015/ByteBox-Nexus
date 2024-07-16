@@ -201,7 +201,7 @@ This section covers creating a user called **qemu**, applying capabilities (Ceph
 
 {{< callout type="warning" >}}
   ***Note**:* 
-If you have a lot of pools and users to make you can utilze a bash script that will create the pool, set the quota, and create the users with the correct permissions. Refer to [Bulk Create RBD Pools and Users](/ByteBox-Nexus/docs/ceph/bulk-create-rbd-pools-and-users/)
+If you have many pools and users to create, you can utilize a Bash script that will create the pools, set the quotas, and create the users with the correct permissions. Refer to [Bulk Create RBD Pools and Users](/ByteBox-Nexus/docs/ceph/bulk-create-rbd-pools-and-users/)
 {{< /callout >}}
 
 ## Prepare Client Machine
@@ -337,7 +337,7 @@ qemu-img convert -f qcow2 -O raw windows_server_2022_2023_12_06.qcow2 rbd:rbd/wi
 
 [^16]: [SNAPSHOT BASICS](https://docs.ceph.com/en/latest/rbd/rbd-snapshot/#snapshot-basics)
 
-If you want to deploy a new OS image, you need to have a source from which to pull that image. For the best user experience, it is beneficial to have images where the OS is already installed, so the user doesn't need to run through the ISO file installation. To achieve this, we will create a new pool called `OS-Images`. Once we have this pool, we will push our ready-to-deploy OS image to the `OS-Images` pool, create a snapshot of the image, and then delete the original OS image.
+If you want to deploy a new OS image, you need to have a source from which to pull that image. For the best user experience, it is beneficial to have images where the OS is already installed, so the user doesn't need to run through the ISO file installation. To achieve this, we will create a new pool called `OS-Images`. Once we have this pool, we will push our ready-to-deploy OS image to the `OS-Images` pool, create a snapshot of the image, and then protect the snapshot from deletion.
 
 1. Create `OS-Image` pool
    ```bash {filename="bash"}
@@ -362,7 +362,7 @@ If you want to deploy a new OS image, you need to have a source from which to pu
 
 [^17]: [CLONING A SNAPSHOT](https://docs.ceph.com/en/latest/rbd/rbd-snapshot/#cloning-a-snapshot)
 
-To request a VM, a user will have the ability to utilize any of the offered operating systems that we have snapshotted in the OS-Images pool. Ensure users have read access to the OS-Images pool or wherever you have the VM snapshot stored. For example, the qemu image has the following capabilities:
+To request a VM, a user will have the ability to utilize any of the offered operating systems that we have snapshotted in the OS-Images pool. Ensure users have read access to the OS-Images pool or wherever you have the VM snapshot stored. For example, the qemu user has the following capabilities:
 ```
 caps: [mgr] profile rbd pool=rbd, profile rbd-read-only pool=OS-Images
 caps: [mon] profile rbd
