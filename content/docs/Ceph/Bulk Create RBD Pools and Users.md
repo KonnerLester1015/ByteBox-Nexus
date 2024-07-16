@@ -78,8 +78,8 @@ echo "Script execution completed."
 
 ## Usage
 The script can be executed with the necessary arguments as shown in the example below:
-```bash
-$ ./BulkRBDPoolCreation.sh -n Marvel -u Hulk,Spiderman,ironman -q 5000000000000
+```bash {filename="bash"}
+./BulkRBDPoolCreation.sh -n Marvel -u Hulk,Spiderman,ironman -q 5000000000000
 ```
 
 This command will create an RBD pool named **Marvel**, set its quota to **5,000,000,000,000** bytes or **5.6TiB**, and create users **Hulk**, **Spiderman**, and **ironman** with the necessary permissions for the pool.

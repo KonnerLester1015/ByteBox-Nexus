@@ -14,25 +14,29 @@ Below are the steps to create a custom Unified Navigation Menu called "Approver.
 1. Log in to your instance.
 2. Navigate to `All -> Now Experience Framework -> Unified Navigation Menu Configuration`.
 
-    *This will display all Out-of-box menus and any custom menus.*
+{{< callout type="info" >}}
+  This will display all Out-of-box menus and any custom menus.
+{{< /callout >}}
 
 3. Click **New**.
 4. Enter "Approver" in the **Name** field.
 5. Click the pencil icon on the **Visible Role** field to show the slush bucket.
 6. Search for and add the business_stakeholder role.
 
-    *This role should be assigned to all approvers. Any user without this role will be unable to view the menu (excluding Admins).*
+{{< callout type="info" >}}
+  This role should be assigned to all approvers. Any user without this role will be unable to view the menu (excluding Admins).
+{{< /callout >}}
 
 7. Click Done.
 8. Click Submit.
-
+   
 {{< callout type="warning" >}}
-  ou may be redirected to the Unified Navigation Menu list. If so, click back into the Approver record.
+  You may be redirected to the Unified Navigation Menu list. If so, click back into the Approver record.
 {{< /callout >}}
 
 9. In the "Unified Navigation Configurable Menu Items" related list, click New.
-10.  Select Module in the Type field.
-11.  Enter "My approvals" in the Module field.
-12.  Click Submit.
+10. Select Module in the Type field.
+11. Enter "My approvals" in the Module field.
+12. Click Submit.
 
 The **Approver** menu will now be visible and, when clicked, will show the "My approvals" module.
