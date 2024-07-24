@@ -6,7 +6,7 @@ sidebar:
   exclude: true
 ---
 ---
-<img src="/images/Me.JPG" alt="Description of image" style="float: left; margin-right: 15px; width: 250px; height: 400px;">
+<img src="public/images/Me.JPG" alt="Description of image" style="float: left; margin-right: 15px; width: 250px; height: 400px;">
 <p>Hello, and welcome to my portfolio! </p>
 
 
