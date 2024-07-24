@@ -4,7 +4,7 @@ type: docs
 prev: docs/
 next: docs/folder/commands
 sidebar:
-  open: true
+  open: false
 ---
 
 Pages can be organized into folders.
