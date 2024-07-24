@@ -1,8 +1,10 @@
 ---
-title: About Me ✨
+title: About Me 👋
 layout: wide
 sidebar:
   exclude: true
+---
+
 ---
 Hello, and welcome to my portfolio! I'm Konner Lester, an eager undergraduate student majoring in [Computing Infrastructure and Network Engineering Technology](https://polytechnic.purdue.edu/degrees/computing-infrastructure-and-network-engineering-technology) at Purdue University. My journey in the world of Information Technology has been an exciting blend of academic learning and hands-on experience through internships.
 
@@ -23,15 +25,19 @@ I have had the opportunity to apply my learning in real-world settings through t
 # Skills
 Refer to my projects and documentation pages to see the different technologies I have utilized and the skills I have learned.
 {{< cards >}} 
-{{< card link="projects" title="Projects" subtitle="Explore detailed descriptions and demonstrations of my major projects and full deployments." icon="template" >}} 
+{{< card link="https://konnerlester1015.github.io/ByteBox-Nexus/projects/" title="Projects" subtitle="Explore detailed descriptions and demonstrations of my major projects and full deployments." icon="template" >}} 
 
-{{< card link="docs" title="Documentation" subtitle="Explore specific posts that delve deeper into detailed how-tos and guides." icon="book-open" >}} 
+{{< card link="https://konnerlester1015.github.io/ByteBox-Nexus/docs/" title="Documentation" subtitle="Explore specific posts that delve deeper into detailed how-tos and guides." icon="book-open" >}} 
 {{< /cards >}}
 
 
 # Get in Touch
-I am always eager to connect with professionals, potential mentors, and peers in the community. Feel free to email me or connect with me on LinkedIn.
-<script src="https://platform.linkedin.com/badges/js/profile.js" async defer type="text/javascript"></script>
-<div class="badge-base LI-profile-badge" data-locale="en_US" data-size="medium" data-theme="dark" data-type="VERTICAL" data-vanity="konner-lester-925289302" data-version="v1"><a class="badge-base__link LI-simple-link" href="https://www.linkedin.com/in/konner-lester-925289302?trk=profile-badge">Konner Lester</a></div>
+I am always eager to connect with professionals, potential mentors, and peers in the community.
+
+<div class="hx-mb-6">
+{{< hextra/hero-button text="Connect with Me on LinkedIn" link="https://www.linkedin.com/in/konner-lester-925289302/" >}}
+{{< hextra/hero-button text="See My Repos" link="https://github.com/KonnerLester1015" >}}
+{{< hextra/hero-button text="Email Me!" link="mailto:konman0725@gmail.com" >}}
+</div>
 
 Thank you for visiting my portfolio. I look forward to connecting with you!
