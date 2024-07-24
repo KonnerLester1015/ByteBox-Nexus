@@ -35,6 +35,9 @@ menu:
     - name: Projects
       pageRef: /projects
       weight: 2
+    - name: About Me
+      pageRef: /about
+      weight: 3
     - name: Search
       weight: 4
       params:

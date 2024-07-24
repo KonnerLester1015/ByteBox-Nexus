@@ -4,8 +4,7 @@ layout: wide
 sidebar:
   exclude: true
 ---
-# About Me
-Hello, and welcome to my portfolio! I'm Konner Lester, an enthusiastic undergraduate student majoring in [Computer Infrastructure and Network Engineering Technology](https://polytechnic.purdue.edu/degrees/computing-infrastructure-and-network-engineering-technology) at Purdue University. My journey in the world of Information Technology has been an exciting blend of academic learning and hands-on experience through internships.
+Hello, and welcome to my portfolio! I'm Konner Lester, an eager undergraduate student majoring in [Computing Infrastructure and Network Engineering Technology](https://polytechnic.purdue.edu/degrees/computing-infrastructure-and-network-engineering-technology) at Purdue University. My journey in the world of Information Technology has been an exciting blend of academic learning and hands-on experience through internships.
 
 # My Experience
 I have had the opportunity to apply my learning in real-world settings through two different internships: one as a System Administrator at [Subaru of Indiana Automotive](https://www.subaru-sia.com/) and the other as a Research Support Developer at [Purdue's RCAC](https://www.rcac.purdue.edu/) (Rosen Center for Advanced Computing).
@@ -24,9 +23,9 @@ I have had the opportunity to apply my learning in real-world settings through t
 # Skills
 Refer to my projects and documentation pages to see the different technologies I have utilized and the skills I have learned.
 {{< cards >}} 
-{{< card link="" title="Projects" subtitle="Explore detailed descriptions and demonstrations of my major projects and full deployments." icon="template" >}} 
+{{< card link="projects" title="Projects" subtitle="Explore detailed descriptions and demonstrations of my major projects and full deployments." icon="template" >}} 
 
-{{< card link="" title="Documentation" subtitle="Explore specific posts that delve deeper into detailed how-tos and guides." icon="book-open" >}} 
+{{< card link="docs" title="Documentation" subtitle="Explore specific posts that delve deeper into detailed how-tos and guides." icon="book-open" >}} 
 {{< /cards >}}
 
 
