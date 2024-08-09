@@ -32,65 +32,6 @@ To avoid any disruption to the existing functionality, the first step is to crea
 
 ### Modify Server Script
 Replace the **getPopularItems()** function with the below code.
-```js {filename="Custom SC Category Page - Server Script"}
-function getPopularItems() {
-        var itemsToExclude = gs.getProperty("exclude_from_popular_list");
-        var forceIncludeItem = gs.getProperty("force_include_in_popular_list");
-        
-        var items = new SCPopularItems().useOptimisedQuery(gs.getProperty('glide.sc.portal.popular_items.optimize', true) + '' == 'true')
-            .baseQuery(options.popular_items_created + '')
-            .allowedItems(getAllowedCatalogItems())
-            .visibleStandalone(true)
-            .visibleServicePortal(true)
-            .itemsLimit(5)
-            .restrictedItemTypes('sc_cat_item_guide,sc_cat_item_wizard,sc_cat_item_content,sc_cat_item_producer'.split(','))
-            .itemValidator(function(item, itemDetails) {
-                if(itemsToExclude.indexOf(itemDetails.sys_id) > -1)
-                    return false;
-    
-                if (!item.canView() || !item.isVisibleServicePortal())
-                    return false;
-    
-                return true;
-            })
-            .responseObjectFormatter(function(item, itemType, itemCount) {
-                return {
-                    order: 0 - itemCount,
-                    name: item.name,
-                    short_description: item.short_description,
-                    picture: item.picture,
-                    price: item.price,
-                    sys_id: item.sys_id,
-                    hasPrice: item.price != 0,
-                    page: itemType == 'sc_cat_item_guide' ? 'sc_cat_item_guide' : 'sc_cat_item'
-                };
-            })
-            .generate();
-    
-        // Add the forced item with a very large negative order to appear at the top
-        var sticky = new GlideAggregate('sc_cat_item');
-        sticky.addQuery('sys_id', forceIncludeItem);
-        sticky.query();
-    
-        while (sticky.next()) {
-            if (!$sp.canReadRecord("sc_cat_item", sticky.sys_id))
-                continue; // user does not have permission to see this item
-    
-            var item = {};
-            item.name = sticky.name.getDisplayValue();
-            item.short_description = sticky.short_description.getDisplayValue();
-            item.picture = sticky.picture.getDisplayValue();
-            item.price = sticky.price;
-            item.sys_id = sticky.sys_id.getDisplayValue();
-            item.order = -1000000000; // Ensure this item appears at the top
-            item.page = 'sc_cat_item'; // Ensure it routes to the correct page
-    
-            items.unshift(item); // Add this item to the start of the list
-        }
-    
-        return items;
-    }
-```
 
 ### Add New Widget to SC_Category Page
 1. Navigate to the **sc_category** page located on the Service Portal (defualt URL https://yourinstance.service-now.com/sp?id=sc_category).
