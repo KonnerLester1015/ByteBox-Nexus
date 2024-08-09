@@ -1,7 +1,7 @@
 ---
 title: Workflow Studio
 type: docs
-prev: docs/list-collector-show-group-members-only/
+prev: docs/servicenow
 next: docs/servicenow/workflow-studio/create-group-ownership-action/
 ---
 
