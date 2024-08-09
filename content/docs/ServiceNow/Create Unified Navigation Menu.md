@@ -38,4 +38,4 @@ Below are the steps to create a custom Unified Navigation Menu called "Approver.
 11. Enter *My approvals* in the Module field.
 12. Click **Submit**.
 
-The **Approver** menu will now be visible and, when clicked, will show the "My approvals" module.
+The **Approver** menu will now be visible and, when clicked it will show the "My approvals" module.
