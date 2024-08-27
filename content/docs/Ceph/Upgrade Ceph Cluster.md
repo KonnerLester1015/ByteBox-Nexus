@@ -9,6 +9,7 @@ Upgrading your Ceph cluster is a crucial process to ensure you are leveraging th
 [^1]: [STARTING THE UPGRADE](https://docs.ceph.com/en/quincy/cephadm/upgrade/#starting-the-upgrade)
 
 1. Ensure your cluster is healthy and all nodes are online
+
    ```bash {filename="bash"}
    ceph -s
    ```

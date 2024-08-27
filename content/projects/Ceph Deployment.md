@@ -36,7 +36,7 @@ Connect to the desired node to run the bootsrapper. Note that running the bootst
 - Writes a copy of the `client.admin` administrative key to `/etc/ceph/ceph.client.admin.keyring`.
 - Adds the `_admin` label to the local host. Any host with this label will get a copy of `/etc/ceph/ceph.conf` and `/etc/ceph/ceph.client.admin.keyring`.
 
-1. Run Boostrapper.
+1. Run Bootstrapper.
    ```bash {filename="bash"}
    cephadm bootstrap --mon-ip <Local_Host_IP>
    ``` 
@@ -139,7 +139,7 @@ To manually specify the devices on which OSDs will be deployed on a specific hos
 [^8]: [ASSOCIATING A POOL WITH AN APPLICATION - Ceph Docs](https://docs.ceph.com/en/quincy/rados/operations/pools/#associating-a-pool-with-an-application)
 [^9]: [CREATE A BLOCK DEVICE POOL - Ceph Docs](https://docs.ceph.com/en/quincy/rbd/rados-rbd-cmds/#create-a-block-device-pool)
 
-Pools are a logical partition that are used to store objects. Any pool that starts with `.` is a reserved for Ceph operations. Run the following commands from withing the Ceph shell container (`cephadm shell`)
+Pools are a logical partition that are used to store objects. Any pool that starts with `.` is reserved for Ceph operations. Run the following commands from within the Ceph shell container (`cephadm shell`)
 
 1. Create OSD Pool [^7]
    ```bash {filename="bash"}   
@@ -189,6 +189,7 @@ This section covers creating a user called **qemu**, applying capabilities (Ceph
 
 1. Open terminal of a Ceph host
 2. Run `get-or-create` command
+   
    *Example*
    ```bash {filename="bash"}
    ceph auth get-or-create client.qemu mon 'profile rbd' osd 'profile rbd pool=rbd' mgr 'profile rbd pool=rbd'
@@ -375,5 +376,5 @@ caps: [osd] profile rbd pool=rbd, profile rbd-read-only pool=OS-Images
    ```
    *Example*
    ```bash {filename="bash"}
-   rbd --id=qemu OS-Images/windows2022@base rbd/TestClone
+   rbd clone --id=qemu OS-Images/windows2022@base rbd/TestClone
    ```
