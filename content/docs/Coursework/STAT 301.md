@@ -145,9 +145,9 @@ Bias can distort results, especially in observational studies.
 
 ### Possible Relations Between Two Variables:
 **Independent**: The two variables have no relationship.
+
 **Associated**: There is some connection between the two variables, but this doesn't necessarily mean one causes the other.
 
-### Association
 **Several Possible Explanations for Observed Relationships:**
    * **Causality**: One variable directly causes the change in another.
      * ***Example***: The more sunlight a plant gets, the more it grows.
@@ -159,16 +159,16 @@ Bias can distort results, especially in observational studies.
 ### Causation
 Only a carefully controlled experiment can show causation
 What makes an experiment non-feasible:
-1. The study is too time-consuming (e.g., a 20-year study).
-2. The study is too expensive or difficult.
-3. The study would be unethical (e.g., testing harmful substances on people).
+1. The study is **too time-consuming** (e.g., a 20-year study).
+2. The study is **too expensive** or difficult.
+3. The study would be **unethical** (e.g., testing harmful substances on people).
    
 In order to show causation when we cannot conduct a controlled experiment:
-1. A strong association between the variables must be demonstrated.
-2. A consistent association (replication): The relationship must be observed repeatedly in different contexts or studies.
-3. A dose-response relationship: Higher values of the alleged cause should be associated with higher values of the response variable.
-4. The alleged cause precedes the effect: The cause must occur before the effect.
-5. The alleged cause is plausible: There must be a logical, scientifically valid reason for the relationship.
+1. **A strong associ**ation between the variables must be demonstrated.
+2. **A consistent association (replication)**: The relationship must be observed repeatedly in different contexts or studies.
+3. **A dose-response relationship**: Higher values of the alleged cause should be associated with higher values of the response variable.
+4. **The alleged cause precedes the effect**: The cause must occur before the effect.
+5. **The alleged cause is plausible**: There must be a logical, scientifically valid reason for the relationship.
 
 ### Ethics – Experiments Involving Humans
 **Three Requirements:**
