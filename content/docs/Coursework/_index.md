@@ -2,9 +2,13 @@
 title: Coursework
 type: docs
 prev: docs/
-next: docs/coursework/stat_301
+next: docs/coursework/stat-301
 sidebar:
   open: false
 ---
 
-Pages can be organized into folders.
+{{< cards >}} 
+
+{{< card link="stat-301/" title="C" icon="clipboard-list" >}} 
+
+{{< /cards >}}

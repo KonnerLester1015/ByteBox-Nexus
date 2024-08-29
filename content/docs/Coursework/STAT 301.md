@@ -144,9 +144,8 @@ Bias can distort results, especially in observational studies.
    * Ensures that repeated results are consistent and close to each other.
 
 ### Possible Relations Between Two Variables:
-**Independent**: The two variables have no relationship.
-
-**Associated**: There is some connection between the two variables, but this doesn't necessarily mean one causes the other.
+1. **Independent**: The two variables have no relationship.
+2. **Associated**: There is some connection between the two variables, but this doesn't necessarily mean one causes the other.
 
 **Several Possible Explanations for Observed Relationships:**
    * **Causality**: One variable directly causes the change in another.

@@ -1,12 +1,12 @@
 ---
 title: C
 type: docs
-prev: docs/c
-next: docs/c/getting_started_with_c
+prev: docs/programming_languages/
+next: docs/programming_languages/c/getting-started-with-c
 ---
 
 {{< cards >}} 
 
-{{< card link="getting_started_with_c" title="Getting Started with C" icon="user-group" >}} 
+{{< card link="getting-started-with-c" title="Getting Started with C" >}} 
 
 {{< /cards >}}
