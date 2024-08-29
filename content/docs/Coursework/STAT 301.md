@@ -128,3 +128,57 @@ Bias can distort results, especially in observational studies.
    * Occurs when individuals selected for the sample do not respond. If the non-respondents differ in some way from those who respond, this can lead to bias.
    * ***Example***: If only people who feel strongly about an issue respond to a survey, the results won’t accurately represent the entire population.
 
+## Lecture 4 - Causation and Ethics
+
+### Bias and Variability
+1. **Our goals in designing experiments or surveys are to decrease:**
+   * **Bias**
+     * **Definition**: Bias is the tendency to produce results that are systematically off-target.
+     * **How to decrease:** Randomization helps reduce bias by ensuring subjects are assigned to treatments or groups randomly.
+   * **Variability**
+     * **Definition:** Variability is the degree of spread in the results of repeated experiments or measurements.
+     * **How to decrease:** Replication reduces variability by repeating the experiment or survey to obtain more precise results.
+2. **Low Bias = Accuracy**
+   * Ensures that the results are close to the true population parameter.
+3. **Low Variability = Precision**
+   * Ensures that repeated results are consistent and close to each other.
+
+### Possible Relations Between Two Variables:
+**Independent**: The two variables have no relationship.
+**Associated**: There is some connection between the two variables, but this doesn't necessarily mean one causes the other.
+
+### Association
+**Several Possible Explanations for Observed Relationships:**
+   * **Causality**: One variable directly causes the change in another.
+     * ***Example***: The more sunlight a plant gets, the more it grows.
+     * ***Example***: More hours worked causes higher wages for an hourly worker.
+   * **Coincidence**: The relationship between two variables occurs by chance, without one causing the other.
+   * **Confounding**: A third variable influences both of the variables, making it seem like they are related when they are not.
+     * ***Example***: The number of firemen at a scene and the damage caused by a fire seem related, but the firemen don’t cause the damage—larger fires cause both more damage and more firemen to respond.
+
+### Causation
+Only a carefully controlled experiment can show causation
+What makes an experiment non-feasible:
+1. The study is too time-consuming (e.g., a 20-year study).
+2. The study is too expensive or difficult.
+3. The study would be unethical (e.g., testing harmful substances on people).
+   
+In order to show causation when we cannot conduct a controlled experiment:
+1. A strong association between the variables must be demonstrated.
+2. A consistent association (replication): The relationship must be observed repeatedly in different contexts or studies.
+3. A dose-response relationship: Higher values of the alleged cause should be associated with higher values of the response variable.
+4. The alleged cause precedes the effect: The cause must occur before the effect.
+5. The alleged cause is plausible: There must be a logical, scientifically valid reason for the relationship.
+
+### Ethics – Experiments Involving Humans
+**Three Requirements:**
+   * **Review Board:** An ethics committee must approve the study.
+   * **Informed Consent:** Participants must be informed about the study and give consent to participate.
+   * **Confidentiality:** Participants' data must be kept confidential and private.
+
+### Ethics – Experiments Involving Animals
+**Requirements:**
+   * **Review Board:** An ethics committee must approve the study involving animals.
+   * **Replacement:** Where possible, replace the use of animals with alternative methods.
+   * **Reduction:** Minimize the number of animals used in experiments.
+   * **Refinement:** Improve experimental techniques to minimize harm, pain, and suffering to the animals.
