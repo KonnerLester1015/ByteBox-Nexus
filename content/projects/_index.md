@@ -31,7 +31,7 @@ Everything you need to know!
   {{< card
         link="subnet-calculator"
         title="Subnet Calculator"
-        subtitle="Calculator made to calculate network information provided with host IP and mac and subnet address."
+        subtitle="Calculator made to calculate network information provided with host IP, network mask, and subnet address."
         image="/images/subnetcalculator.png"
         imageStyle="object-fit:cover; aspect-ratio:16/9;"
   >}}

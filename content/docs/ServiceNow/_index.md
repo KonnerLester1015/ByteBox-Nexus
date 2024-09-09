@@ -13,4 +13,8 @@ sidebar:
 
 {{< card link="list-collector-show-group-members-only/" title="List Collector Show Group Members Only" icon="collection" >}} 
 
+{{< card link="widgets/" title="Widgets" icon="cube-transparent" >}} 
+
+{{< card link="workflow-studio/" title="Workflow Studio" icon="trending-up" >}} 
+
 {{< /cards >}}
