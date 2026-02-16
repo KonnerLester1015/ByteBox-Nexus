@@ -1,8 +1,0 @@
-# Business Rules
-{{< cards >}}
-
-{{< card link="dynamic-descriptions-on-sctask/" title="Dynamic Description on Catalog Tasks" icon="arrows-expand" >}}
-
-{{< card link="sync-comments-between-sctask-and-ritm/" title="Sync Comments Between SCTASK and RITM" icon="switch-horizontal" >}}
-
-{{< /cards >}}
