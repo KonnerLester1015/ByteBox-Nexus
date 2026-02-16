@@ -37,7 +37,7 @@ layout: hextra-home
     subtitle="Explore detailed descriptions and demonstrations of my major projects and full deployments."
     class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-md:min-h-[340px]"
     link="projects"
-    image="images/project.png"
+    image="/project.png"
     imageClass="hx:top-[30%] hx:left-[24px] hx:w-[180%] hx:sm:w-[110%] hx:dark:opacity-80"
     style="background: radial-gradient(ellipse at 60% 70%,rgb(177, 204, 240),hsla(0,0%,100%,0));"
   >}}
@@ -47,7 +47,7 @@ layout: hextra-home
     subtitle="Comprehensive guides, tutorials, and reference materials for various technologies and frameworks."
     class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-md:min-h-[340px]"
     link="docs"
-    image="images/docs.png"
+    image="/docs.png"
     imageClass="hx:top-[35%] hx:left-[31px] hx:w-[110%] hx:sm:w-[110%] hx:dark:opacity-80"
     style="background: radial-gradient(ellipse at 45% 80%,rgb(177, 204, 240),hsla(0,0%,100%,0));"
   >}}
@@ -57,7 +57,7 @@ layout: hextra-home
     subtitle="Learn more about my background, skills, and how to get in touch for collaboration opportunities."
     class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-lg:min-h-[340px]"
     link="about/"
-    image="images/profile.png"
+    image="/profile.png"
     imageClass="hx:top-[35%] hx:left-[36px] hx:w-[180%] hx:sm:w-[110%] hx:dark:opacity-80"
     style="background: radial-gradient(ellipse at 50% 90%,rgb(177, 204, 240),hsla(0,0%,100%,0));"
   >}}
@@ -67,7 +67,7 @@ layout: hextra-home
     subtitle="Read my latest articles on software development, tutorials, and insights from my journey in tech."
     class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-md:min-h-[340px]"
     link="blog"
-    image="images/blog.png"
+    image="/blog.png"
     imageClass="hx:top-[-90px] hx:left-[35px] hx:w-[150%] hx:sm:w-[110%] hx:dark:opacity-80"
     style="background: radial-gradient(ellipse at 50% 70%,rgb(177, 204, 240),hsla(0,0%,100%,0));"
   >}}
