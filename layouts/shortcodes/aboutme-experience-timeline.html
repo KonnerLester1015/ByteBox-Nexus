@@ -1,0 +1,100 @@
+<link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css" integrity="sha256-2XFplPlrFClt0bIdPgpz8H7ojnk10H69xRqd9+uTShA=" crossorigin="anonymous" />
+<style>
+  .hex-timeline { position: relative; max-width: 100%; margin: 3rem auto; font-family: inherit; }
+  .hex-timeline::after { 
+    content: ''; 
+    position: absolute; 
+    width: 2px; 
+    border-right: 2px dashed #dee2e6; 
+    top: 0; 
+    bottom: 0; 
+    left: 50%; 
+    margin-left: -1px;
+    opacity: 0.6;
+  }
+  .hex-container { padding: 10px 40px; position: relative; background-color: inherit; width: 50%; box-sizing: border-box; }
+  .hex-container::after { content: ''; position: absolute; width: 16px; height: 16px; background-color: #f89d36; border: 3px solid rgba(150, 150, 150, 0.2); border-radius: 50%; top: 24px; z-index: 1; box-shadow: 0 0 0 2px #dee2e6; }
+  .hex-left { left: 0; }
+  .hex-right { left: 50%; }
+  .hex-left::after { right: -8px; }
+  .hex-right::after { left: -8px; }
+  .hex-content { 
+    padding: 24px; 
+    border-radius: 8px; 
+    background-color: rgba(150, 150, 150, 0.05); 
+    border: 1px solid rgba(150, 150, 150, 0.2); 
+    transition: transform 0.2s ease; 
+    position: relative; 
+    overflow: hidden; 
+  }
+  .hex-right .hex-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(90deg, rgba(52, 102, 203, 0.1), transparent);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hex-left .hex-content::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 40%;
+    height: 100%;
+    background: linear-gradient(270deg, rgba(52, 102, 203, 0.1), transparent);
+    z-index: 1;
+    pointer-events: none;
+  }
+  .hex-content:hover { transform: translateY(-3px); }
+  .hex-content h3 { margin-top: 0; margin-bottom: 0.25rem; font-size: 1.25rem; font-weight: 600; position: relative; z-index: 2; }
+  .hex-content h4 { margin: 0 0 0.5rem 0; font-size: 0.95rem; font-weight: 500; position: relative; z-index: 2; }
+  .hex-date { display: inline-block; background-color: rgba(248, 157, 54, 0.15); color: #f89d36; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; position: relative; z-index: 2; }
+  .hex-content ul { list-style-type: disc; padding-left: 1.25rem; margin-top: 0; margin-bottom: 0; position: relative; z-index: 2; }
+  .hex-content li { margin-bottom: 0.5rem; font-size: 0.95rem; line-height: 1.6; opacity: 0.85; }
+  .hex-icon { margin-right: 8px; color: #2a52c3; }
+  .hex-logo { position: absolute; top: 15px; width: 80px; height: 80px; object-fit: contain; border-radius: 8px; background-color: white; padding: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 2; }
+  .hex-left .hex-logo { left: calc(100% + 40px); }
+  .hex-right .hex-logo { right: calc(100% + 40px); }
+  @media screen and (max-width: 768px) {
+    .hex-timeline::after { left: 31px; }
+    .hex-container { width: 100%; padding-left: 70px; padding-right: 15px; }
+    .hex-left::after, .hex-right::after { left: 23px; }
+    .hex-right { left: 0%; }
+    .hex-left .hex-logo, .hex-right .hex-logo { left: auto; right: -10px; top: 10px; width: 80px; height: 80px; opacity: 0.08; box-shadow: none; background: transparent; padding: 0; pointer-events: none; }
+  }
+</style>
+<div class="hx-mt-8">
+  <div class="hex-timeline">
+    <div class="hex-container hex-left">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Subaru_of_Indiana_Automotive_Logo.png" alt="Subaru Logo" class="hex-logo">
+      <div class="hex-content">
+        <h3><i class="fas fa-cogs hex-icon"></i>Subaru of Indiana Automotive</h3>
+        <h4>System Administrator Intern</h4>
+        <div class="hex-date">June 2021 - Present</div>
+        <ul>
+          <li>Designed and optimized development, test, and production ServiceNow environments while maintaining strict adherence to CMDB governance and CSDM data model standards.</li>
+          <li>Improved IT operational efficiency by developing workflow automations and supporting seamless integrations between ServiceNow and external systems.</li>
+          <li>Implemented and maintained Single Sign-On (SSO) integrations to streamline authentication and improve security posture.</li>
+          <li>Automated asset discovery and ingestion workflows to ensure accurate and timely CMDB population.</li>
+          <li>Managed Active Directory user and group provisioning, supporting access control and lifecycle management.</li>
+          <li>Administered both on-premises and cloud-based VDI environments, ensuring high availability, performance optimization, and controlled version management for thin-client infrastructure.</li>
+        </ul>
+      </div>
+    </div>
+    <div class="hex-container hex-right">
+      <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Purdue_Boilermakers_logo.svg" alt="Purdue Logo" class="hex-logo">
+      <div class="hex-content">
+        <h3><i class="fas fa-network-wired hex-icon"></i>Purdue IT Research Computing</h3>
+        <h4>Research Support Developer</h4>
+        <div class="hex-date">May 2024 - Aug 2024</div>
+        <ul>
+          <li>Deployed and configured a Ceph storage cluster to provision fast, highly efficient virtual machines, directly supporting researchers in a high-performance computing (HPC) environment.</li>
+        </ul>
+      </div>
+    </div>
+  </div>
+</div>
