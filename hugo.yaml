@@ -68,6 +68,17 @@ menu:
       params:
         icon: linkedin
 
+  sidebar:
+    - identifier: more
+      name: More
+      params:
+        type: separator
+      weight: 1
+    - identifier: about
+      name: "About"
+      pageRef: "/about"
+      weight: 2
+
 params:
   description: "Welcome to my personal website! I'm Konner Lester, a student and tech enthusiast. Here, you'll find my projects, blog posts, technologies I have worked with, and more about me. Feel free to explore and connect with me!"
 
