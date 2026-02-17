@@ -22,8 +22,8 @@ layout: hextra-home
 </div>
 
 <div class="hx:mb-6">
-{{< hextra/hero-button text="View Project Showcase" link="projects" >}}
 {{< hextra/hero-button text="View Documentation" link="docs" >}}
+{{< hextra/hero-button text="View Project Showcase" link="projects" >}}
 </div>
 
 <div class="hx:mt-6"></div>
@@ -33,16 +33,6 @@ layout: hextra-home
 {{< hextra/feature-grid >}}
 
   {{< hextra/feature-card
-    title="Project Showcase"
-    subtitle="Explore detailed descriptions and demonstrations of my major projects and full deployments."
-    class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-md:min-h-[340px]"
-    link="projects"
-    image="/project.png"
-    imageClass="hx:top-[30%] hx:left-[24px] hx:w-[180%] hx:sm:w-[110%] hx:dark:opacity-80"
-    style="background: radial-gradient(ellipse at 60% 70%,rgb(177, 204, 240),hsla(0,0%,100%,0));"
-  >}}
-
-  {{< hextra/feature-card
     title="Technical Documentation"
     subtitle="Comprehensive guides, tutorials, and reference materials for various technologies and frameworks."
     class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-md:min-h-[340px]"
@@ -50,6 +40,16 @@ layout: hextra-home
     image="/docs.png"
     imageClass="hx:top-[35%] hx:left-[31px] hx:w-[110%] hx:sm:w-[110%] hx:dark:opacity-80"
     style="background: radial-gradient(ellipse at 45% 80%,rgb(177, 204, 240),hsla(0,0%,100%,0));"
+  >}}
+
+  {{< hextra/feature-card
+    title="Project Showcase"
+    subtitle="Explore detailed descriptions and demonstrations of my major projects and full deployments."
+    class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-md:min-h-[340px]"
+    link="projects"
+    image="/project.png"
+    imageClass="hx:top-[60%] hx:left-[22px] hx:w-[180%] hx:sm:w-[110%] hx:dark:opacity-80"
+    style="background: radial-gradient(ellipse at 60% 70%,rgb(177, 204, 240),hsla(0,0%,100%,0));"
   >}}
 
   {{< hextra/feature-card
