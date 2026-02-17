@@ -1,5 +1,6 @@
 ---
 toc: false
+type: blog # used to hide the sidebar
 ---
 
 {{< aboutme-intro >}}
@@ -20,6 +21,10 @@ toc: false
 ## Experience
 
 {{< aboutme-experience-timeline >}}
+
+## Credentials & Profiles
+
+{{< aboutme-creds >}}
 
 ## Skills
 

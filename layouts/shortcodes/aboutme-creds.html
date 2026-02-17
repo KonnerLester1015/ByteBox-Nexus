@@ -1,0 +1,162 @@
+<style>
+.credentials-section {
+  margin: 3rem 0;
+}
+
+.credentials-section h2 {
+  font-size: 2rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.credentials-subtitle {
+  text-align: center;
+  opacity: 0.75;
+  margin-bottom: 2rem;
+  font-size: 1rem;
+}
+
+.credentials-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 1.5rem;
+  justify-content: center;
+}
+
+.credential-badge {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 1.75rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(150, 150, 150, 0.2);
+  background-color: rgba(150, 150, 150, 0.05);
+  width: 200px;
+  text-decoration: none;
+  color: inherit;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.credential-badge::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+  transition: opacity 0.3s ease;
+}
+
+.credential-badge.servicenow::before {
+  background: linear-gradient(90deg, #62d84e, #00a650);
+}
+
+.credential-badge.credly::before {
+  background: linear-gradient(90deg, #ff6b00, #f5a623);
+}
+
+.credential-badge:hover {
+  transform: translateY(-5px);
+  border-color: rgba(52, 102, 203, 0.4);
+  box-shadow: 0 8px 24px rgba(52, 102, 203, 0.15);
+  background-color: rgba(52, 102, 203, 0.05);
+  text-decoration: none;
+  color: inherit;
+}
+
+.credential-badge:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(270deg, rgba(52, 102, 203, 0.03), transparent);
+  pointer-events: none;
+}
+
+.badge-logo {
+  width: 80px;
+  height: 80px;
+  object-fit: contain;
+  margin-bottom: 1rem;
+  border-radius: 8px;
+}
+
+.badge-title {
+  font-weight: 700;
+  font-size: 0.95rem;
+  margin-bottom: 0.4rem;
+  line-height: 1.3;
+}
+
+.badge-subtitle {
+  font-size: 0.78rem;
+  opacity: 0.65;
+  margin-bottom: 1rem;
+  line-height: 1.4;
+}
+
+.badge-link-label {
+  font-size: 0.78rem;
+  font-weight: 600;
+  color: rgb(52, 102, 203);
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  transition: gap 0.2s ease;
+}
+
+.credential-badge:hover .badge-link-label {
+  gap: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  .credential-badge:hover {
+    box-shadow: 0 8px 24px rgba(52, 102, 203, 0.25);
+  }
+}
+
+@media (max-width: 600px) {
+  .credentials-grid {
+    flex-direction: column;
+    align-items: center;
+  }
+
+  .credential-badge {
+    width: 100%;
+    max-width: 280px;
+  }
+}
+</style>
+
+<p class="credentials-subtitle">External profiles and certification portals showcasing my verified credentials.</p>
+
+<div class="credentials-grid">
+  <a href="https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester" target="_blank" class="credential-badge servicenow">
+    <img
+      src="https://pbs.twimg.com/profile_images/1919685185035014144/YTnrFPhe_400x400.png"
+      alt="ServiceNow Logo"
+      class="badge-logo"
+    >
+    <div class="badge-title">ServiceNow Resume</div>
+    <div class="badge-subtitle">Verified skills, certifications, and experience on the Now Platform</div>
+    <span class="badge-link-label">View Profile →</span>
+  </a>
+
+  <a href="https://www.credly.com/users/konner-lester" target="_blank" class="credential-badge credly">
+    <img
+      src="https://info.credly.com/hubfs/Credly_images_2022/Logo.svg"
+      alt="Credly Logo"
+      class="badge-logo"
+    >
+    <div class="badge-title">Credly Profile</div>
+    <div class="badge-subtitle">Digital badges and verified certifications earned across platforms</div>
+    <span class="badge-link-label">View Badges →</span>
+  </a>
+</div>
