@@ -42,5 +42,6 @@ Core configuration, maintenance, and lifecycle management of the ServiceNow inst
 Designing and managing process automation in ServiceNow.
 
 {{< cards >}}
+{{< card link="automation/" title="Automation" icon="cpu" >}}
 {{< card link="workflow-studio/" title="Workflow Studio" icon="trending-up" >}}
 {{< /cards >}}

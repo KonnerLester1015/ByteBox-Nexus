@@ -1,5 +1,5 @@
 ---
-title: "Automated User Account Categorization"
+title: "User Account Categorization"
 ---
 
 ## Overview
@@ -34,17 +34,17 @@ The following diagram illustrates the conditional branching used to determine th
 ### Logic Breakdown
 1. **Trigger:** A record is created on the Group Member `[sys_user_grmember]` table.
 2. **Conditional Logic:**
-    * **IF** the group is **"All Guests"** $\rightarrow$ Set `u_account_type` to **"Guest"**.
-    * **ELSE IF** the group is **"All Contractors"** $\rightarrow$ Set `u_account_type` to **"Contractor"**.
-    * **ELSE IF** the group is **"All Production"** $\rightarrow$ Set `u_account_type` to **"Production"**.
-    * **ELSE** $\rightarrow$ Set `u_account_type` to **"Administrative"**.
+    * **IF** the group is **"All Guests"** &rarr; Set `u_account_type` to **"Guest"**.
+    * **ELSE IF** the group is **"All Contractors"** &rarr; Set `u_account_type` to **"Contractor"**.
+    * **ELSE IF** the group is **"All Production"** &rarr; Set `u_account_type` to **"Production"**.
+    * **ELSE** &rarr; Set `u_account_type` to **"Administrative"**.
 
 ---
 
 ## Business Value & Benefits
 
 ### 1. Enhanced Security (ACLs)
-Security Administrators can now write a {{< term "ACL" >}} that targets the `u_account_type` field directly, ensuring that "Guest" or "Contractor" accounts do not have accidental access to sensitive ITIL modules, Knowledge Bases, etc.
+Security Administrators can now write an {{< term "acl" >}} that targets the `u_account_type` field directly, ensuring that "Guest" or "Contractor" accounts do not have accidental access to sensitive ITIL modules, Knowledge Bases, etc.
 
 ### 2. Streamlined Service Catalog
 By applying Reference Qualifiers to Catalog Variables, we can ensure that only "Administrative" or "Contractor" users are selectable for corporate hardware requests or other type of request variables.
