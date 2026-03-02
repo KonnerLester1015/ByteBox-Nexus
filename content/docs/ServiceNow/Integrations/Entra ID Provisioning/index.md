@@ -88,6 +88,7 @@ By default ServiceNow Attributes shown for mapping are the default fields from t
 | Name | Type | Primary Key? | Required? | Multi-Value? | Referenced Object Attribute? |
 |-----------------------------|-----------------------------|----------------|------------------|----------------|-----------------------------|
 | `u_entra_object_id`        | String                      | False             | False             | False          | |
+
 4. Click **Save** to add the custom attribute to the list of available attributes for mapping. You can now map this custom attribute to an Entra ID attribute in the same way as the default attributes.
 
 ---
