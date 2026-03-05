@@ -116,7 +116,7 @@ Configuration details:
 
 Leaving the condition builder empty ensures the transformation is evaluated against every record in the Location table.
 
-{{< callout >}}
+{{< callout type="info" >}}
   If more granular control is needed, conditions can be added to limit execution to specific records (for example, only newly created locations or specific location types).
 {{< /callout >}}
 
