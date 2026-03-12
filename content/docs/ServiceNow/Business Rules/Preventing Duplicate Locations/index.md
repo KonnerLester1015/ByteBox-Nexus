@@ -1,5 +1,5 @@
 ---
-title: "Preventing Duplicate Locations with Hierarchical Validation"
+title: "Preventing Duplicate Locations"
 ---
 
 ## Overview
