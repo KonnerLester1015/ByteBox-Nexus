@@ -1,13 +1,15 @@
 ---
-title: Configuration Management Database (CMDB) Fundamentals
+title: CMDB Fundamentals
 type: docs
 prev: docs/servicenow
-next: docs/servicenow/cmdb-fundamentals/IntroductionToTheCMDB
+next: docs/servicenow/cmdb-fundamentals/ingest-data
 ---
 
 Gain a comprehensive understanding of ServiceNow’s Configuration Management Database (CMDB) and the Common Service Data Model (CSDM) that defines its structure. This section explores how CMDB and CSDM work together to create a trusted source of configuration data, enabling consistent service modeling, reliable reporting, and data-driven IT operations across the enterprise.
 
 {{< cards >}}
+
+{{< card link="ingest-data/" title="Ingesting Data into the CMDB" icon="plus-circle">}}
 
 {{< card link="introductiontothecmdb/" title="Introduction to the CMDB" icon="information-circle">}}
 
