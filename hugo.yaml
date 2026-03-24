@@ -3,7 +3,7 @@ baseURL: "https://konnerlester1015.github.io/ByteBox-Nexus/"
 title: "ByteBox Nexus"
 
 enableRobotsTXT: true
-enableGitInfo: false
+enableGitInfo: true
 
 outputs:
   home: [html, llms]

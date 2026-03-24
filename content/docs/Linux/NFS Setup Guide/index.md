@@ -56,7 +56,7 @@ Below is the environment setup used for this configuration, including the server
 2. Create NFS directory:
 
     ```bash
-    sudo mkdir -p /var/nfs
+    sudo mkdir -p /var/nfs  # -p creates parent directories as needed and avoids errors if the path already exists
     sudo chown nobody /var/nfs
     ```
 
@@ -79,10 +79,10 @@ Below is the environment setup used for this configuration, including the server
 4. Allow NFS through the firewall:
 
     ```bash
-    sudo firewall-cmd --permanent --add-service=nfs
-    sudo firewall-cmd --permanent --add-service=mountd
-    sudo firewall-cmd --permanent --add-service=rpc-bind
-    sudo firewall-cmd --reload
+    sudo firewall-cmd --permanent --add-service=nfs       # --permanent saves the rule across reboots; --add-service allows the named service
+    sudo firewall-cmd --permanent --add-service=mountd    # --permanent keeps the rule persistent; --add-service opens mountd for NFS mount requests
+    sudo firewall-cmd --permanent --add-service=rpc-bind  # --permanent keeps the rule persistent; --add-service opens rpcbind used by NFS/RPC
+    sudo firewall-cmd --reload                            # --reload applies permanent firewall changes to the active runtime config
     ```
 
 5. Enable and start NFS service:
@@ -105,7 +105,7 @@ Below is the environment setup used for this configuration, including the server
 2. Create NFS directory:
 
     ```bash
-    sudo mkdir -p /var/nfs
+    sudo mkdir -p /var/nfs  # -p creates parent directories as needed and avoids errors if the path already exists
     sudo chown nobody:nogroup /var/nfs
     ```
 
@@ -158,14 +158,14 @@ Below is the environment setup used for this configuration, including the server
 2. Mount Windows NFS share:
 
     ```bash
-    sudo mkdir -p /mnt/windowsnfs
+    sudo mkdir -p /mnt/windowsnfs  # -p creates parent directories as needed and avoids errors if the path already exists
     sudo mount 44.101.0.131:/windowsnfs /mnt/windowsnfs
     ```
 
 3. Mount Ubuntu NFS share:
 
     ```bash
-    sudo mkdir -p /mnt/ubtnfs
+    sudo mkdir -p /mnt/ubtnfs  # -p creates parent directories as needed and avoids errors if the path already exists
     sudo mount 44.101.4.131:/var/nfs /mnt/ubtnfs
     ```
 
@@ -182,14 +182,14 @@ Below is the environment setup used for this configuration, including the server
 2. Mount Windows NFS share:
 
     ```bash
-    sudo mkdir -p /mnt/windowsnfs
+    sudo mkdir -p /mnt/windowsnfs  # -p creates parent directories as needed and avoids errors if the path already exists
     sudo mount 44.101.0.131:/windowsnfs /mnt/windowsnfs
     ```
 
 3. Mount Rocky NFS share:
 
     ```bash
-    sudo mkdir -p /mnt/rockynfs
+    sudo mkdir -p /mnt/rockynfs  # -p creates parent directories as needed and avoids errors if the path already exists
     sudo mount 44.101.2.131:/var/nfs /mnt/rockynfs
     ```
 
@@ -208,7 +208,7 @@ You should see the newly mapped drives representing the NFS shares.
 Run the following commands to verify that the NFS shares are mounted on **Linux**:
 
 ```bash
-showmount -e 44.101.0.131
-showmount -e 44.101.2.131
-showmount -e 44.101.4.131
+showmount -e 44.101.0.131  # -e lists exported NFS shares from the target host
+showmount -e 44.101.2.131  # -e lists exported NFS shares from the target host
+showmount -e 44.101.4.131  # -e lists exported NFS shares from the target host
 ```
