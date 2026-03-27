@@ -16,20 +16,20 @@ By integrating both platforms, this automation provides a comprehensive "Free Ga
 
 ### Workflow Overview
 
-The workflow is designed to be efficient and to prevent spamming your Discord server. It includes an action step called **Extract Unique Games from the List** that compares the current list of games to the last successful run's list. A message is only sent if new free games are detected, ensuring that your discord server is only notified of new content.
+The workflow is designed for efficiency and to prevent unnecessary notifications in your Discord server. It includes an action step, **Extract Unique Games from the List**, which compares the current list of games with the list from the last successful run. A message is only sent when new free games are detected, ensuring that your Discord server is notified only when new content becomes available.
 
 ### Core Components
 
 The workflow consists of the following key steps:
 
-- **Schedule Trigger** – Runs the workflow automatically on a daily schedule.
-- **Epic Games API Integration** – Fetches the current "freeGamesPromotions" data directly from Epic's backend, including titles, promotional end dates, and game thumbnails.
-- **Parse Out Game Details** - Extracts relevant details from the API response, such as game titles, promotional end dates, and thumbnail URLs.
-- **Unique Game Filter** – Compares the current list of free games to a n8n flow execution history to determine if there are any new games.
-- **Get Steam ID** – Uses the Steam API to search for the game by title and retrieve its unique Steam ID.
-- **Get Steam Details** – Fetches detailed metadata from the Steam API using the retrieved Steam ID, including genres, original pricing, developer info, and install sizes.
-- **Prepare notification** – Formats the game details into a Discord webhook payload.
-- **Notify Discord** – Sends the formatted message to your Discord webhook URL.
+- **Schedule Trigger** – Automatically runs the workflow on a daily schedule.
+- **Epic Games API Integration** – Retrieves current freeGamesPromotions data directly from Epic’s backend, including titles, promotional end dates, and thumbnails.
+- **Parse Out Game Details** - Extracts relevant data from the API response, such as titles, promotional end dates, and thumbnail URLs.
+- **Unique Game Filter** – Compares the current list of free games with previous n8n execution data to identify newly available titles.
+- **Get Steam ID** – Queries the Steam API using the game title to retrieve its unique Steam ID.
+- **Get Steam Details** – Uses the Steam ID to fetch additional metadata, including genres, original pricing, developer information, and install size.
+- **Prepare notification** – Formats the collected data into a Discord webhook payload.
+- **Notify Discord** – Sends the formatted notification to the configured Discord webhook URL.
 
 Below is a visual overview of the workflow in n8n:
 
@@ -77,7 +77,7 @@ The workflow runs on a daily schedule and performs the following section of step
     - JavaScript node that processes the API response to extract relevant details for each free game.  
     - The script navigates through the nested JSON structure to find the array of promoted games and extracts the title, description, original price, thumbnail image URL, store URL, and promotional dates.
 
-```javascript {linenos=table,linenostart=1}
+```javascript {filename="JavaScript",linenos=table,linenostart=1}
 // Function to format ISO date to readable EST string
 // Example output: "Dec 18 at 11:00 AM EST"
 function formatToEst(isoString) {
@@ -146,11 +146,11 @@ for (const game of allGames) {
         startDateISO: startDateISO,
         endDateISO: endDateISO,
         
-        // Your Requested Format: "Dec 18 at 11:00 AM EST"
+        // Format: "Dec 18 at 11:00 AM EST"
         startDate: formatToEst(startDateISO),
         endDate: formatToEst(endDateISO),
         
-        // Combined string for notifications (Optional convenience field)
+        // Combined string for notifications
         dateString: `Free Now - ${formatToEst(endDateISO)}` 
       }
     });
@@ -162,7 +162,7 @@ return results;
 
 Example output:
 
-```json
+```json filename="JSON"
 [
 {
   "title": "Hyper Echelon",
@@ -202,7 +202,7 @@ Example output:
 
  More information on this approach and the `getWorkflowStaticData` method can be found in the [n8n documentation](https://docs.n8n.io/code/cookbook/builtin/get-workflow-static-data/).
 
-```javascript
+```javascript {filename="JavaScript",linenos=table,linenostart=1}
  // Get a reference to the static data for this node, which persists across executions.
 const nodeStaticData = $getWorkflowStaticData('node');
 
@@ -218,7 +218,7 @@ const gameHistory = new Set(nodeStaticData.gameHistory || []);
 const newGamesToPost = allGames.filter(item => {
     const title = item.json.title;
 
-    // ❗ Skip if title is "" or null/undefined
+    // Skip if title is "" or null/undefined
     if (!title || title.trim() === "") {
         return false;
     }
@@ -261,7 +261,7 @@ Example Steam metadata output:
   Note that the below example response is shortened for brevity. The actual response from the Steam API contains much more detailed information about the game including required_age, a detailed description, controller support, supported languages, and more. You can choose which fields to include in your Discord notification based on your preferences.
 {{< /callout >}}
 
-```json
+```json {filename="JavaScript"}
 {
   "953330": {
     "success": true,
@@ -290,7 +290,7 @@ Example Steam metadata output:
 }
 ```
 
-### 3.4 Notification Handling
+### 2.5 Notification Handling
 
 1. **Prepare Notification**
 - JavaScript node that takes the combined data from both the Epic Games Store and Steam API to format a rich embed message for Discord. The script constructs a payload that includes the game title, description, genres, Price, release date, developer, game modes, install size, and promotional end date. It also includes the game's thumbnail image and a link to the store page.
@@ -302,7 +302,7 @@ Example Steam metadata output:
   Refer to the Discord Developer documentation on [Webhook Embeds](https://discord.com/developers/docs/resources/webhook#embed-object) for more details on how to customize the appearance of your notifications with different embed fields, colors, and formatting options.
 {{< /callout >}}
 
-```javascript {linenos=table,linenostart=1}
+```javascript {filename="JavaScript",linenos=table,linenostart=1}
 // Helper: Extract Storage from HTML
 function getInstallSize(reqsHtml) {
     if (!reqsHtml) return "Unknown";
