@@ -1,116 +1,85 @@
 {
-  "name": "EpicGames x Discord v2",
+  "name": "EpicGames x Discord",
   "nodes": [
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://discord.com/api/webhooks/",
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "={{ $json.body }}",
-        "options": {}
+        "jsCode": "// Helper: Extract Storage from HTML\nfunction getInstallSize(reqsHtml) {\n    if (!reqsHtml) return \"Unknown\";\n\n    // Match the Storage field inside <strong> tags\n    const match = reqsHtml.match(\n        /<strong>\\s*(?:Storage|Hard Drive|Space):\\s*<\\/strong>\\s*([^<]+)/i\n    );\n\n    if (match && match[1]) {\n        // Extract only the size value (e.g., \"75 GB\", \"120 MB\")\n        const sizeMatch = match[1].match(/\\d+(?:\\.\\d+)?\\s*(?:KB|MB|GB|TB)/i);\n        if (sizeMatch) {\n            return `~${sizeMatch[0]}`;\n        }\n    }\n\n    return \"Unknown\";\n}\n\n// Initialize empty array for embeds\nlet embeds = [];\n\n// Get all items from the current input (Steam Details)\nconst items = $input.all();\n\n// Access the original Epic Games data from the previous node\nconst epicItems = $('Loop Over Items').all();\n\nfor (let i = 0; i < items.length; i++) {\n    const item = items[i];\n    \n    // --- 1. GET EPIC DATA ---\n    const epicData = epicItems[i] ? epicItems[i].json : {};\n    \n    const title = epicData.title || \"\";\n    const storeUrl = epicData.storeUrl || \"https://store.epicgames.com\";\n    const imageUrl = epicData.imageUrl || \"\";\n    const endDate = epicData.endDate || \"Limited Time\";\n    const epicDescription = epicData.description || \"\";\n\n    // --- 2. EXTRACT STEAM DATA ---\n    let genres = \"Unknown\";\n    let originalPrice = \"Unknown\";\n    let developers = \"Unknown\";\n    let releaseDate = \"Unknown\";\n    let gameModes = \"Unknown\";\n    let installSize = \"Unknown\"; \n    let steamDescription = \"\";\n    \n    const steamKey = Object.keys(item.json)[0];\n    \n    if (steamKey && item.json[steamKey].success) {\n        const game = item.json[steamKey].data;\n        \n        // A. Developers\n        if (game.developers && game.developers.length > 0) {\n            developers = game.developers.join(\", \");\n        }\n        \n        // B. Genres\n        if (game.genres) {\n            genres = game.genres.map(g => g.description).slice(0, 3).join(\", \");\n        }\n        \n        // C. Price\n        if (game.price_overview) {\n            if (game.price_overview.initial_formatted) {\n                originalPrice = `~~${game.price_overview.initial_formatted}~~`;\n            } else if (game.price_overview.initial > 0) {\n                originalPrice = `~~$${(game.price_overview.initial / 100).toFixed(2)}~~`;\n            }\n        } else if (game.is_free) {\n            originalPrice = \"Free To Play\";\n        }\n        \n        // D. Release Date\n        if (game.release_date) {\n            releaseDate = game.release_date.date;\n        }\n\n        // E. Game Modes\n        if (game.categories) {\n            const relevantModes = game.categories\n                .map(c => c.description)\n                .filter(desc => \n                    desc === \"Single-player\" || \n                    desc === \"Multi-player\" || \n                    desc === \"Co-op\" || \n                    desc === \"Online Co-op\" ||\n                    desc === \"PvP\" || \n                    desc === \"Shared/Split Screen\"\n                );\n            \n            if (relevantModes.length > 0) {\n                gameModes = [...new Set(relevantModes)].join(\" / \");\n            }\n        }\n\n        // F. Install Size\n        if (game.pc_requirements) {\n            // Check minimum requirements first\n            installSize = getInstallSize(game.pc_requirements.minimum);\n            // If not found, check recommended\n            if (installSize === \"Unknown\" && game.pc_requirements.recommended) {\n                installSize = getInstallSize(game.pc_requirements.recommended);\n            }\n        }\n        \n        // G. Steam Description (for fallback)\n        steamDescription = game.short_description;\n    }\n\n    // --- 3. BUILD DISCORD EMBED ---\n    var content = {\n        \"author\": {\n            \"name\": \"Free Game Alert\",\n            \"icon_url\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Epic_Games_logo.svg/1200px-Epic_Games_logo.svg.png\"\n        },\n        \"title\": title,\n        \"url\": storeUrl,\n        \"color\": 30962, \n        // Use Epic Description first, fallback to Steam, then generic default\n        \"description\": epicDescription || steamDescription || \"Check store for details.\",\n        \n        \"thumbnail\": {\n            \"url\": imageUrl\n        },\n        \"fields\": [\n            // Row 1\n            { \"name\": \"Genre\", \"value\": genres, \"inline\": true },\n            { \"name\": \"Price\", \"value\": originalPrice, \"inline\": true },\n            { \"name\": \"Release Date\", \"value\": releaseDate, \"inline\": true },\n            \n            // Row 2\n            { \"name\": \"Developer\", \"value\": developers, \"inline\": true },\n            { \"name\": \"Game Mode\", \"value\": gameModes, \"inline\": true },\n            { \"name\": \"Size\", \"value\": installSize, \"inline\": true },\n            \n            // Row 3\n            { \"name\": \"Offer Ends\", \"value\": endDate, \"inline\": false }\n        ],\n        \"footer\": {\n            \"text\": \"Epic Games Store • Steam Metadata\",\n            \"icon_url\": \"https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Epic_Games_logo.svg/1200px-Epic_Games_logo.svg.png\"\n        }\n    };\n    \n    embeds.push(content);\n}\n\nconst payload = {\n    username: \"Free Game Alert\",\n    avatar_url: \"https://upload.wikimedia.org/wikipedia/commons/6/6c/Input-gaming.png\",\n    embeds: embeds\n};\n\nreturn [{json: {body: payload}}];"
       },
-      "id": "f5d1609f-d897-44af-87d4-47e7cf37a509",
-      "name": "Notify Discord",
-      "type": "n8n-nodes-base.httpRequest",
-      "position": [
-        1392,
-        -32
-      ],
-      "retryOnFail": true,
-      "typeVersion": 4.2
-    },
-    {
-      "parameters": {
-        "jsCode": "// Initialize an empty array to store the embed objects for the Discord message.\n    let embeds = [];\n\n    // Loop through each game received from the workflow's input.\n    for (const item of $input.all()) {\n        // Create a base content object for the embed, starting with the thumbnail.\n        var content = {\n            \"thumbnail\": {\n                // The thumbnail URL is taken from the 'image' property of the current input item's JSON.\n                \"url\": item.json.image\n            }\n        };\n\n          // Add the title, URL, and a description to the content object.\n          content[\"title\"] = item.json.title;\n          // The URL is constructed by prepending the Epic Games Store base URL.\n          content[\"url\"] = \"https://store.epicgames.com\" + item.json.url,\n          // The description is taken from the 'dates' property.\n          content[\"description\"] = item.json.dates;\n\n        // Add the newly created content object (which is a Discord embed) to the embeds array.\n        embeds.push(content);\n    }\n\n    // Create the final payload object for the Discord webhook.\n    const payload = {\n    // Set the display name for the bot.\n    username: \"Epic Games\",\n    // Set the main text content of the message.\n    content: \"New Free Game(s) from Epic Games Store\",\n    // Set the avatar URL for the bot's profile.\n    avatar_url: \"https://upload.wikimedia.org/wikipedia/commons/thumb/3/31/Epic_Games_logo.svg/250px-Epic_Games_logo.svg.png\",\n    // Attach the array of embeds to the payload.\n    embeds: embeds\n};\n\n    // Return the final payload as a JSON object within an array, so it can be used by the next node in the workflow (e.g., a Discord webhook node).\n    return [{json: {body: payload}}];"
-      },
-      "id": "c54596d1-ddf1-4f76-bd81-0ce9d02f8b4b",
+      "id": "3ad7d5b0-6f8d-49d7-b347-5bac91251e61",
       "name": "Prepare notification",
       "type": "n8n-nodes-base.code",
       "position": [
-        1184,
-        -32
+        800,
+        112
       ],
       "typeVersion": 2
     },
     {
       "parameters": {
-        "fieldToSplitOut": "container",
-        "options": {}
+        "jsCode": "// Get a reference to the static data for this node, which persists across executions.\nconst nodeStaticData = $getWorkflowStaticData('node');\n\n// Get all the items from the previous node.\nconst allGames = $input.all();\n\n// Get the history of games that have already been processed.\n// Use a Set for faster lookups.\nconst gameHistory = new Set(nodeStaticData.gameHistory || []);\n\n// Filter the games to find only the new ones.\n// Skip if title is empty.\nconst newGamesToPost = allGames.filter(item => {\n    const title = item.json.title;\n\n    // ❗ Skip if title is \"\" or null/undefined\n    if (!title || title.trim() === \"\") {\n        return false;\n    }\n\n    // Otherwise check if it's not in history\n    return !gameHistory.has(title);\n});\n\n// If there are new games to post, update the history.\nif (newGamesToPost.length > 0) {\n    const newGameTitles = newGamesToPost.map(item => item.json.title);\n    newGameTitles.forEach(title => gameHistory.add(title));\n    \n    nodeStaticData.gameHistory = [...gameHistory];\n}\n\n// Return the list of games that are new.\nreturn newGamesToPost;"
       },
-      "id": "c74566b3-e6a1-4bd0-b9d7-2f149117a556",
-      "name": "Split Out Each Container (Game)",
-      "type": "n8n-nodes-base.splitOut",
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
       "position": [
-        1312,
-        -288
+        624,
+        -192
       ],
-      "typeVersion": 1
+      "id": "9daa99eb-77df-4400-89c4-8de06fc72487",
+      "name": "Extract Unique Games from the List"
     },
     {
       "parameters": {
-        "operation": "extractHtmlContent",
-        "dataPropertyName": "container",
-        "extractionValues": {
-          "values": [
+        "rule": {
+          "interval": [
             {
-              "key": "title",
-              "cssSelector": "h6"
-            },
-            {
-              "key": "image",
-              "cssSelector": "img",
-              "returnValue": "attribute",
-              "attribute": "data-image"
-            },
-            {
-              "key": "url",
-              "cssSelector": "a",
-              "returnValue": "attribute",
-              "attribute": "href"
-            },
-            {
-              "key": "dates",
-              "cssSelector": "p > span"
+              "triggerAtHour": 12,
+              "triggerAtMinute": 7
             }
           ]
-        },
-        "options": {
-          "trimValues": true
         }
       },
-      "id": "cb638359-c3e6-4373-8ef7-8c8fba1f0125",
-      "name": "Extract Title and Image",
-      "type": "n8n-nodes-base.html",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "typeVersion": 1.2,
       "position": [
-        1536,
-        -288
+        -48,
+        -192
       ],
-      "typeVersion": 1.2
+      "id": "40c16d36-ff0e-4718-b823-e8d76a458c54",
+      "name": "Schedule Trigger"
     },
     {
       "parameters": {
-        "method": "POST",
-        "url": "https://production-sfo.browserless.io/chromium/bql",
+        "url": "https://store-site-backend-static.ak.epicgames.com/freeGamesPromotions",
         "sendQuery": true,
         "queryParameters": {
           "parameters": [
             {
-              "name": "token"
+              "name": "locale",
+              "value": "en-US"
             },
             {
-              "name": "blockConsentModals",
-              "value": "true"
+              "name": "country",
+              "value": "US"
             },
             {
-              "name": "proxyCountry",
-              "value": "us"
+              "name": "allowCountries",
+              "value": "US"
             }
           ]
         },
-        "sendBody": true,
-        "specifyBody": "json",
-        "jsonBody": "{\n  \"query\": \"mutation VerifyEpicGamesCloudflare {\\n  goto(url: \\\"https://store.epicgames.com/en-US/\\\", waitUntil: networkIdle) {\\n    status\\n  }\\n  waitForSelector(selector:\\\".cf-turnstile\\\", timeout:1000) {\\n    time\\n  }\\n  if(selector:\\\".cf-turnstile\\\") {\\n    verify(type:cloudflare, timeout:30000) {\\n      found\\n      solved\\n      time\\n    }\\n  }\\n  html(selector: \\\".css-cdosd6\\\") {\\n    html\\n  }\\n}\",\n  \"variables\": {},\n  \"operationName\": \"VerifyEpicGamesCloudflare\"\n}",
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        },
         "options": {
           "response": {
             "response": {
@@ -122,91 +91,181 @@
       "type": "n8n-nodes-base.httpRequest",
       "typeVersion": 4.2,
       "position": [
-        864,
-        -288
+        176,
+        -192
       ],
-      "id": "40fbc8be-c49f-49b8-91bf-1427a0fbd1d1",
-      "name": "HTTP Request"
+      "id": "be1cc3ad-234e-4d39-8ad0-0667357969a7",
+      "name": "Get Epic Games - Free Games"
     },
     {
       "parameters": {
-        "operation": "extractHtmlContent",
-        "dataPropertyName": "data.html.html",
-        "extractionValues": {
-          "values": [
+        "jsCode": "// Function to format ISO date to readable EST string\n// Example output: \"Dec 18 at 11:00 AM EST\"\nfunction formatToEst(isoString) {\n  if (!isoString) return \"\";\n  \n  const date = new Date(isoString);\n  \n  // Format options: \"Dec 18\", \"11:00 AM\"\n  const options = { \n    timeZone: \"America/New_York\",\n    month: \"short\", \n    day: \"numeric\", \n    hour: \"numeric\", \n    minute: \"2-digit\",\n    hour12: true\n  };\n  \n  // Create the string using standard JS localization\n  // This automatically handles Daylight Savings (EDT vs EST)\n  const formatted = date.toLocaleString(\"en-US\", options);\n  \n  // Clean up the format to match your preferred style \"Dec 18 at 11:00 AM EST\"\n  // .toLocaleString returns something like \"Dec 18, 11:00 AM\"\n  return formatted.replace(\",\", \" at\") + \" EST\";\n}\n\n// --- Main Execution ---\n\n// Get the list of games from the previous node's output\nconst allGames = items[0].json.data.Catalog.searchStore.elements;\nconst results = [];\n\nfor (const game of allGames) {\n  // 1. Check if the discounted price is 0 (Free)\n  // We check specifically for a discountPrice of 0 to avoid demos or free-to-play base games\n  if (game.price.totalPrice.discountPrice === 0) {\n\n    // 2. Filter out unwanted \"Mystery Game\" titles\n    if (game.title.includes(\"Mystery Game\")) {\n      continue;\n    }\n\n    // 3. Get the \"Tall\" image (looks best on Discord/Mobile notifications)\n    const imageObj = game.keyImages.find(img => img.type === 'OfferImageTall') || game.keyImages[0];\n\n    // 4. Get the promo dates safely\n    let startDateISO = \"\";\n    let endDateISO = \"\";\n    \n    if (game.promotions && game.promotions.promotionalOffers && game.promotions.promotionalOffers.length > 0) {\n        const offer = game.promotions.promotionalOffers[0].promotionalOffers[0];\n        startDateISO = offer.startDate;\n        endDateISO = offer.endDate;\n    }\n\n    // 5. Create the clean output item with converted dates\n    results.push({\n      json: {\n        title: game.title,\n        description: game.description,\n        originalPrice: game.price.totalPrice.fmtPrice.originalPrice, \n        imageUrl: imageObj ? imageObj.url : \"\",\n        storeUrl: `https://store.epicgames.com/en-US/p/${game.offerMappings[0].pageSlug}`,\n\n        // Raw ISO dates (keep these if you need to sort by date later)\n        startDateISO: startDateISO,\n        endDateISO: endDateISO,\n        \n        // Your Requested Format: \"Dec 18 at 11:00 AM EST\"\n        startDate: formatToEst(startDateISO),\n        endDate: formatToEst(endDateISO),\n        \n        // Combined string for notifications (Optional convenience field)\n        dateString: `Free Now - ${formatToEst(endDateISO)}` \n      }\n    });\n  }\n}\n\nreturn results;"
+      },
+      "type": "n8n-nodes-base.code",
+      "typeVersion": 2,
+      "position": [
+        400,
+        -192
+      ],
+      "id": "536e732d-5585-4a97-9347-6e2e9c5b779f",
+      "name": "Parse Out Game Details"
+    },
+    {
+      "parameters": {},
+      "type": "n8n-nodes-base.merge",
+      "typeVersion": 3.2,
+      "position": [
+        576,
+        112
+      ],
+      "id": "484c81f3-52b6-456c-8a54-0883e3fe1b64",
+      "name": "Merge"
+    },
+    {
+      "parameters": {
+        "options": {}
+      },
+      "type": "n8n-nodes-base.splitInBatches",
+      "typeVersion": 3,
+      "position": [
+        -320,
+        192
+      ],
+      "id": "1bb61a08-92a6-47b3-bef3-5d6d9f142fd3",
+      "name": "Loop Over Items"
+    },
+    {
+      "parameters": {
+        "method": "POST",
+        "url": "https://discord.com/api/webhooks/",
+        "sendBody": true,
+        "specifyBody": "json",
+        "jsonBody": "={{ $json.body }}",
+        "options": {}
+      },
+      "id": "5ef69bef-7f48-4493-9e35-fc18685a1659",
+      "name": "Notify Discord",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1024,
+        192
+      ],
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "parameters": {
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "leftValue": "",
+            "typeValidation": "strict",
+            "version": 2
+          },
+          "conditions": [
             {
-              "key": "container",
-              "cssSelector": "[data-component*=\"OfferCard\"]:not([data-component=\"DiscoverOfferCard\"])",
-              "returnValue": "html",
-              "returnArray": true
+              "id": "265db3d3-d9b6-4c2e-8944-b79c6acf39b5",
+              "leftValue": "={{ $json.total }}",
+              "rightValue": 0,
+              "operator": {
+                "type": "number",
+                "operation": "notEquals"
+              }
+            }
+          ],
+          "combinator": "and"
+        },
+        "options": {}
+      },
+      "type": "n8n-nodes-base.if",
+      "typeVersion": 2.2,
+      "position": [
+        128,
+        112
+      ],
+      "id": "ea85a759-ae06-42c0-9370-58cb4968550e",
+      "name": "Does SteamID Exist?"
+    },
+    {
+      "parameters": {
+        "url": "https://store.steampowered.com/api/appdetails",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "appids",
+              "value": "={{ $json.items[0].id }}"
+            },
+            {
+              "name": "l",
+              "value": "english"
+            },
+            {
+              "name": "cc",
+              "value": "US"
             }
           ]
         },
         "options": {}
       },
-      "id": "b2fcb814-5e6f-4080-8dea-88ac70678d4f",
-      "name": "Extract Games Container",
-      "type": "n8n-nodes-base.html",
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
       "position": [
-        1088,
-        -288
+        352,
+        16
       ],
-      "retryOnFail": false,
-      "typeVersion": 1.2
+      "id": "d0920a58-4f71-467e-b367-f1468d51eee6",
+      "name": "Get Steam Details",
+      "alwaysOutputData": true
     },
     {
       "parameters": {
-        "jsCode": "// Get a reference to the static data for this node, which persists across executions.\nconst nodeStaticData = $getWorkflowStaticData('node');\n\n// Get all the items from the previous node.\nconst allGames = $input.all();\n\n// Get the history of games that have already been processed.\n// Use a Set for faster lookups.\nconst gameHistory = new Set(nodeStaticData.gameHistory || []);\n\n// Filter the games to find only the new ones.\n// We'll return the full item object, not just the title.\nconst newGamesToPost = allGames.filter(item => {\n    // Check if the game's title is NOT in our history Set.\n    return !gameHistory.has(item.json.title);\n});\n\n// If there are new games to post, update the history.\nif (newGamesToPost.length > 0) {\n    // Get the titles of the new games.\n    const newGameTitles = newGamesToPost.map(item => item.json.title);\n    \n    // Add all the new game titles to the history.\n    newGameTitles.forEach(title => gameHistory.add(title));\n    \n    // Store the updated history back in the static data.\n    nodeStaticData.gameHistory = [...gameHistory];\n}\n\n// Return the list of games that are new.\nreturn newGamesToPost;"
-      },
-      "type": "n8n-nodes-base.code",
-      "typeVersion": 2,
-      "position": [
-        720,
-        -32
-      ],
-      "id": "2376fb6a-508d-4fec-99b9-27987e6e8738",
-      "name": "Extract Unique Games from the List"
-    },
-    {
-      "parameters": {
-        "rule": {
-          "interval": [
+        "method": "POST",
+        "url": "https://store.steampowered.com/api/storesearch/",
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
             {
-              "triggerAtHour": 12
+              "name": "term",
+              "value": "={{ $json.title }}"
+            },
+            {
+              "name": "l",
+              "value": "english"
+            },
+            {
+              "name": "cc",
+              "value": "US"
             }
           ]
-        }
+        },
+        "options": {}
       },
-      "type": "n8n-nodes-base.scheduleTrigger",
-      "typeVersion": 1.2,
+      "type": "n8n-nodes-base.httpRequest",
+      "typeVersion": 4.3,
       "position": [
-        672,
-        -288
+        -96,
+        112
       ],
-      "id": "c92333a3-cdfe-473d-9de3-30360c324791",
-      "name": "Schedule Trigger"
+      "id": "b4f09856-d9f8-4f51-925d-9bf6fecba7d3",
+      "name": "Get Steam ID"
     },
     {
       "parameters": {
-        "jsCode": "function convertPstToEst(dateString) {\n    // Regex to capture the prefix (e.g., \"Free Now - Oct 23 at\"), hours, minutes, and AM/PM\n    // The regex ensures a full time string (HH:MM AM/PM) is present.\n    const regex = /^(.*?)\\s*(\\d{1,2}):(\\d{2})\\s+(AM|PM)$/i;\n    const match = dateString.match(regex);\n    \n    // If the format doesn't match (e.g., \"Free Oct 23 - Oct 30\"), return the original string immediately.\n    if (!match) {\n        return dateString;\n    }\n\n    // Extract components\n    const prefix = match[1].trim(); // Everything before the time\n    let hours = parseInt(match[2], 10);\n    const minutes = match[3];\n    const period = match[4].toUpperCase();\n\n    // 1. Convert 12-hour to 24-hour\n    let hours24 = hours;\n    if (period === 'PM' && hours < 12) {\n        hours24 += 12;\n    } else if (period === 'AM' && hours === 12) {\n        hours24 = 0; // Midnight (12 AM) is hour 0\n    }\n\n    // 2. Add 3 hours for the time zone shift (PST/PDT to EST/EDT)\n    let newHours24 = hours24 + 3;\n\n    // 3. Handle 24-hour rollover (e.g., 23 + 3 = 26, 26 % 24 = 2)\n    // Note: This correctly adjusts the hour but does not change the day/date string.\n    newHours24 %= 24;\n\n    // 4. Convert 24-hour back to 12-hour format\n    let newPeriod = (newHours24 >= 12) ? 'PM' : 'AM';\n    let newHours12 = newHours24 % 12;\n    if (newHours12 === 0) {\n        newHours12 = 12; // 0 (midnight) or 12 (noon) becomes 12\n    }\n\n    // Ensure minutes maintain two digits\n    const newTime = `${newHours12}:${minutes} ${newPeriod}`;\n\n    // 5. Return the final string with the 'EST' label\n    return `${prefix} ${newTime} EST`;\n}\n\n// --- Main Script Execution ---\n\n// Loop over input items and convert time zone for applicable strings, updating the 'dates' field.\nfor (const item of $input.all()) {\n    // Use the existing dates field as the input string\n    const datesString = item.json.dates; \n    \n    // Process only if the dates field exists\n    if (datesString) {\n        // The function will convert the time if found, or return the original string if no time is present.\n        item.json.dates = convertPstToEst(datesString);\n    }\n    // If datesString is missing, the field remains unchanged (null/undefined).\n}\n\nreturn $input.all();"
+        "jsCode": "// Map the input items to a \"Failed\" structure that the next node can understand\nreturn $input.all().map(item => {\n  return {\n    json: {\n      \"manual_fallback\": {\n        \"success\": false,\n        \"data\": {}\n      }\n    }\n  };\n});"
       },
       "type": "n8n-nodes-base.code",
       "typeVersion": 2,
       "position": [
-        944,
-        -32
+        352,
+        208
       ],
-      "id": "6246d82c-7975-47f1-9df9-a7b514606fac",
-      "name": "Convert PST to EST"
+      "id": "872587f9-9788-4d53-9f58-86697489e24f",
+      "name": "Generate Steam Fallback Object"
     }
   ],
   "pinData": {},
   "connections": {
-    "Notify Discord": {
-      "main": [
-        []
-      ]
-    },
     "Prepare notification": {
       "main": [
         [
@@ -218,55 +277,11 @@
         ]
       ]
     },
-    "Split Out Each Container (Game)": {
-      "main": [
-        [
-          {
-            "node": "Extract Title and Image",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Title and Image": {
-      "main": [
-        [
-          {
-            "node": "Extract Unique Games from the List",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "HTTP Request": {
-      "main": [
-        [
-          {
-            "node": "Extract Games Container",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
-    "Extract Games Container": {
-      "main": [
-        [
-          {
-            "node": "Split Out Each Container (Game)",
-            "type": "main",
-            "index": 0
-          }
-        ]
-      ]
-    },
     "Extract Unique Games from the List": {
       "main": [
         [
           {
-            "node": "Convert PST to EST",
+            "node": "Loop Over Items",
             "type": "main",
             "index": 0
           }
@@ -277,14 +292,36 @@
       "main": [
         [
           {
-            "node": "HTTP Request",
+            "node": "Get Epic Games - Free Games",
             "type": "main",
             "index": 0
           }
         ]
       ]
     },
-    "Convert PST to EST": {
+    "Get Epic Games - Free Games": {
+      "main": [
+        [
+          {
+            "node": "Parse Out Game Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Out Game Details": {
+      "main": [
+        [
+          {
+            "node": "Extract Unique Games from the List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge": {
       "main": [
         [
           {
@@ -294,38 +331,113 @@
           }
         ]
       ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Steam ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Discord": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Does SteamID Exist?": {
+      "main": [
+        [
+          {
+            "node": "Get Steam Details",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate Steam Fallback Object",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Steam Details": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Steam ID": {
+      "main": [
+        [
+          {
+            "node": "Does SteamID Exist?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Steam Fallback Object": {
+      "main": [
+        [
+          {
+            "node": "Merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
     }
   },
-  "active": true,
+  "active": false,
   "settings": {
     "executionOrder": "v1",
-    "timezone": "America/New_York",
-    "callerPolicy": "workflowsFromSameOwner"
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "errorWorkflow": "bosrHhm6Vk0itflK",
+    "timeSavedPerExecution": 5
   },
-  "versionId": "bc4071f8-a3e9-40f7-870b-9c8d3ecfe556",
+  "versionId": "6db84a9c-3d3c-402d-bdfb-e1b06b7a8018",
   "meta": {
-    "templateCredsSetupCompleted": true,
-    "instanceId": "ee7a7f5cd9ae9b2b1f9332d9cbe3d182a436a75fb96d9dd14edfe23c6009a41c"
+    "instanceId": "731b5346064bf78b0ed4b0d82ee54528bd0bb6bf6d6a3cc682d0c7b7f651aa88"
   },
-  "id": "mkQbOmj76c1wLppi",
+  "id": "0AfB1pAVfbTScJFy",
   "tags": [
     {
-      "createdAt": "2025-09-10T04:45:00.076Z",
-      "updatedAt": "2025-09-10T04:45:00.076Z",
-      "id": "TqMJC3JEXBpNbmYT",
+      "updatedAt": "2025-11-29T05:40:10.857Z",
+      "createdAt": "2025-11-29T05:40:10.857Z",
+      "id": "5GsnZrJs8cxJ6yxD",
       "name": "Notification"
     },
     {
-      "createdAt": "2025-09-08T07:02:47.089Z",
-      "updatedAt": "2025-09-08T07:02:47.089Z",
-      "id": "UPIoQRDwUsFOsSPm",
-      "name": "API Call"
+      "updatedAt": "2025-11-29T05:40:10.858Z",
+      "createdAt": "2025-11-29T05:40:10.858Z",
+      "id": "E1RT4YNcMDqvPfhb",
+      "name": "Webhook"
     },
     {
-      "createdAt": "2025-09-10T04:45:03.157Z",
-      "updatedAt": "2025-09-10T04:45:03.157Z",
-      "id": "x90kHa7w4en0vjci",
-      "name": "Webhook"
+      "updatedAt": "2025-11-29T05:40:10.881Z",
+      "createdAt": "2025-11-29T05:40:10.881Z",
+      "id": "0FTPs2CqQRejzWu1",
+      "name": "API Call"
     }
   ]
 }
