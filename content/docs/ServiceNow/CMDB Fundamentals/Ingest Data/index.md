@@ -18,7 +18,7 @@ ServiceNow Discovery is an agentless, IP-based solution that automatically ident
 
 **Capabilities**
 
-- Identifies devices such as routers, switches, and servers  
+- Identifies devices such as routers, switches, and servers
 - Discovers relationships and dependencies between configuration items (CIs)
 
 **Discovery Phases**
@@ -169,6 +169,25 @@ This bypasses the need for the coalesce logic and ensures all records are proces
     ignore = true;
 })(source, map, log, target);
 ```
+
+## Undiscoverable Data
+
+Undiscoverable data is a critical component in a CMDB. This type of data is considered *undiscoverable* because it cannot be collected through automated discovery tools or standard ingestion methods. Common examples include organizational and contextual information such as groups and locations. In some cases, data from Service Graph Connectors may provide portions of this information, depending on the external data source being integrated. However, this is not always guaranteed, and manual input or governance is often required.
+
+### Purpose and Importance
+
+Undiscoverable data plays a key role in adding business context to Configuration Items (CIs):
+
+- **Groups** are essential for operational workflows, particularly for task assignment and work routing.
+- **Locations** provide physical context for assets, enabling use cases such as cost allocation, asset tracking, and geographically-based support.
+
+In some cases, default values for this data can be applied at the class level. For example, within the Class Manager, a *Managed By Group* can be assigned at the Computer class level to be the LAN group. This configuration ensures that all CIs within that class automatically inherit the specified group, improving consistency and reducing manual effort.
+
+### Group Field Usage
+
+- **Managed By Group:** Used to streamline the assignment of Data Manager tasks, including attestation, lifecycle management, and certification policies.
+- **Support Group:** Maps to the Incident Assignment Group, enabling routing of incidents to the appropriate support teams.
+- **Change Group:** Maps to the Change Assignment Group, ensuring changes are directed to the correct group for review and implementation.
 
 ## Summary
 
