@@ -1,5 +1,5 @@
 ---
-title: "Ingesting Data into the CMDB"
+title: "Data Ingestion"
 ---
 
 ## Overview

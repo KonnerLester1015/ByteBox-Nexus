@@ -1,5 +1,5 @@
 ---
-title: "CMDB Insights"
+title: "Data Insight"
 ---
 
 ## Overview
@@ -110,17 +110,17 @@ It is especially effective for multi-table, relationship-based queries and suppo
 
 **Key Features**
 
-- **Visual Interface**
-  - Uses drag-and-drop query construction
-  - No need for complex scripting or SQL expertise
+**Visual Interface**
+- Uses drag-and-drop query construction
+- No need for complex scripting or SQL expertise
 
-- **Advanced Filtering**
-  - Narrows results using CI attributes and relationship criteria
-  - Supports AND/OR logic for precise query design
+**Advanced Filtering**
+- Narrows results using CI attributes and relationship criteria
+- Supports AND/OR logic for precise query design
 
-- **Reusable and Scheduled Queries**
-  - Allows queries to be saved and reused
-  - Supports scheduled execution for ongoing reporting and data analysis
+**Reusable and Scheduled Queries**
+- Allows queries to be saved and reused
+- Supports scheduled execution for ongoing reporting and data analysis
 
 ![CMDB Query Builder UI](Querybuilder.jpg)
   {{< /tab >}}
@@ -130,13 +130,13 @@ ServiceNow Unified Map is a visualization tool that delivers an interactive, end
 
 **Key Features**
 
-- **Interactive Visualization**
-  - Provides a visual representation of CIs and relationships
-  - Supports zoom and pan to navigate complex service maps
+**Interactive Visualization**
+- Provides a visual representation of CIs and relationships
+- Supports zoom and pan to navigate complex service maps
 
-- **Dependency Mapping**
-  - Shows how CIs are connected and dependent on each other
-  - Helps identify the impact of incidents or changes on related CIs
+**Dependency Mapping**
+- Shows how CIs are connected and dependent on each other
+- Helps identify the impact of incidents or changes on related CIs
 
 ![Unified Map UI](UnifiedMap.jpg)
   {{< /tab >}}
@@ -146,19 +146,19 @@ The ServiceNow CMDB and CSDM Data Foundations Dashboards help teams monitor, man
 
 The CMDB Data Foundations Dashboard assesses CMDB configurations and customizations to support data integrity and long-term platform stability.
 
-**Key Features**
+**Key Features:**
 
-- **Visibility and Data Quality Monitoring**
-  - Verifies that critical CMDB data is valid and properly configured
-  - Provides visibility into data quality issues so teams can identify and correct gaps quickly
+**Visibility and Data Quality Monitoring**
+- Verifies that critical CMDB data is valid and properly configured
+- Provides visibility into data quality issues so teams can identify and correct gaps quickly
 
-- **Policy Compliance**
-  - Monitors compliance with governance policies and data standards
-  - Highlights deviations that require corrective action
+**Policy Compliance**
+- Monitors compliance with governance policies and data standards
+- Highlights deviations that require corrective action
 
-- **Risk Identification and Remediation Playbooks**
-  - Identifies potential implementation risks that can impact CMDB stability
-  - Provides guided playbooks and best practices to support remediation and ongoing governance
+**Risk Identification and Remediation Playbooks**
+- Identifies potential implementation risks that can impact CMDB stability
+- Provides guided playbooks and best practices to support remediation and ongoing governance
 
 ![CMDB and CSDM Data Foundations Dashboards UI](CMDBFoundationsDashboard.jpg)
   {{< /tab >}}

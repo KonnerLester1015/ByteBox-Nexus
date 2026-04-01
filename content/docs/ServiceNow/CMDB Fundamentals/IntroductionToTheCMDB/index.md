@@ -142,6 +142,10 @@ When setting goals, ask:
 
 ### Pillar 1: Ingest Tools (Populating the CMDB)
 
+{{< callout icon="document">}}
+  To learn more about the tools available to populate your CMDB, check out my other document on data ingestion [Ingest Data Documentation](https://konnerlester1015.github.io/ByteBox-Nexus/docs/servicenow/cmdb-fundamentals/ingest-data/)
+{{< /callout >}}
+
 | **Tool**                                                        | **Description**                                                                     | **Key Features**                                                                                                   | **License**                                 |
 | --------------------------------------------------------------- | ----------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ | ------------------------------------------- |
 | **ServiceNow Discovery** <br>(Horizontal / Agentless Discovery) | Automatically identifies devices and applications in the network.                   | - Populates CMDB with accurate, real-time data.<br>- Maps dependencies between network devices, servers, and apps. | Yes *(Part of ITOM Visibility)*           |
@@ -153,6 +157,10 @@ When setting goals, ask:
 
 ### Pillar 2: Govern Tools (Maintaining Data Quality)
 
+{{< callout icon="document">}}
+  To learn more about the tools available to govern your CMDB, check out my other document on data governance [Govern Data Documentation](https://konnerlester1015.github.io/ByteBox-Nexus/docs/servicenow/cmdb-fundamentals/govern-data/)
+{{< /callout >}}
+
 | **Tool**                            | **Description**                                    | **Key Features**                                                                                                                                                                               | **License** |
 | ----------------------------------- | -------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ----------- |
 | **CMDB Health Dashboard**           | Monitors CMDB data health and integrity.           | - Provides scores for **Completeness**, **Correctness**, and **Compliance**.<br>- Identifies classes impacting health.                                                                         | No        |
@@ -161,6 +169,10 @@ When setting goals, ask:
 | **De-Duplication Templates**        | Enables automated bulk duplicate cleanup.          | - Uses preconfigured matching rules.<br>- Can run on schedules for continuous hygiene.                                                                                                         | No        |
 
 ### Pillar 3: Insight Tools (Using the Data)
+
+{{< callout icon="document">}}
+  To learn more about the tools available to gain insight from your CMDB, check out my other document on data insight [Insight Data Documentation](https://konnerlester1015.github.io/ByteBox-Nexus/docs/servicenow/cmdb-fundamentals/insight-into-data/)
+{{< /callout >}}
 
 | **Tool**                                    | **Description**                                            | **Key Features**                                                                                   | **License** |
 | ------------------------------------------- | ---------------------------------------------------------- | -------------------------------------------------------------------------------------------------- | ----------- |

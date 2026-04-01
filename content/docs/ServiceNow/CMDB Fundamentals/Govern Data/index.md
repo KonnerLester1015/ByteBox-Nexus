@@ -1,5 +1,5 @@
 ---
-title: "CMDB Data Governance"
+title: "Data Governance"
 ---
 
 ## Overview
@@ -18,92 +18,64 @@ Together, these metrics ensure that CMDB data is not only present, but also usab
 
 ## CMDB Health Scorecards
 
-### I. Completeness
+{{< tabs >}}
 
+  {{< tab name="Completeness" icon="check-circle" >}}
 The **Completeness** scorecard measures how well Configuration Items (CIs) are populated with required and recommended data.
 
-#### Key Metrics
+**Key Metrics**
 
-- **Required Fields**
-  - Defined by setting the *Mandatory* attribute at the dictionary level
-  - Measures the percentage of CIs missing required data
+- **Required Fields:** Defined by setting the *Mandatory* attribute at the dictionary level; measures the percentage of CIs missing required data.
+- **Recommended Fields:** Defined in the CI Class Manager; measures the percentage of CIs missing suggested (but not enforced) data.
 
-- **Recommended Fields**
-  - Defined in the CI Class Manager
-  - Measures the percentage of CIs missing suggested (but not enforced) data
+**Governance Considerations**
 
-#### Governance Considerations
+Completeness ensures that critical operational data is available for incident and change routing, ownership and accountability, and asset tracking and reporting.
 
-Completeness ensures that critical operational data is available for:
+**Key Questions**
 
-- Incident and change routing  
-- Ownership and accountability  
-- Asset tracking and reporting  
+- Are all required fields populated for each CI?
+- Are important non-discoverable fields (for example, ownership and support group) filled in?
+  {{< /tab >}}
 
-#### Key Questions
-
-- Are all required fields populated for each CI?  
-- Are important non-discoverable fields (e.g., ownership, support group) filled in?  
-
----
-
-### II. Compliance
-
+  {{< tab name="Compliance" icon="shield-check" >}}
 The **Compliance** scorecard evaluates how well CIs align with defined governance standards and desired state configurations.
 
-#### Key Metrics
+**Key Metrics**
 
-- **Audit**
-  - Compares actual CI values against expected values defined in audit templates
-  - Can include both template based and scripted audits
+- **Audit:** Compares actual CI values against expected values defined in audit templates; can include both template-based and scripted audits.
 
-#### Governance Considerations
+**Governance Considerations**
 
-Compliance ensures that:
+Compliance ensures that CIs adhere to organizational policies, configurations meet security and operational standards, and the CMDB reflects the intended state of the environment.
 
-- CIs adhere to organizational policies  
-- Configurations meet security and operational standards  
-- The CMDB reflects the intended state of the environment  
+**Key Questions**
 
-#### Key Questions
+- Are CIs configured according to defined standards?
+- Do they meet desired state expectations?
+  {{< /tab >}}
 
-- Are CIs configured according to defined standards?  
-- Do they meet desired state expectations?  
-
----
-
-### III. Correctness
-
+  {{< tab name="Correctness" icon="clipboard-check" >}}
 The **Correctness** scorecard validates the accuracy and integrity of CMDB data.
 
-#### Key Metrics
+**Key Metrics**
 
-- **Staleness**
-  - Identifies CIs that have not been updated within a defined timeframe  
-  - Based on the `sys_updated_on` field  
-  - Default threshold: 60 days  
+- **Staleness:** Identifies CIs that have not been updated within a defined timeframe; based on the `sys_updated_on` field; default threshold is 60 days.
+- **Orphaned CIs:** Identifies CIs without required relationships (for example, no parent or dependency); must be defined through custom orphan rules (by default there are no orphan rules in the base system).
+- **Duplicate CIs:** Identifies multiple records representing the same CI; based on identification rules.
 
-- **Orphaned CIs**
-  - CIs without required relationships (e.g., no parent or dependency)  
-  - Must be defined through custom orphan rules (By default there are no orphan rules in the base system)
+**Governance Considerations**
 
-- **Duplicate CIs**
-  - Identifies multiple records representing the same CI  
-  - Based on identification rules
+Correctness ensures that data reflects the current state of the environment, relationships are meaningful and intact, and duplicate or unused records do not degrade CMDB quality.
 
-#### Governance Considerations
+**Key Questions**
 
-Correctness ensures that:
+- Are CIs up-to-date and accurate?
+- Are duplicates minimized?
+- Do CIs have valid relationships?
+  {{< /tab >}}
 
-- Data reflects the current state of the environment  
-- Relationships are meaningful and intact  
-- Duplicate or unused records do not degrade CMDB quality  
-
-#### Key Questions
-
-- Are CIs up-to-date and accurate?  
-- Are duplicates minimized?  
-- Do CIs have valid relationships?  
+{{< /tabs >}}
 
 ---
 
