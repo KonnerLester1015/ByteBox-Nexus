@@ -10,6 +10,8 @@ Manage the core configuration, maintenance, and lifecycle of the ServiceNow plat
 
 {{< card link="custom-transformation/" title="Custom Transformation" icon="switch-horizontal" >}}
 
+{{< card link="mid-server/" title="MID Server" icon="server" >}}
+
 {{< card link="uninstalling-applications/" title="Uninstalling Applications" icon="trash" >}}
 
 {{< /cards >}}
