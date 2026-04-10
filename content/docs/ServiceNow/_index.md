@@ -18,8 +18,8 @@ Guides and best practices for managing the Configuration Management Database (CM
 Core scripts and process automation tools that control ServiceNow's backend behavior and business logic.
 
 {{< cards >}}
+  {{< card link="scripts/" title="Scripts" icon="code" >}}
   {{< card link="workflow-studio/" title="Workflow Studio" icon="trending-up" >}}
-  {{< card link="business-rules/" title="Business Rules" icon="code" >}}
   {{< card link="scheduled-jobs/" title="Scheduled Jobs" icon="clock" >}}
   {{< card link="automation/" title="Flow Designer & Automation" icon="chip" >}}
 {{< /cards >}}
