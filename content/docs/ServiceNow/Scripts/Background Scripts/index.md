@@ -28,8 +28,12 @@ A curated collection of snippets for quick platform administration.
   {{< /tab >}}
 
   {{< tab name="Script" >}}
-  ```javascript {linenos=table,linenostart=1,filename="ApprovalAudit.js"}
-  var approverSysId = '176301681bcaf810efa3326ecc4bcb9f';
+  **Please note the highlight line(s) for where to change inputs**
+
+  ```javascript {linenos=table,hl_lines=[2],linenostart=1,filename="ApprovalAudit.js"}
+// Set the Approver Sys ID you want to audit 
+var approverSysId = '9d4f2e1c8a3b5f7e6c2a8b4d1f9e3c7a';
+
 var grApproval = new GlideRecord('sysapproval_approver');
 grApproval.addEncodedQuery('approver=' + approverSysId + '^sysapproval.sys_class_name=sc_req_item');
 grApproval.query();
@@ -83,7 +87,6 @@ summary += "SUMMARY BY ITEM TYPE\n";
 summary += "-----------------------------------------------------------------------------------------------------------------------\n";
 
 for (var item in counts) {
-    // Reduced padding (25 characters) to bring the number closer to the name
     summary += pad(item, 35) + ": " + counts[item] + "\n";
 }
 summary += "-----------------------------------------------------------------------------------------------------------------------\n";
@@ -100,11 +103,11 @@ function pad(str, length) {
     }
     return str;
 }
+```
   {{< /tab >}}
 
 {{< tab name="Sample Output" >}}
-
-Plaintext
+```text {linenos=table,linenostart=1}
 *** Script: =======================================================================================================================
 SERVICENOW APPROVAL AUDIT REPORT
 Approver: Jane Smith (9d4f2e1c8a3b5f7e6c2a8b4d1f9e3c7a)
@@ -135,6 +138,7 @@ Internet and External Email        : 3
 -----------------------------------------------------------------------------------------------------------------------
 Total Unique Items: 3
 Total Records Found: 12
+```
 {{< /tab >}}
 
 {{< /tabs >}}
