@@ -15,7 +15,7 @@ A curated collection of snippets for quick platform administration.
 {{< /callout >}}
 
 ## Approval Audit Report (RITM)
-*Summarizes catalog item approvals for a specific sys_id.*
+Quickly see a summary of all Catalog Item approvals for a specific user, including counts by item type and record reference.
 
 {{< tabs >}}
 
@@ -28,7 +28,7 @@ A curated collection of snippets for quick platform administration.
   {{< /tab >}}
 
   {{< tab name="Script" >}}
-  **Please note the highlight line(s) for where to change inputs**
+  **Please note the highlighted line(s) for where to change inputs**
 
   ```javascript {linenos=table,hl_lines=[2],linenostart=1,filename="ApprovalAudit.js"}
 // Set the Approver Sys ID you want to audit 
@@ -140,5 +140,102 @@ Total Unique Items: 3
 Total Records Found: 12
 ```
 {{< /tab >}}
+
+{{< /tabs >}}
+
+## Validate Schedule
+Ensures a requested date has sufficient lead time based on a specific schedule (e.g. business hours, exluding weekends and holidays) and a defined minimum duration (e.g. 3 business days).
+
+{{< tabs >}}
+
+  {{< tab name="Usage" >}}
+  ### The Problem
+  When enforcing lead times for processes like Change Management or Catalog Requests, it is difficult to accurately calculate if a user has provided enough notice. A simple date subtraction doesn't account for weekends, holidays, or after-hours.
+
+  ### The Solution
+  This script uses ServiceNow's `GlideSchedul` API to calculate the exact amount of working time between a start date and an end date based on a specific schedule (e.g., 8 AM - 5 PM). It then checks if that working duration is at least 3 business days (which equals 27 business hours in an 8-5 schedule) and returns a success or failure message.
+  {{< /tab >}}
+
+  {{< tab name="Script" >}}
+  **Please note the highlight line(s) for where to change inputs**
+
+  ```javascript {linenos=table,hl_lines=[4,5,6,7,8],linenostart=1,filename="ValidateSchedule.js"}
+// --- CONFIGURATION ---
+
+var config = {
+    start: '2026-03-31 08:00:00', // Mocking submission time
+    end: '2026-04-02 17:00:00',   // Date Needed By
+    scheduleId: '090eecae0a0a0b260077e1dfa71da828', // 8-5 weekdays
+    daysRequired: 3,
+    hoursInWorkDay: 9 // 8am to 5pm is 9 hours
+};
+
+var startGDT = new GlideDateTime();
+startGDT.setDisplayValue(config.start); // Treats '08:00:00' as 8 AM YOUR time
+
+var endGDT = new GlideDateTime();
+endGDT.setDisplayValue(config.end);   // Treats '17:00:00' as 5 PM YOUR time
+
+var schedule = new GlideSchedule(config.scheduleId);
+
+// 1. Calculate the duration based on the schedule
+
+var duration = schedule.duration(startGDT, endGDT);
+var totalWorkMS = duration.getNumericValue(); // Total duration in milliseconds
+var totalWorkHours = totalWorkMS / (1000 * 60 * 60);
+var requiredHours = config.daysRequired * config.hoursInWorkDay;
+
+// 2. Formatting for the report
+
+var report = "LEAD TIME VALIDATION\n";
+report += "---------------------------------\n";
+report += "Start Date     : " + startGDT.getDisplayValue() + "\n";
+report += "End Date       : " + endGDT.getDisplayValue() + "\n";
+report += "Work Hours Found: " + totalWorkHours.toFixed(2) + "\n";
+report += "Work Hours Req : " + requiredHours + " (" + config.daysRequired + " days)\n";
+report += "---------------------------------\n";
+
+// 3. Validation Logic
+
+if (totalWorkHours >= requiredHours) {
+    report += "RESULT: ✔ Sufficient lead time provided.";
+} else {
+    var missingHours = requiredHours - totalWorkHours;
+    report += "RESULT: ✘ Insufficient lead time. Missing " + missingHours.toFixed(2) + " business hours.";
+}
+
+gs.info(report);
+```
+  {{< /tab >}}
+
+{{< tab name="Sample Output" >}}
+### Sufficent Lead Time Example
+The following example has 4/1/2026 at 8 AM as the start date and 4/6/2026 at 5 PM as the end date. In this case this spans across 5 calendar days but only includes 3 full business days (4/1, 4/2, and 4/6) because 4/3 is a holiday and 4/4-4/5 are a weekend.
+```text {linenos=table,linenostart=1}
+*** Script: LEAD TIME VALIDATION
+---------------------------------
+Start Date     : 04-01-2026 08:00:00
+End Date       : 04-06-2026 17:00:00
+Work Hours Found: 27.00
+Work Hours Req : 27 (3 days)
+---------------------------------
+RESULT: ✔ Sufficient lead time provided.
+```
+
+### Insufficent Lead Time Example
+The following example has 4/1/2026 at 8 AM to 4/3/2026 at 5 PM, which includes 2 full business days however the 3rd day (4/3) is not covered due to it being a holiday.
+```text {linenos=table,linenostart=1}
+*** Script: LEAD TIME VALIDATION
+---------------------------------
+Start Date     : 04-01-2026 08:00:00
+End Date       : 04-03-2026 17:00:00
+Work Hours Found: 18.00
+Work Hours Req : 27 (3 days)
+---------------------------------
+RESULT: ✘ Insufficient lead time. Missing 9.00 business hours.
+```
+
+{{< /tab >}}
+
 
 {{< /tabs >}}
