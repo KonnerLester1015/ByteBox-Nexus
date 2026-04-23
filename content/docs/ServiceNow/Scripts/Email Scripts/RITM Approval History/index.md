@@ -1,5 +1,5 @@
 ---
-title: "Email Script - RITM Approval History"
+title: "RITM Approval History"
 ---
 
 ## Overview
