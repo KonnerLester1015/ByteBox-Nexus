@@ -2,8 +2,7 @@
 title: "Adding SSL Certificates"
 ---
 
-# Adding SSL Certificates to ServiceNow MID Server
-
+## Overview
 ServiceNow MID Servers rely on a private Java Runtime Environment (JRE) to handle outbound HTTPS connections. Unlike web browsers, this environment does not automatically inherit trusted certificates from the host OS (Windows/Linux).
 
 This guide covers the process of manually trusting a Certificate Authority (CA) to resolve handshake failures in integrations, Discovery, or Service Mapping.
