@@ -16,6 +16,8 @@ This section focuses on practical setup and operations for MID Server administra
 
 {{< cards >}}
 
+{{< card link="adding-ssl-certificates/" title="Adding SSL Certificates" icon="identification" >}}
+
 {{< card link="creating-mid-server/" title="Creating MID Server" icon="server" >}}
 
 {{< card link="updating-mid-server-account/" title="Updating MID Server Account" icon="user-add" >}}
