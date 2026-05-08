@@ -6,8 +6,6 @@ type: docs
 prev: docs/servicenow/scripts
 ---
 
-# ServiceNow Background Scripts
-
 A curated collection of snippets for quick platform administration.
 
 {{< callout type="info" >}}
