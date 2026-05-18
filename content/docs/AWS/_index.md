@@ -18,7 +18,7 @@ Core concepts that explain how AWS is organized and why cloud is useful.
 Compute services and container platforms for running workloads.
 
 {{< cards >}}
-  {{< card link="compute/" title="Compute" icon="cpu" >}}
+  {{< card link="compute/" title="Compute" icon="chip" >}}
 {{< /cards >}}
 
 ## Networking and Storage
@@ -33,6 +33,6 @@ Virtual networks, security boundaries, and storage options.
 Data services, ML basics, and security fundamentals.
 
 {{< cards >}}
-  {{< card link="ai-ml/" title="AI/ML" icon="brain" >}}
-  {{< card link="security/" title="Security" icon="shield" >}}
+  {{< card link="ai-ml/" title="AI/ML" icon="sparkles" >}}
+  {{< card link="security/" title="Security" icon="shield-check" >}}
 {{< /cards >}}
