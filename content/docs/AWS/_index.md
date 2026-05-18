@@ -2,7 +2,7 @@
 title: AWS
 type: docs
 sidebar:
-	open: false
+  open: false
 ---
 
 Low-level reference notes for AWS Cloud Practitioner essentials. Use these pages to review core AWS building blocks and basic service definitions.
