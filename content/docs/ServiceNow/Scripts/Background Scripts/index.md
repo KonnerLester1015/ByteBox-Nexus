@@ -141,6 +141,184 @@ Total Records Found: 12
 
 {{< /tabs >}}
 
+## Group Approval Audit Report
+Summarize approvals for a specific group, showing counts by Catalog Item and listing each approval record and by member breakdown.
+
+{{< tabs >}}
+
+  {{< tab name="Usage" >}}
+  ### The Problem
+  When auditing group owned approvals, it is difficult to see which Catalog Items the group is responsible for without manually reviewing each record. Additionally, tracking individual accountability within the group specifically, identifying which members are actively approving or rejecting requests is highly manual.
+
+  ### The Solution
+  This script queries the `sysapproval_group` table for a specific Assignment Group filtering on Requested Items (sc_req_item). It aggregates the data by Catalog Item type and outputs a detailed breakdown listing the Group Approval Sys ID, the RITM Sys ID, and the specific group Approval State (e.g., Requested, Approved, Rejected).
+  {{< /tab >}}
+
+  {{< tab name="Script" >}}
+  **Please note the highlighted line(s) for where to change inputs**
+
+  ```javascript {linenos=table,hl_lines=[2],linenostart=1,filename="GroupApprovalAudit.js"}
+// Set the Group Sys ID you want to audit 
+var groupSysId = '0a06b711873f5d50b1f432ec0ebb3591';
+
+// 1. Initialize Member Stats with current group members from sys_user_grmember
+var memberStats = {};
+var grMember = new GlideRecord('sys_user_grmember');
+grMember.addQuery('group', groupSysId);
+grMember.query();
+while (grMember.next()) {
+    var memberName = grMember.user.getDisplayValue();
+    memberStats[memberName] = { approved: 0, rejected: 0 };
+}
+
+// 2. Query Group Approvals
+var grApproval = new GlideRecord('sysapproval_group');
+grApproval.addEncodedQuery('assignment_group=' + groupSysId + '^parent.sys_class_name=sc_req_item');
+grApproval.query();
+
+// Look up Group Name for the Header
+var groupName = groupSysId;
+var grGroup = new GlideRecord('sys_user_group');
+if (grGroup.get(groupSysId)) {
+  groupName = grGroup.getDisplayValue();
+}
+
+var counts = {}; 
+var logOutput = "";
+
+// --- HEADER SECTION ---
+logOutput += '=========================================================================================================================================\n';
+logOutput += 'SERVICENOW GROUP APPROVAL AUDIT REPORT\n';
+logOutput += 'Assignment Group: ' + groupName + ' (' + groupSysId + ')\n';
+logOutput += 'Generated on: ' + new GlideDateTime().getDisplayValue() + '\n';
+logOutput += '=========================================================================================================================================\n\n';
+
+// Detailed Table Header
+logOutput += pad('Group Approval Sys ID', 35) + ' | ' + pad('RITM Sys ID', 35) + ' | ' + pad('Approval State', 16) + ' | ' + 'Catalog Item\n';
+logOutput += '-----------------------------------------------------------------------------------------------------------------------------------------\n';
+
+while (grApproval.next()) {
+  var ritmSysId = grApproval.getValue('parent');
+  var approvalState = grApproval.getDisplayValue('approval');
+  var grRITM = new GlideRecord('sc_req_item');
+  
+  if (grRITM.get(ritmSysId)) {
+      var catItemName = grRITM.cat_item.getDisplayValue();
+      
+      if (!counts[catItemName]) {
+          counts[catItemName] = 1;
+      } else {
+          counts[catItemName]++;
+      }
+      
+      logOutput += pad(grApproval.getUniqueValue(), 35) + ' | ' + 
+                   pad(ritmSysId, 35) + ' | ' + 
+                   pad(approvalState, 16) + ' | ' + 
+                   catItemName + '\n';
+  }
+}
+
+// Print Main Report
+gs.info(logOutput);
+
+// 3. Gather Individual User Approval Stats (Batch Query to optimize performance)
+var grUserApproval = new GlideRecord('sysapproval_approver');
+grUserApproval.addEncodedQuery('group.assignment_group=' + groupSysId + '^group.parent.sys_class_name=sc_req_item^stateINapproved,rejected');
+grUserApproval.query();
+
+while (grUserApproval.next()) {
+    var approverName = grUserApproval.approver.getDisplayValue();
+    var state = grUserApproval.getValue('state');
+    
+    // If a user did an approval historically but is no longer in the group, add them dynamically
+    if (!memberStats[approverName]) {
+        memberStats[approverName] = { approved: 0, rejected: 0 };
+    }
+    
+    if (state === 'approved') {
+        memberStats[approverName].approved++;
+    } else if (state === 'rejected') {
+        memberStats[approverName].rejected++;
+    }
+}
+
+// --- AGGREGATED SUMMARY BY ITEM ---
+var summary = "-----------------------------------------------------------------------------------------------------------------------\n";
+summary += "SUMMARY BY ITEM TYPE\n";
+summary += "-----------------------------------------------------------------------------------------------------------------------\n";
+
+for (var item in counts) {
+  summary += pad(item, 35) + ": " + counts[item] + "\n";
+}
+summary += "-----------------------------------------------------------------------------------------------------------------------\n";
+summary += "Total Unique Items: " + Object.keys(counts).length + "\n";
+summary += "Total Records Found: " + grApproval.getRowCount() + "\n\n";
+
+// --- MEMBER BREAKDOWN SUMMARY ---
+summary += "-----------------------------------------------------------------------------------------------------------------------\n";
+summary += "MEMBER APPROVAL BREAKDOWN\n";
+summary += "-----------------------------------------------------------------------------------------------------------------------\n";
+summary += pad('Group Member', 35) + ' | ' + pad('Approved', 12) + ' | ' + 'Rejected\n';
+summary += "-----------------------------------------------------------------------------------------------------------------------\n";
+
+for (var member in memberStats) {
+    summary += pad(member, 35) + ' | ' + 
+               pad(memberStats[member].approved.toString(), 12) + ' | ' + 
+               memberStats[member].rejected + '\n';
+}
+summary += "-----------------------------------------------------------------------------------------------------------------------\n";
+
+gs.info(summary);
+
+// Padding helper
+function pad(str, length) {
+  str = str || "";
+  while (str.length < length) {
+      str += " ";
+  }
+  return str;
+}
+```
+  {{< /tab >}}
+
+{{< tab name="Sample Output" >}}
+```text {linenos=table,linenostart=1}
+*** Script: =========================================================================================================================================
+SERVICENOW GROUP APPROVAL AUDIT REPORT
+Assignment Group: HR (f5bf7yr74hdjkwei3832ec0ebb3520)
+Generated on: 05-18-2026 12:57:06
+=========================================================================================================================================
+
+Group Approval Sys ID               | RITM Sys ID                         | Approval State   | Catalog Item
+-----------------------------------------------------------------------------------------------------------------------------------------
+ea0f78bfasdasfsdfsdfsdsfafa4e32a    | 9ffe849dngu4navbxklfxv4fafa4e339    | Approved         | Login
+49df03ncu48fn4ndb1f432ec0ebb357f    | 3228e85787sj378dbfgh4bvj0ebb352e    | Approved         | Application
+sdfsdfsdfkmkfe1028d04266cebb35f9    | d4fa8a6287c73hf784n2c82934bb35a8    | Approved         | SAP 
+925b74b72fjsdfngkjndfg4fafa4e399    | 707828r3h78r234hr723r82dafa4e3fa    | Requested        | Login
+
+*** Script: -----------------------------------------------------------------------------------------------------------------------
+SUMMARY BY ITEM TYPE
+-----------------------------------------------------------------------------------------------------------------------
+Login                              : 2
+Application                        : 1
+SAP                                : 1
+-----------------------------------------------------------------------------------------------------------------------
+Total Unique Items: 3
+Total Records Found: 4
+
+-----------------------------------------------------------------------------------------------------------------------
+MEMBER APPROVAL BREAKDOWN
+-----------------------------------------------------------------------------------------------------------------------
+Group Member                        | Approved     | Rejected
+-----------------------------------------------------------------------------------------------------------------------
+John Doe                            | 1            | 0
+Jane Smith                          | 2            | 0
+-----------------------------------------------------------------------------------------------------------------------
+```
+{{< /tab >}}
+
+{{< /tabs >}}
+
 ## Validate Schedule
 Ensures a requested date has sufficient lead time based on a specific schedule (e.g. business hours, exluding weekends and holidays) and a defined minimum duration (e.g. 3 business days).
 
