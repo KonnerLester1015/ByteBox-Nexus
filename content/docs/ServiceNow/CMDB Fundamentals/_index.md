@@ -11,7 +11,7 @@ This structure is intended to help you build context in layers. Each topic build
 
 {{< cards >}}
 
-{{< card link="introductiontothecmdb/" title="Introduction to the CMDB" icon="information-circle">}}
+{{< card link="introductiontothecmdb/" title="Introduction to the CMDB and CSDM" icon="information-circle">}}
 
 {{< card link="ingest-data/" title="Ingesting Data into the CMDB" icon="plus-circle">}}
 

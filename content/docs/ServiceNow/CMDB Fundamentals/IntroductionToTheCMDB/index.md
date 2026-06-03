@@ -10,7 +10,7 @@ The **Common Service Data Model (CSDM)** defines how this data should be structu
 
 This module introduces the core concepts, data structures, and terminology that form the basis of a well-managed CMDB.
 
-## CMDB
+## The Configuration Management Database (CMDB)
 
 ### What is a CMDB?
 

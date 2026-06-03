@@ -12,6 +12,8 @@ Manage the core configuration, maintenance, and lifecycle of the ServiceNow plat
 
 {{< card link="mid-server/" title="MID Server" icon="server" >}}
 
+{{< card link="outbound-mutual-authentication/" title="Outbound Mutual Authentication" icon="login" >}}
+
 {{< card link="uninstalling-applications/" title="Uninstalling Applications" icon="trash" >}}
 
 {{< /cards >}}
