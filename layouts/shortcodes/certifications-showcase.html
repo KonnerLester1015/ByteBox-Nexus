@@ -1,0 +1,791 @@
+<style>
+.certifications-container {
+  margin: 2rem 0;
+}
+
+.certifications-header {
+  text-align: center;
+  margin-bottom: 3rem;
+}
+
+.certifications-header h1 {
+  font-size: 2.5rem;
+  font-weight: 700;
+  margin-bottom: 0.5rem;
+}
+
+.certifications-header p {
+  font-size: 1.1rem;
+  opacity: 0.75;
+  max-width: 600px;
+  margin: 0 auto;
+}
+
+.tabs-container {
+  display: flex;
+  gap: 1rem;
+  justify-content: center;
+  margin-bottom: 3rem;
+  flex-wrap: wrap;
+}
+
+.tab-button {
+  padding: 12px 24px;
+  border: 2px solid rgba(52, 102, 203, 0.3);
+  background-color: transparent;
+  color: inherit;
+  border-radius: 8px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+}
+
+.tab-button:hover {
+  border-color: rgb(52, 102, 203);
+  background-color: rgba(52, 102, 203, 0.05);
+}
+
+.tab-button.active {
+  background-color: rgb(52, 102, 203);
+  color: white;
+  border-color: rgb(52, 102, 203);
+  box-shadow: 0 4px 12px rgba(52, 102, 203, 0.3);
+}
+
+.certifications-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 2rem;
+  margin-bottom: 3rem;
+}
+
+.certification-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  text-align: center;
+  padding: 2rem 1.5rem;
+  border-radius: 12px;
+  border: 1px solid rgba(150, 150, 150, 0.2);
+  background-color: rgba(150, 150, 150, 0.05);
+  cursor: pointer;
+  transition: all 0.3s ease;
+  position: relative;
+  overflow: hidden;
+  min-height: 320px;
+  justify-content: space-between;
+}
+
+.certification-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, rgb(52, 102, 203), rgba(52, 102, 203, 0.5));
+  transition: opacity 0.3s ease;
+}
+
+.certification-card:hover {
+  transform: translateY(-8px);
+  border-color: rgba(52, 102, 203, 0.4);
+  box-shadow: 0 12px 32px rgba(52, 102, 203, 0.15);
+  background-color: rgba(52, 102, 203, 0.05);
+}
+
+.certification-card:hover::after {
+  content: '';
+  position: absolute;
+  top: 0;
+  right: 0;
+  width: 40%;
+  height: 100%;
+  background: linear-gradient(270deg, rgba(52, 102, 203, 0.03), transparent);
+  pointer-events: none;
+}
+
+.cert-badge-container {
+  width: 100px;
+  height: 100px;
+  margin-bottom: 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 8px;
+}
+
+.cert-badge {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.cert-card-title {
+  font-weight: 700;
+  font-size: 1.05rem;
+  margin-bottom: 0.5rem;
+  line-height: 1.4;
+  color: inherit;
+}
+
+.cert-card-org {
+  font-size: 0.9rem;
+  opacity: 0.7;
+  margin-bottom: 0.75rem;
+}
+
+.cert-card-date {
+  font-size: 0.85rem;
+  opacity: 0.6;
+  margin-bottom: 0.5rem;
+}
+
+.cert-card-expiry {
+  font-size: 0.85rem;
+  color: rgb(52, 102, 203);
+  font-weight: 600;
+  margin-bottom: 1rem;
+}
+
+.cert-card-status {
+  display: inline-block;
+  padding: 4px 12px;
+  border-radius: 20px;
+  font-size: 0.75rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+  margin-top: auto;
+}
+
+.cert-card-status.completed {
+  background-color: rgba(52, 102, 203, 0.15);
+  color: rgb(52, 102, 203);
+  border: 1px solid rgba(52, 102, 203, 0.3);
+}
+
+.cert-card-status.in-progress {
+  background-color: rgba(255, 165, 0, 0.15);
+  color: rgb(255, 140, 0);
+  border: 1px solid rgba(255, 140, 0, 0.3);
+}
+
+.tab-content {
+  display: none;
+}
+
+.tab-content.active {
+  display: block;
+  animation: fadeIn 0.3s ease;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Modal Styles */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 1000;
+  left: 0;
+  top: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  backdrop-filter: blur(4px);
+  animation: fadeIn 0.3s ease;
+}
+
+.modal.show {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.modal-content {
+  background-color: var(--color-bg);
+  padding: 3rem;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 500px;
+  position: relative;
+  border: 1px solid rgba(150, 150, 150, 0.2);
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
+  animation: slideUp 0.3s ease;
+}
+
+@keyframes slideUp {
+  from {
+    transform: translateY(50px);
+    opacity: 0;
+  }
+  to {
+    transform: translateY(0);
+    opacity: 1;
+  }
+}
+
+.modal-close {
+  position: absolute;
+  top: 1.5rem;
+  right: 1.5rem;
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  opacity: 0.6;
+  transition: opacity 0.2s ease;
+  padding: 0;
+  width: 32px;
+  height: 32px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  color: inherit;
+}
+
+.modal-close:hover {
+  opacity: 1;
+}
+
+.modal-badge-container {
+  width: 120px;
+  height: 120px;
+  margin: 0 auto 1.5rem;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+}
+
+.modal-badge {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+.modal-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+
+.modal-org {
+  font-size: 0.95rem;
+  opacity: 0.7;
+  text-align: center;
+  margin-bottom: 1.5rem;
+}
+
+.modal-description {
+  font-size: 0.95rem;
+  line-height: 1.6;
+  opacity: 0.8;
+  margin-bottom: 1.5rem;
+  padding: 1rem;
+  background-color: rgba(52, 102, 203, 0.05);
+  border-left: 3px solid rgb(52, 102, 203);
+  border-radius: 4px;
+}
+
+.modal-details {
+  display: grid;
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.modal-detail-item {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 0.75rem;
+  border-bottom: 1px solid rgba(150, 150, 150, 0.1);
+}
+
+.modal-detail-label {
+  font-weight: 600;
+  opacity: 0.75;
+  font-size: 0.9rem;
+}
+
+.modal-detail-value {
+  font-weight: 500;
+  text-align: right;
+}
+
+.modal-status {
+  display: inline-block;
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.8rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.modal-status.completed {
+  background-color: rgba(52, 102, 203, 0.15);
+  color: rgb(52, 102, 203);
+  border: 1px solid rgba(52, 102, 203, 0.3);
+}
+
+.modal-status.in-progress {
+  background-color: rgba(255, 165, 0, 0.15);
+  color: rgb(255, 140, 0);
+  border: 1px solid rgba(255, 140, 0, 0.3);
+}
+
+.modal-buttons {
+  display: flex;
+  gap: 1rem;
+  margin-top: 2rem;
+}
+
+.modal-button {
+  flex: 1;
+  padding: 12px 20px;
+  border: none;
+  border-radius: 8px;
+  font-size: 0.95rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.3s ease;
+  text-decoration: none;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+.modal-button.verify {
+  background-color: rgb(52, 102, 203);
+  color: white;
+}
+
+.modal-button.verify:hover {
+  background-color: rgba(52, 102, 203, 0.9);
+  box-shadow: 0 4px 12px rgba(52, 102, 203, 0.3);
+}
+
+.modal-button.close-btn {
+  background-color: rgba(150, 150, 150, 0.1);
+  color: inherit;
+  border: 1px solid rgba(150, 150, 150, 0.2);
+}
+
+.modal-button.close-btn:hover {
+  background-color: rgba(150, 150, 150, 0.15);
+  border-color: rgba(150, 150, 150, 0.3);
+}
+
+@media (prefers-color-scheme: dark) {
+  .modal-button.verify:hover {
+    background-color: rgba(52, 102, 203, 0.85);
+  }
+}
+
+@media (max-width: 768px) {
+  .certifications-grid {
+    grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+    gap: 1.5rem;
+  }
+
+  .modal-content {
+    padding: 2rem;
+  }
+
+  .certification-card {
+    padding: 1.5rem 1rem;
+    min-height: 300px;
+  }
+}
+
+@media (max-width: 600px) {
+  .certifications-grid {
+    grid-template-columns: 1fr;
+  }
+
+  .tabs-container {
+    gap: 0.5rem;
+  }
+
+  .tab-button {
+    padding: 10px 16px;
+    font-size: 0.9rem;
+  }
+
+  .modal-content {
+    width: 95%;
+    padding: 1.5rem;
+  }
+
+  .modal-buttons {
+    flex-direction: column;
+  }
+}
+</style>
+
+<div class="certifications-container">
+  <div class="certifications-header">
+    <h1>Certifications & Credentials</h1>
+    <p>A collection of professional certifications and credentials demonstrating my expertise across cloud platforms, IT infrastructure, and enterprise solutions.</p>
+  </div>
+
+  <div class="tabs-container">
+    <button class="tab-button active" data-tab="completed">Completed</button>
+    <button class="tab-button" data-tab="in-progress">In Progress</button>
+  </div>
+
+  <!-- Completed Tab -->
+  <div id="completed" class="tab-content active">
+    <div class="certifications-grid">
+      <!-- ServiceNow Certified System Administrator -->
+      <div class="certification-card" onclick="openModal('cert-csa')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='40' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSA%3C/text%3E%3C/svg%3E" alt="CSA Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">ServiceNow Certified System Administrator</div>
+        <div class="cert-card-org">ServiceNow</div>
+        <div class="cert-card-date">Issued Dec 16, 2025</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- AWS Certified Cloud Practitioner -->
+      <div class="certification-card" onclick="openModal('cert-aws')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23232f3e' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='30' fill='%23FF9900' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAWS%3C/text%3E%3C/svg%3E" alt="AWS Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">AWS Certified Cloud Practitioner</div>
+        <div class="cert-card-org">Amazon Web Services</div>
+        <div class="cert-card-expiry">Expires Nov 15, 2028</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- Google IT Support Certificate -->
+      <div class="certification-card" onclick="openModal('cert-google-support')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EGCP%3C/text%3E%3C/svg%3E" alt="Google Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Google IT Support Certificate</div>
+        <div class="cert-card-org">Google Career Certificates</div>
+        <div class="cert-card-date">Issued Oct 20, 2025</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- ServiceNow - Data Foundations -->
+      <div class="certification-card" onclick="openModal('cert-data-foundations')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EDF%3C/text%3E%3C/svg%3E" alt="Data Foundations Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Certified Implementation Specialist - Data Foundations</div>
+        <div class="cert-card-org">ServiceNow</div>
+        <div class="cert-card-date">Issued Apr 3, 2026</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- ServiceNow - Hardware Asset Management -->
+      <div class="certification-card" onclick="openModal('cert-ham')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EHAM%3C/text%3E%3C/svg%3E" alt="HAM Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Certified Implementation Specialist - Hardware Asset Management</div>
+        <div class="cert-card-org">ServiceNow</div>
+        <div class="cert-card-date">Issued Jun 23, 2026</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- Google AI for Brainstorming and Planning -->
+      <div class="certification-card" onclick="openModal('cert-google-brainstorm')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAI%3C/text%3E%3C/svg%3E" alt="Google AI Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Google AI for Brainstorming and Planning</div>
+        <div class="cert-card-org">Coursera</div>
+        <div class="cert-card-date">Issued Apr 16, 2026</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- Google AI Fundamentals -->
+      <div class="certification-card" onclick="openModal('cert-google-ai-fundamentals')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAI%3C/text%3E%3C/svg%3E" alt="Google AI Fundamentals Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Google AI Fundamentals</div>
+        <div class="cert-card-org">Coursera</div>
+        <div class="cert-card-date">Issued Apr 16, 2026</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- ServiceNow - CMDB Health -->
+      <div class="certification-card" onclick="openModal('cert-cmdb-health')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECMDB%3C/text%3E%3C/svg%3E" alt="CMDB Health Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Micro-Certification - CMDB Health</div>
+        <div class="cert-card-org">ServiceNow</div>
+        <div class="cert-card-date">Issued Jan 23, 2026</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- ServiceNow - Configure the CMDB -->
+      <div class="certification-card" onclick="openModal('cert-configure-cmdb')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECFG%3C/text%3E%3C/svg%3E" alt="Configure CMDB Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Micro-Certification - Configure the CMDB</div>
+        <div class="cert-card-org">ServiceNow</div>
+        <div class="cert-card-date">Issued Jan 6, 2026</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- ServiceNow - Flow Designer -->
+      <div class="certification-card" onclick="openModal('cert-flow-designer')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EFD%3C/text%3E%3C/svg%3E" alt="Flow Designer Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Micro-Certification - Flow Designer</div>
+        <div class="cert-card-org">ServiceNow</div>
+        <div class="cert-card-date">Issued Apr 3, 2026</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+
+      <!-- ServiceNow - Data Foundations Suite -->
+      <div class="certification-card" onclick="openModal('cert-suite-data-foundations')">
+        <div class="cert-badge-container">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSDM%3C/text%3E%3C/svg%3E" alt="Suite Data Foundations Badge" class="cert-badge">
+        </div>
+        <div class="cert-card-title">Suite Certification - Data Foundations</div>
+        <div class="cert-card-org">ServiceNow</div>
+        <div class="cert-card-date">Issued Apr 3, 2026</div>
+        <div class="cert-card-status completed">Completed</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- In Progress Tab -->
+  <div id="in-progress" class="tab-content">
+    <div class="certifications-grid">
+      <div style="grid-column: 1 / -1; text-align: center; padding: 2rem; opacity: 0.6;">
+        <p>Coming soon! I'm currently working towards additional certifications.</p>
+      </div>
+    </div>
+  </div>
+</div>
+
+<!-- Modal -->
+<div id="certModal" class="modal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">&times;</button>
+    <div class="modal-badge-container">
+      <img id="modalBadge" src="" alt="Certification Badge" class="modal-badge">
+    </div>
+    <div class="modal-title" id="modalTitle"></div>
+    <div class="modal-org" id="modalOrg"></div>
+    <div class="modal-description" id="modalDescription"></div>
+    <div class="modal-details">
+      <div class="modal-detail-item">
+        <span class="modal-detail-label">Status</span>
+        <span id="modalStatus" class="modal-status completed">Completed</span>
+      </div>
+      <div class="modal-detail-item">
+        <span class="modal-detail-label">Issued</span>
+        <span class="modal-detail-value" id="modalIssuedDate"></span>
+      </div>
+      <div class="modal-detail-item" id="expiryItem">
+        <span class="modal-detail-label">Expires</span>
+        <span class="modal-detail-value" id="modalExpiryDate"></span>
+      </div>
+    </div>
+    <div class="modal-buttons">
+      <a id="verifyLink" href="" target="_blank" class="modal-button verify">Verify Credential →</a>
+      <button onclick="closeModal()" class="modal-button close-btn">Close</button>
+    </div>
+  </div>
+</div>
+
+<script>
+const certifications = {
+  'cert-csa': {
+    title: 'ServiceNow Certified System Administrator',
+    org: 'ServiceNow',
+    description: 'Demonstrates comprehensive knowledge of ServiceNow platform administration including user management, system configuration, and best practices for maintaining enterprise instances.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23164b35" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="40" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3ECSA%3C/text%3E%3C/svg%3E',
+    issued: 'Dec 16, 2025',
+    expiry: 'Dec 16, 2028',
+    status: 'completed',
+    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+  },
+  'cert-aws': {
+    title: 'AWS Certified Cloud Practitioner',
+    org: 'Amazon Web Services',
+    description: 'Validates foundational knowledge of AWS cloud services, architecture, pricing, and best practices for using AWS at an enterprise level.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23232f3e" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="30" fill="%23FF9900" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3EAWS%3C/text%3E%3C/svg%3E',
+    issued: 'Issued Nov 15, 2025',
+    expiry: 'Nov 15, 2028',
+    status: 'completed',
+    verifyUrl: 'https://aws.amazon.com/certification/'
+  },
+  'cert-google-support': {
+    title: 'Google IT Support Certificate',
+    org: 'Google Career Certificates',
+    description: 'Comprehensive IT support training covering hardware, software, IT infrastructure, and customer support principles through hands-on labs and projects.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%234285F4" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="28" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3EGCP%3C/text%3E%3C/svg%3E',
+    issued: 'Oct 20, 2025',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://www.coursera.org/'
+  },
+  'cert-data-foundations': {
+    title: 'Certified Implementation Specialist - Data Foundations',
+    org: 'ServiceNow',
+    description: 'Demonstrates expertise in ServiceNow Data Foundations module including data management, configuration, and implementation best practices.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23164b35" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="24" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3EDF%3C/text%3E%3C/svg%3E',
+    issued: 'Apr 3, 2026',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+  },
+  'cert-ham': {
+    title: 'Certified Implementation Specialist - Hardware Asset Management',
+    org: 'ServiceNow',
+    description: 'Validates proficiency in implementing and managing ServiceNow Hardware Asset Management (HAM) module for IT asset lifecycle and inventory management.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23164b35" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="24" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3EHAM%3C/text%3E%3C/svg%3E',
+    issued: 'Jun 23, 2026',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+  },
+  'cert-google-brainstorm': {
+    title: 'Google AI for Brainstorming and Planning',
+    org: 'Coursera',
+    description: 'Hands-on training on leveraging AI tools for creative brainstorming, project planning, and workflow optimization using Google AI technologies.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%234285F4" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="22" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3EAI%3C/text%3E%3C/svg%3E',
+    issued: 'Apr 16, 2026',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://www.coursera.org/'
+  },
+  'cert-google-ai-fundamentals': {
+    title: 'Google AI Fundamentals',
+    org: 'Coursera',
+    description: 'Foundation-level course covering core concepts of artificial intelligence, machine learning, and practical applications of AI in modern workflows.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%234285F4" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="22" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3EAI%3C/text%3E%3C/svg%3E',
+    issued: 'Apr 16, 2026',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://www.coursera.org/'
+  },
+  'cert-cmdb-health': {
+    title: 'Micro-Certification - CMDB Health',
+    org: 'ServiceNow',
+    description: 'Specialized micro-certification demonstrating expertise in monitoring and maintaining Configuration Management Database health and data integrity.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%2352c7a1" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="20" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3ECMDB%3C/text%3E%3C/svg%3E',
+    issued: 'Jan 23, 2026',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+  },
+  'cert-configure-cmdb': {
+    title: 'Micro-Certification - Configure the CMDB',
+    org: 'ServiceNow',
+    description: 'Focused certification on configuring and maintaining the ServiceNow Configuration Management Database for IT asset tracking and relationships.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%2352c7a1" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="20" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3ECFG%3C/text%3E%3C/svg%3E',
+    issued: 'Jan 6, 2026',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+  },
+  'cert-flow-designer': {
+    title: 'Micro-Certification - Flow Designer',
+    org: 'ServiceNow',
+    description: 'Demonstrates proficiency in ServiceNow Flow Designer for automating workflows, building integrations, and creating process automation solutions.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%2352c7a1" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="20" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3EFD%3C/text%3E%3C/svg%3E',
+    issued: 'Apr 3, 2026',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+  },
+  'cert-suite-data-foundations': {
+    title: 'Suite Certification - Data Foundations (CMDB and CSDM)',
+    org: 'ServiceNow',
+    description: 'Comprehensive suite certification validating expertise in CMDB and Common Service Data Model (CSDM) implementation and configuration.',
+    badge: 'data:image/svg+xml,%3Csvg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 100 100"%3E%3Crect fill="%23164b35" width="100" height="100"/%3E%3Ctext x="50" y="50" font-size="22" fill="white" text-anchor="middle" dominant-baseline="central" font-weight="bold"%3ECSDM%3C/text%3E%3C/svg%3E',
+    issued: 'Apr 3, 2026',
+    expiry: null,
+    status: 'completed',
+    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+  }
+};
+
+function openModal(certId) {
+  const cert = certifications[certId];
+  if (!cert) return;
+
+  document.getElementById('modalTitle').textContent = cert.title;
+  document.getElementById('modalOrg').textContent = cert.org;
+  document.getElementById('modalDescription').textContent = cert.description;
+  document.getElementById('modalBadge').src = cert.badge;
+  document.getElementById('modalIssuedDate').textContent = cert.issued;
+  document.getElementById('modalStatus').textContent = cert.status === 'completed' ? 'Completed' : 'In Progress';
+  document.getElementById('modalStatus').className = `modal-status ${cert.status}`;
+  document.getElementById('verifyLink').href = cert.verifyUrl;
+
+  const expiryItem = document.getElementById('expiryItem');
+  if (cert.expiry) {
+    expiryItem.style.display = 'flex';
+    document.getElementById('modalExpiryDate').textContent = cert.expiry;
+  } else {
+    expiryItem.style.display = 'none';
+  }
+
+  document.getElementById('certModal').classList.add('show');
+}
+
+function closeModal() {
+  document.getElementById('certModal').classList.remove('show');
+}
+
+// Close modal when clicking outside
+document.addEventListener('DOMContentLoaded', function() {
+  document.getElementById('certModal').addEventListener('click', function(e) {
+    if (e.target === this) {
+      closeModal();
+    }
+  });
+
+  // Tab switching
+  document.querySelectorAll('.tab-button').forEach(button => {
+    button.addEventListener('click', function() {
+      const tabName = this.getAttribute('data-tab');
+      
+      // Remove active class from all tabs and contents
+      document.querySelectorAll('.tab-button').forEach(btn => btn.classList.remove('active'));
+      document.querySelectorAll('.tab-content').forEach(content => content.classList.remove('active'));
+      
+      // Add active class to clicked button and corresponding content
+      this.classList.add('active');
+      document.getElementById(tabName).classList.add('active');
+    });
+  });
+});
+
+// Close modal with Escape key
+document.addEventListener('keydown', function(e) {
+  if (e.key === 'Escape') {
+    closeModal();
+  }
+});
+</script>
