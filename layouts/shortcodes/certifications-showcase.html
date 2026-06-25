@@ -219,9 +219,9 @@
 
 .modal-content {
   /* Solid surface that works in both light and dark */
-  background-color: var(--color-bg);
-  border: 1px solid rgba(150,150,150,0.2);
-  color: var(--color-fg, inherit);
+  background-color: #111827;
+  border: 1px solid rgba(255,255,255,0.12);
+  color: #f4f7fb;
   padding: 2rem 2rem 1.75rem;
   border-radius: 10px;
   width: 90%;
@@ -254,21 +254,20 @@
 
 .modal-org {
   font-size: 0.82rem;
-  opacity: 0.5;
+  opacity: 0.72;
   margin-top: 2px;
 }
 
 .modal-description {
   font-size: 0.875rem;
   line-height: 1.65;
-  /* High-contrast text instead of dimmed */
-  color: inherit;
-  opacity: 0.88;
+  color: #f4f7fb;
+  opacity: 1;
   margin-bottom: 1.5rem;
   padding: 0.85rem 1rem;
-  background: rgba(128,128,128,0.08);
-  border-left: 2px solid rgba(52, 102, 203, 0.5);
-  border-radius: 3px;
+  background: rgba(255,255,255,0.06);
+  border-left: 2px solid rgba(77, 144, 254, 0.8);
+  border-radius: 6px;
 }
 
 /* ── Modal detail rows ───────────────────────────────── */
@@ -284,7 +283,7 @@
   align-items: center;
   /* More breathing room between rows */
   padding: 0.65rem 0;
-  border-bottom: 1px solid rgba(150,150,150,0.1);
+  border-bottom: 1px solid rgba(255,255,255,0.10);
 }
 
 .modal-detail-item:last-child { border-bottom: none; }
@@ -292,13 +291,13 @@
 .modal-detail-label {
   font-size: 0.78rem;
   font-weight: 600;
-  opacity: 0.5;
+  opacity: 0.7;
 }
 
 .modal-detail-value {
   font-size: 0.85rem;
   font-weight: 500;
-  color: inherit;
+  color: #f4f7fb;
 }
 
 .modal-tier-badge {
@@ -312,18 +311,18 @@
 }
 
 .modal-tier-badge.cert {
-  background: rgba(52, 102, 203, 0.13);
-  color: rgb(52, 102, 203);
+  background: rgba(77, 144, 254, 0.20);
+  color: #8ab4ff;
 }
 
 .modal-tier-badge.suite {
-  background: rgba(100, 60, 200, 0.13);
-  color: rgb(120, 80, 210);
+  background: rgba(140, 92, 255, 0.20);
+  color: #c4b5ff;
 }
 
 .modal-tier-badge.micro {
-  background: rgba(150,150,150,0.12);
-  color: rgba(100,100,100,1);
+  background: rgba(255,255,255,0.10);
+  color: #d1d5db;
 }
 
 /* ── Modal footer ────────────────────────────────────── */
@@ -349,23 +348,23 @@
 }
 
 .modal-btn.verify {
-  background: rgb(52, 102, 203);
+  background: rgb(77, 144, 254);
   color: #fff;
 }
 
 .modal-btn.verify:hover {
-  background: rgba(52,102,203,0.85);
-  box-shadow: 0 2px 10px rgba(52,102,203,0.25);
+  background: rgba(77,144,254,0.88);
+  box-shadow: 0 2px 10px rgba(77,144,254,0.25);
 }
 
 .modal-btn.close-btn {
-  background: rgba(150,150,150,0.12);
-  color: inherit;
-  border: 1px solid rgba(150,150,150,0.2);
+  background: rgba(255,255,255,0.08);
+  color: #f4f7fb;
+  border: 1px solid rgba(255,255,255,0.12);
 }
 
 .modal-btn.close-btn:hover {
-  background: rgba(150,150,150,0.2);
+  background: rgba(255,255,255,0.14);
 }
 
 /* ── Responsive ──────────────────────────────────────── */
@@ -386,6 +385,9 @@
 {{ $badgeGoogleAiFundamentals := .Page.Resources.GetMatch "google-ai-fundamentals.png" }}
 {{ $badgeGoogleBrainstorm := .Page.Resources.GetMatch "google-ai-for-brainstorming-and-planning.1.png" }}
 {{ $badgeGoogleSupport := .Page.Resources.GetMatch "google-it-support-certificate.2.png" }}
+{{ $badgePostman := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23FF6C37' width='100' height='100' rx='16'/%3E%3Ctext x='50' y='54' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='700'%3EPostman%3C/text%3E%3C/svg%3E" }}
+{{ $badgeCiti := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23005A9C' width='100' height='100' rx='16'/%3E%3Ctext x='50' y='54' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='700'%3ECITI%3C/text%3E%3C/svg%3E" }}
+{{ $badgeClaude := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23111827' width='100' height='100' rx='16'/%3E%3Ccircle cx='50' cy='36' r='14' fill='%23D9DEE7'/%3E%3Cpath d='M32 63c6-8 13-12 18-12s12 4 18 12' stroke='%23D9DEE7' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3Ctext x='50' y='82' font-size='17' fill='white' text-anchor='middle' font-weight='700'%3EAnthropic%3C/text%3E%3C/svg%3E" }}
 
 <div class="certifications-container">
   <div class="certifications-header">
@@ -469,7 +471,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-postman-fundamentals')">
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23FF6C37' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EPM%3C/text%3E%3C/svg%3E" alt="Postman">
+          <img class="cert-row-badge" src="{{ $badgePostman }}" alt="Postman">
           <div class="cert-row-info">
             <div class="cert-row-title">Postman API Fundamentals Student Expert</div>
             <div class="cert-row-meta">Postman · Jun 2025</div>
@@ -481,7 +483,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-citi-rcr')">
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23005A9C' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECITI%3C/text%3E%3C/svg%3E" alt="CITI Program">
+          <img class="cert-row-badge" src="{{ $badgeCiti }}" alt="CITI Program">
           <div class="cert-row-info">
             <div class="cert-row-title">Responsible Conduct of Research (RCR) Training</div>
             <div class="cert-row-meta">CITI Program · Jul 2024</div>
@@ -587,7 +589,7 @@
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-claude-cowork')">
-          <img class="cert-row-badge" src="https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_200_200/company-logo_200_200/0/1719256413073/anthropicresearch_logo?e=1784160000&v=beta&t=sR55oTJzzGbaqmelyaXjouzTKXP9itR-CvLApmiIzdc" alt="Anthropic">
+          <img class="cert-row-badge" src="{{ $badgeClaude }}" alt="Anthropic">
           <div class="cert-row-info">
             <div class="cert-row-title">Introduction to Claude Cowork</div>
             <div class="cert-row-meta">Anthropic · May 5, 2026</div>
@@ -754,7 +756,7 @@ const certifications = {
     org: 'Postman',
     tier: 'cert', tierLabel: 'Certification',
     description: 'This certificate recognizes foundational knowledge of API fundamentals and practical Postman skills, including sending requests, working with collections, understanding environments, and validating API behavior.',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23FF6C37' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EPM%3C/text%3E%3C/svg%3E",
+    badge: "{{ $badgePostman }}",
     issued: 'Jun 2025', expiry: null,
     verifyUrl: 'https://api.badgr.io/public/assertions/thcIs_wyTxaRt0sWLtxsvg?identity__email=lester20%40purdue.edu'
   },
@@ -763,7 +765,7 @@ const certifications = {
     org: 'CITI Program',
     tier: 'cert', tierLabel: 'Certification',
     description: 'This training covers the standards and responsibilities for ethical research conduct, including integrity, data management, authorship, peer review, and compliance expectations.',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23005A9C' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECITI%3C/text%3E%3C/svg%3E",
+    badge: "{{ $badgeCiti }}",
     issued: 'Jul 2024', expiry: 'Jul 2028',
     verifyUrl: 'https://www.citiprogram.org/verify/?k35b9cadc-7f27-4554-b069-4edfb41551e8-63904007'
   },
@@ -772,7 +774,7 @@ const certifications = {
     org: 'Anthropic',
     tier: 'micro', tierLabel: 'Badge',
     description: 'This badge recognizes introductory familiarity with Claude Cowork and the core ideas behind using Anthropic tools for collaborative AI-assisted work.',
-    badge: 'https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_200_200/company-logo_200_200/0/1719256413073/anthropicresearch_logo?e=1784160000&v=beta&t=sR55oTJzzGbaqmelyaXjouzTKXP9itR-CvLApmiIzdc',
+    badge: "{{ $badgeClaude }}",
     issued: 'May 5, 2026', expiry: null,
     verifyUrl: 'https://verify.skilljar.com/c/4fdhjaon45pd'
   }
