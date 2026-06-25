@@ -91,7 +91,6 @@
   gap: 0;
 }
 
-/* Full certification rows */
 .cert-row {
   display: flex;
   align-items: center;
@@ -148,7 +147,7 @@
   white-space: nowrap;
 }
 
-/* Micro-cert rows — visually lighter */
+/* Micro/badge rows — visually lighter */
 .cert-row.micro {
   padding: 0.45rem 0.75rem;
 }
@@ -191,9 +190,15 @@
 }
 
 .cert-tag.micro {
-  background: rgba(150,150,150,0.1);
-  color: rgba(150,150,150,0.9);
-  font-weight: 600;
+  background: rgba(150,150,150,0.12);
+  color: rgba(100,100,100,1);
+}
+
+/* ── In Progress placeholder ─────────────────────────── */
+.planned-empty {
+  opacity: 0.45;
+  font-size: 0.9rem;
+  margin-top: 1rem;
 }
 
 /* ── Modal ───────────────────────────────────────────── */
@@ -202,7 +207,7 @@
   position: fixed;
   z-index: 1000;
   inset: 0;
-  background: rgba(0,0,0,0.65);
+  background: rgba(0,0,0,0.55);
   align-items: center;
   justify-content: center;
 }
@@ -213,13 +218,15 @@
 }
 
 .modal-content {
-  background: var(--color-bg, #111);
+  /* Solid surface that works in both light and dark */
+  background-color: var(--color-bg);
+  border: 1px solid rgba(150,150,150,0.2);
+  color: var(--color-fg, inherit);
   padding: 2rem 2rem 1.75rem;
   border-radius: 10px;
   width: 90%;
-  max-width: 440px;
-  border: 1px solid rgba(150,150,150,0.15);
-  box-shadow: 0 8px 32px rgba(0,0,0,0.45);
+  max-width: 460px;
+  box-shadow: 0 8px 40px rgba(0,0,0,0.35);
   animation: fadeIn 0.15s ease;
 }
 
@@ -242,25 +249,29 @@
   font-size: 1.05rem;
   font-weight: 700;
   line-height: 1.35;
+  color: inherit;
 }
 
 .modal-org {
   font-size: 0.82rem;
-  opacity: 0.45;
+  opacity: 0.5;
   margin-top: 2px;
 }
 
 .modal-description {
   font-size: 0.875rem;
-  line-height: 1.6;
-  opacity: 0.7;
-  margin-bottom: 1.25rem;
-  padding: 0.75rem 0.9rem;
-  background: rgba(52, 102, 203, 0.05);
-  border-left: 2px solid rgba(52, 102, 203, 0.4);
+  line-height: 1.65;
+  /* High-contrast text instead of dimmed */
+  color: inherit;
+  opacity: 0.88;
+  margin-bottom: 1.5rem;
+  padding: 0.85rem 1rem;
+  background: rgba(128,128,128,0.08);
+  border-left: 2px solid rgba(52, 102, 203, 0.5);
   border-radius: 3px;
 }
 
+/* ── Modal detail rows ───────────────────────────────── */
 .modal-details {
   display: grid;
   gap: 0;
@@ -271,8 +282,9 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
-  padding: 0.5rem 0;
-  border-bottom: 1px solid rgba(150,150,150,0.08);
+  /* More breathing room between rows */
+  padding: 0.65rem 0;
+  border-bottom: 1px solid rgba(150,150,150,0.1);
 }
 
 .modal-detail-item:last-child { border-bottom: none; }
@@ -280,12 +292,13 @@
 .modal-detail-label {
   font-size: 0.78rem;
   font-weight: 600;
-  opacity: 0.45;
+  opacity: 0.5;
 }
 
 .modal-detail-value {
   font-size: 0.85rem;
   font-weight: 500;
+  color: inherit;
 }
 
 .modal-tier-badge {
@@ -309,10 +322,11 @@
 }
 
 .modal-tier-badge.micro {
-  background: rgba(150,150,150,0.1);
-  color: rgba(150,150,150,0.85);
+  background: rgba(150,150,150,0.12);
+  color: rgba(100,100,100,1);
 }
 
+/* ── Modal footer ────────────────────────────────────── */
 .modal-footer {
   display: flex;
   justify-content: flex-end;
@@ -345,13 +359,13 @@
 }
 
 .modal-btn.close-btn {
-  background: rgba(150,150,150,0.1);
+  background: rgba(150,150,150,0.12);
   color: inherit;
-  border: 1px solid rgba(150,150,150,0.18);
+  border: 1px solid rgba(150,150,150,0.2);
 }
 
 .modal-btn.close-btn:hover {
-  background: rgba(150,150,150,0.18);
+  background: rgba(150,150,150,0.2);
 }
 
 /* ── Responsive ──────────────────────────────────────── */
@@ -368,22 +382,22 @@
 
   <div class="tabs-container">
     <button class="tab-button active" data-tab="completed">Completed</button>
-    <button class="tab-button" data-tab="in-progress">In Progress</button>
+    <button class="tab-button" data-tab="in-progress">In Progress / Planned</button>
   </div>
 
+  <!-- ── COMPLETED ── -->
   <div id="completed" class="tab-content active">
 
-    <!-- ── CERTIFICATIONS tier ── -->
+    <!-- CERTIFICATIONS -->
     <div class="cert-tier">
       <div class="cert-tier-header">
         <span class="cert-tier-label">Certifications</span>
-        <span class="cert-tier-count">4 credentials</span>
+        <span class="cert-tier-count">7 credentials</span>
       </div>
       <div class="cert-list">
 
         <div class="cert-row" onclick="openModal('cert-csa')">
-          <!-- Replace src with your Credly image URL, e.g.: https://images.credly.com/size/340x340/images/YOUR_BADGE_ID/image.png -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='40' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSA%3C/text%3E%3C/svg%3E" alt="CSA Badge">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "servicenow-certified-system-administrator-csa.png" }}{{ .RelPermalink }}{{ end }}" alt="CSA">
           <div class="cert-row-info">
             <div class="cert-row-title">ServiceNow Certified System Administrator</div>
             <div class="cert-row-meta">ServiceNow · Dec 16, 2025</div>
@@ -395,8 +409,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-aws')">
-          <!-- Replace src with Credly image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23232f3e' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='30' fill='%23FF9900' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAWS%3C/text%3E%3C/svg%3E" alt="AWS Badge">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "aws-certified-cloud-practitioner.png" }}{{ .RelPermalink }}{{ end }}" alt="AWS">
           <div class="cert-row-info">
             <div class="cert-row-title">AWS Certified Cloud Practitioner</div>
             <div class="cert-row-meta">Amazon Web Services · Nov 15, 2025</div>
@@ -408,8 +421,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-data-foundations')">
-          <!-- Replace src with Credly image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EDF%3C/text%3E%3C/svg%3E" alt="DF Badge">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "certified-implementation-specialist-data-foundation.png" }}{{ .RelPermalink }}{{ end }}" alt="DF">
           <div class="cert-row-info">
             <div class="cert-row-title">CIS — Data Foundations</div>
             <div class="cert-row-meta">ServiceNow · Apr 3, 2026</div>
@@ -421,8 +433,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-ham')">
-          <!-- Replace src with Credly image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EHAM%3C/text%3E%3C/svg%3E" alt="HAM Badge">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "certified-implementation-specialist-hardware-asset-.png" }}{{ .RelPermalink }}{{ end }}" alt="HAM">
           <div class="cert-row-info">
             <div class="cert-row-title">CIS — Hardware Asset Management</div>
             <div class="cert-row-meta">ServiceNow · Jun 23, 2026</div>
@@ -433,10 +444,46 @@
           </div>
         </div>
 
+        <div class="cert-row" onclick="openModal('cert-google-support')">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "google-it-support-certificate.2.png" }}{{ .RelPermalink }}{{ end }}" alt="Google IT Support">
+          <div class="cert-row-info">
+            <div class="cert-row-title">Google IT Support Certificate</div>
+            <div class="cert-row-meta">Google Career Certificates · Oct 20, 2025</div>
+          </div>
+          <div class="cert-row-right">
+            <span class="cert-row-date">Oct 2025</span>
+            <span class="cert-tag cert">Certification</span>
+          </div>
+        </div>
+
+        <div class="cert-row" onclick="openModal('cert-postman-fundamentals')">
+          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23FF6C37' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EPM%3C/text%3E%3C/svg%3E" alt="Postman">
+          <div class="cert-row-info">
+            <div class="cert-row-title">Postman API Fundamentals Student Expert</div>
+            <div class="cert-row-meta">Postman · Jun 2025</div>
+          </div>
+          <div class="cert-row-right">
+            <span class="cert-row-date">Jun 2025</span>
+            <span class="cert-tag cert">Certification</span>
+          </div>
+        </div>
+
+        <div class="cert-row" onclick="openModal('cert-citi-rcr')">
+          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23005A9C' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECITI%3C/text%3E%3C/svg%3E" alt="CITI Program">
+          <div class="cert-row-info">
+            <div class="cert-row-title">Responsible Conduct of Research (RCR) Training</div>
+            <div class="cert-row-meta">CITI Program · Jul 2024</div>
+          </div>
+          <div class="cert-row-right">
+            <span class="cert-row-date">Expires Jul 2028</span>
+            <span class="cert-tag cert">Certification</span>
+          </div>
+        </div>
+
       </div>
     </div>
 
-    <!-- ── SUITE CERTIFICATIONS tier ── -->
+    <!-- SUITE CERTIFICATIONS -->
     <div class="cert-tier">
       <div class="cert-tier-header">
         <span class="cert-tier-label">Suite Certifications</span>
@@ -445,8 +492,7 @@
       <div class="cert-list">
 
         <div class="cert-row" onclick="openModal('cert-suite-data-foundations')">
-          <!-- Replace src with Credly image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSDM%3C/text%3E%3C/svg%3E" alt="Suite Badge">
+          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSDM%3C/text%3E%3C/svg%3E" alt="CSDM">
           <div class="cert-row-info">
             <div class="cert-row-title">Suite Certification — Data Foundations (CMDB & CSDM)</div>
             <div class="cert-row-meta">ServiceNow · Apr 3, 2026</div>
@@ -460,56 +506,52 @@
       </div>
     </div>
 
-    <!-- ── MICRO-CERTIFICATIONS tier ── -->
+    <!-- BADGES -->
     <div class="cert-tier">
       <div class="cert-tier-header">
         <span class="cert-tier-label">Micro-Certifications & Badges</span>
-        <span class="cert-tier-count">5 credentials</span>
+        <span class="cert-tier-count">6 credentials</span>
       </div>
       <div class="cert-list">
 
         <div class="cert-row micro" onclick="openModal('cert-cmdb-health')">
-          <!-- Replace src with Credly image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECMDB%3C/text%3E%3C/svg%3E" alt="CMDB Health">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "micro-certification-cmdb-health.png" }}{{ .RelPermalink }}{{ end }}" alt="CMDB Health">
           <div class="cert-row-info">
             <div class="cert-row-title">Micro-Cert — CMDB Health</div>
             <div class="cert-row-meta">ServiceNow · Jan 23, 2026</div>
           </div>
           <div class="cert-row-right">
             <span class="cert-row-date">Jan 2026</span>
-            <span class="cert-tag micro">Micro</span>
+            <span class="cert-tag micro">Badge</span>
           </div>
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-configure-cmdb')">
-          <!-- Replace src with Credly image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECFG%3C/text%3E%3C/svg%3E" alt="Configure CMDB">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "micro-certification-configure-the-cmdb.png" }}{{ .RelPermalink }}{{ end }}" alt="Configure CMDB">
           <div class="cert-row-info">
             <div class="cert-row-title">Micro-Cert — Configure the CMDB</div>
             <div class="cert-row-meta">ServiceNow · Jan 6, 2026</div>
           </div>
           <div class="cert-row-right">
             <span class="cert-row-date">Jan 2026</span>
-            <span class="cert-tag micro">Micro</span>
+            <span class="cert-tag micro">Badge</span>
           </div>
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-flow-designer')">
-          <!-- Replace src with Credly image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EFD%3C/text%3E%3C/svg%3E" alt="Flow Designer">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "micro-certification-flow-designer.png" }}{{ .RelPermalink }}{{ end }}" alt="Flow Designer">
           <div class="cert-row-info">
             <div class="cert-row-title">Micro-Cert — Flow Designer</div>
             <div class="cert-row-meta">ServiceNow · Apr 3, 2026</div>
           </div>
           <div class="cert-row-right">
             <span class="cert-row-date">Apr 2026</span>
-            <span class="cert-tag micro">Micro</span>
+            <span class="cert-tag micro">Badge</span>
           </div>
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-google-ai-fundamentals')">
-          <!-- Replace src with Credly/Coursera image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAI%3C/text%3E%3C/svg%3E" alt="Google AI Fundamentals">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "google-ai-fundamentals.png" }}{{ .RelPermalink }}{{ end }}" alt="Google AI Fundamentals">
           <div class="cert-row-info">
             <div class="cert-row-title">Google AI Fundamentals</div>
             <div class="cert-row-meta">Coursera · Apr 16, 2026</div>
@@ -521,8 +563,7 @@
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-google-brainstorm')">
-          <!-- Replace src with Credly/Coursera image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAI%3C/text%3E%3C/svg%3E" alt="Google AI Brainstorm">
+          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "google-ai-for-brainstorming-and-planning.1.png" }}{{ .RelPermalink }}{{ end }}" alt="Google AI Brainstorm">
           <div class="cert-row-info">
             <div class="cert-row-title">Google AI for Brainstorming and Planning</div>
             <div class="cert-row-meta">Coursera · Apr 16, 2026</div>
@@ -533,15 +574,14 @@
           </div>
         </div>
 
-        <div class="cert-row micro" onclick="openModal('cert-google-support')">
-          <!-- Replace src with Credly/Coursera image URL -->
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EG%3C/text%3E%3C/svg%3E" alt="Google IT Support">
+        <div class="cert-row micro" onclick="openModal('cert-claude-cowork')">
+          <img class="cert-row-badge" src="https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_200_200/company-logo_200_200/0/1719256413073/anthropicresearch_logo?e=1784160000&v=beta&t=sR55oTJzzGbaqmelyaXjouzTKXP9itR-CvLApmiIzdc" alt="Anthropic">
           <div class="cert-row-info">
-            <div class="cert-row-title">Google IT Support Certificate</div>
-            <div class="cert-row-meta">Google Career Certificates · Oct 20, 2025</div>
+            <div class="cert-row-title">Introduction to Claude Cowork</div>
+            <div class="cert-row-meta">Anthropic · May 5, 2026</div>
           </div>
           <div class="cert-row-right">
-            <span class="cert-row-date">Oct 2025</span>
+            <span class="cert-row-date">May 2026</span>
             <span class="cert-tag micro">Badge</span>
           </div>
         </div>
@@ -551,8 +591,9 @@
 
   </div><!-- /completed -->
 
+  <!-- ── IN PROGRESS / PLANNED ── -->
   <div id="in-progress" class="tab-content">
-    <p style="opacity:0.45; font-size:0.9rem; margin-top:1rem;">Additional certifications coming soon.</p>
+    <p class="planned-empty">Nothing scheduled yet — check back soon.</p>
   </div>
 
 </div>
@@ -600,9 +641,8 @@ const certifications = {
     title: 'ServiceNow Certified System Administrator',
     org: 'ServiceNow',
     tier: 'cert', tierLabel: 'Certification',
-    description: 'Demonstrates comprehensive knowledge of ServiceNow platform administration including user management, system configuration, and best practices for maintaining enterprise instances.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='40' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSA%3C/text%3E%3C/svg%3E",
+    description: 'Earners of the Certified System Administrator (CSA) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow system. This certification validates their ability to navigate the platform, configure applications, manage databases, and implement self-service and automation. Certified individuals handle data migration, integrations, and customizations to support efficient and scalable ServiceNow operations.',
+    badge: "{{ with .Page.Resources.GetMatch \"servicenow-certified-system-administrator-csa.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Dec 16, 2025', expiry: 'Dec 16, 2028',
     verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
   },
@@ -610,101 +650,119 @@ const certifications = {
     title: 'AWS Certified Cloud Practitioner',
     org: 'Amazon Web Services',
     tier: 'cert', tierLabel: 'Certification',
-    description: 'Validates foundational knowledge of AWS cloud services, architecture, pricing, and best practices for using AWS at an enterprise level.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23232f3e' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='30' fill='%23FF9900' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAWS%3C/text%3E%3C/svg%3E",
+    description: 'Earners of this certification have a fundamental understanding of IT services and their uses in the AWS Cloud. They demonstrated cloud fluency and foundational AWS knowledge. Badge owners are able to identify essential AWS services necessary to set up AWS-focused projects.',
+    badge: "{{ with .Page.Resources.GetMatch \"aws-certified-cloud-practitioner.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Nov 15, 2025', expiry: 'Nov 15, 2028',
-    verifyUrl: 'https://aws.amazon.com/certification/'
+    verifyUrl: 'https://www.credly.com/badges/a47642d8-7ff8-406e-b435-dbd90be7b9de/public_url'
   },
   'cert-data-foundations': {
     title: 'Certified Implementation Specialist — Data Foundations',
     org: 'ServiceNow',
     tier: 'cert', tierLabel: 'Certification',
-    description: 'Demonstrates expertise in ServiceNow Data Foundations including data management, configuration, and implementation best practices.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EDF%3C/text%3E%3C/svg%3E",
+    description: 'Earners of the Certified Implementation Specialist - Data Foundations (CMDB and CSDM) Certification badge have the knowledge and skills to successfully design, implement, and operationalize a ServiceNow CMDB supporting the CSDM framework.',
+    badge: "{{ with .Page.Resources.GetMatch \"certified-implementation-specialist-data-foundation.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 3, 2026', expiry: null,
-    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+    verifyUrl: 'https://www.credly.com/badges/ff513280-db98-4d47-bfa7-0445f48a8623/public_url'
   },
   'cert-ham': {
     title: 'Certified Implementation Specialist — Hardware Asset Management',
     org: 'ServiceNow',
     tier: 'cert', tierLabel: 'Certification',
-    description: 'Validates proficiency in implementing and managing the ServiceNow Hardware Asset Management module for IT asset lifecycle and inventory management.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EHAM%3C/text%3E%3C/svg%3E",
+    description: 'Earners of the Certified Implementation Specialist - Hardware Asset Management (CIS-HAM) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow HAM application. This certification validates their ability to manage hardware lifecycles, ensure data integrity, automate asset processes, and integrate IT asset management with workflows. Certified individuals optimize asset tracking, inventory management, and financial oversight to enhance IT operations.',
+    badge: "{{ with .Page.Resources.GetMatch \"certified-implementation-specialist-hardware-asset-.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Jun 23, 2026', expiry: null,
-    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+    verifyUrl: 'https://www.credly.com/badges/4ddff3f3-b69c-4fa6-9965-ec96296f9c15/public_url'
   },
   'cert-suite-data-foundations': {
     title: 'Suite Certification — Data Foundations (CMDB & CSDM)',
     org: 'ServiceNow',
     tier: 'suite', tierLabel: 'Suite Certification',
-    description: 'Comprehensive suite certification validating expertise in CMDB and Common Service Data Model (CSDM) implementation and configuration.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSDM%3C/text%3E%3C/svg%3E",
+    description: 'Earners of this badge have achieved the Suite Certification - Data Foundations (CMDB and CSDM) Professional badge, demonstrating dedication and a comprehensive understanding of the required credential components within the suite.',
+    badge: "{{ with .Page.Resources.GetMatch \"suite-certification-data-foundations-cmdb-and-csdm.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 3, 2026', expiry: null,
-    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+    verifyUrl: 'https://www.credly.com/badges/615348b5-dff5-4b4e-aa90-e75ffa3c0cd1/public_url'
   },
   'cert-cmdb-health': {
     title: 'Micro-Certification — CMDB Health',
     org: 'ServiceNow',
-    tier: 'micro', tierLabel: 'Micro-Certification',
-    description: 'Specialized micro-certification demonstrating expertise in monitoring and maintaining Configuration Management Database health and data integrity.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECMDB%3C/text%3E%3C/svg%3E",
+    tier: 'micro', tierLabel: 'Badge',
+    description: 'Earners of the Micro-Certification - CMDB Health badge have the knowledge and skills to implement best practices for maintaining CMDB health and ensuring data integrity. This includes configuring the CMDB Health Dashboard, managing CI reclassification, building queries with Query Builder, and performing remediation tasks.',
+    badge: "{{ with .Page.Resources.GetMatch \"micro-certification-cmdb-health.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Jan 23, 2026', expiry: null,
-    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+    verifyUrl: 'https://www.credly.com/badges/613d6116-1cd0-4f63-974b-e2a94ed6faf4/public_url'
   },
   'cert-configure-cmdb': {
     title: 'Micro-Certification — Configure the CMDB',
     org: 'ServiceNow',
-    tier: 'micro', tierLabel: 'Micro-Certification',
-    description: 'Focused certification on configuring and maintaining the ServiceNow CMDB for IT asset tracking and relationships.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECFG%3C/text%3E%3C/svg%3E",
+    tier: 'micro', tierLabel: 'Badge',
+    description: 'Earners of the Micro-Certification - Configure the CMDB badge have the knowledge and skills to configure the CMDB for effective data management and operations. This includes creating and managing CI Classes, configuring and testing Identification and Reconciliation Rules, enabling Multisource CMDB, and creating Data Refresh Rules.',
+    badge: "{{ with .Page.Resources.GetMatch \"micro-certification-configure-the-cmdb.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Jan 6, 2026', expiry: null,
-    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+    verifyUrl: 'https://www.credly.com/badges/fb67a00f-3894-4b2b-94e4-be1a2a3a37b0/public_url'
   },
   'cert-flow-designer': {
     title: 'Micro-Certification — Flow Designer',
     org: 'ServiceNow',
-    tier: 'micro', tierLabel: 'Micro-Certification',
-    description: 'Demonstrates proficiency in ServiceNow Flow Designer for automating workflows, building integrations, and creating process automation solutions.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%2352c7a1' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='20' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EFD%3C/text%3E%3C/svg%3E",
+    tier: 'micro', tierLabel: 'Badge',
+    description: 'Earners of the Micro-Certification - Flow Designer badge have the knowledge and skills to implement Flow Designer, a platform feature that enables rich process automation capabilities. Badge holders have demonstrated their ability to build and test flows, create subflows, and develop custom actions while following best practices.',
+    badge: "{{ with .Page.Resources.GetMatch \"micro-certification-flow-designer.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 3, 2026', expiry: null,
-    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
+    verifyUrl: 'https://www.credly.com/badges/10e213d5-90cf-4ed8-9074-70bac3c09701/public_url'
   },
   'cert-google-ai-fundamentals': {
     title: 'Google AI Fundamentals',
     org: 'Coursera',
     tier: 'micro', tierLabel: 'Badge',
-    description: 'Foundation-level course covering core AI and machine learning concepts and practical applications in modern workflows.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAI%3C/text%3E%3C/svg%3E",
+    description: 'Those who earn the AI Fundamentals badge from Google have adopted the "AI as a Collaborator" mindset and developed an understanding of the AI ecosystem, including models, features, and applications. They are familiar with AI strengths, limitations and risks, have mastered prompting and advanced techniques, and demonstrated the ability to use AI responsibly by applying the ACT framework (Ask, Check, Tell) to evaluate outputs for accuracy, bias, and privacy risks.',
+    badge: "{{ with .Page.Resources.GetMatch \"google-ai-fundamentals.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 16, 2026', expiry: null,
-    verifyUrl: 'https://www.coursera.org/'
+    verifyUrl: 'https://www.credly.com/badges/734d730a-9b7c-4bc9-ad8c-a3ea58648687/public_url'
   },
   'cert-google-brainstorm': {
     title: 'Google AI for Brainstorming and Planning',
     org: 'Coursera',
     tier: 'micro', tierLabel: 'Badge',
-    description: 'Hands-on training on leveraging Google AI tools for creative brainstorming, project planning, and workflow optimization.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EAI%3C/text%3E%3C/svg%3E",
+    description: 'Those who earn the AI for Brainstorming and Planning badge from Google can transform abstract ideas into actionable project plans using AI. They have demonstrated the ability to use AI as a thought partner to brainstorm business concepts, conduct cost-benefit analyses, and identify project risks and dependencies. They are skilled in creating centralized project hubs and using scheduled actions to automate routine project management tasks.',
+    badge: "{{ with .Page.Resources.GetMatch \"google-ai-for-brainstorming-and-planning.1.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 16, 2026', expiry: null,
-    verifyUrl: 'https://www.coursera.org/'
+    verifyUrl: 'https://www.credly.com/badges/1a92db60-bd9c-4b7f-bdb8-aee1de2b6400/public_url'
   },
   'cert-google-support': {
     title: 'Google IT Support Certificate',
     org: 'Google Career Certificates',
-    tier: 'micro', tierLabel: 'Badge',
-    description: 'Comprehensive IT support training covering hardware, software, IT infrastructure, and customer support principles through hands-on labs.',
-    // badge: 'https://images.credly.com/size/340x340/images/YOUR_ID/image.png',
-    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%234285F4' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EG%3C/text%3E%3C/svg%3E",
+    tier: 'cert', tierLabel: 'Certification',
+    description: 'Those who earn the Google IT Support Certificate have completed five courses, developed by Google, that include hands-on, practice-based assessments designed to prepare them for entry-level roles in IT support. They are competent in foundational skills including troubleshooting and customer service, networking, operating systems, system administration, and security.',
+    badge: "{{ with .Page.Resources.GetMatch \"google-it-support-certificate.2.png\" }}{{ .RelPermalink }}{{ end }}",
     issued: 'Oct 20, 2025', expiry: null,
-    verifyUrl: 'https://www.coursera.org/'
+    verifyUrl: 'https://www.credly.com/badges/f7cae72a-04e9-4b9b-9b06-9e12d6f6e460/public_url'
+  }
+  ,
+  'cert-postman-fundamentals': {
+    title: 'Postman API Fundamentals Student Expert',
+    org: 'Postman',
+    tier: 'cert', tierLabel: 'Certification',
+    description: 'This certificate recognizes foundational knowledge of API fundamentals and practical Postman skills, including sending requests, working with collections, understanding environments, and validating API behavior.',
+    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23FF6C37' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3EPM%3C/text%3E%3C/svg%3E",
+    issued: 'Jun 2025', expiry: null,
+    verifyUrl: 'https://api.badgr.io/public/assertions/thcIs_wyTxaRt0sWLtxsvg?identity__email=lester20%40purdue.edu'
+  },
+  'cert-citi-rcr': {
+    title: 'Responsible Conduct of Research (RCR) Training',
+    org: 'CITI Program',
+    tier: 'cert', tierLabel: 'Certification',
+    description: 'This training covers the standards and responsibilities for ethical research conduct, including integrity, data management, authorship, peer review, and compliance expectations.',
+    badge: "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23005A9C' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECITI%3C/text%3E%3C/svg%3E",
+    issued: 'Jul 2024', expiry: 'Jul 2028',
+    verifyUrl: 'https://www.citiprogram.org/verify/?k35b9cadc-7f27-4554-b069-4edfb41551e8-63904007'
+  },
+  'cert-claude-cowork': {
+    title: 'Introduction to Claude Cowork',
+    org: 'Anthropic',
+    tier: 'micro', tierLabel: 'Badge',
+    description: 'This badge recognizes introductory familiarity with Claude Cowork and the core ideas behind using Anthropic tools for collaborative AI-assisted work.',
+    badge: 'https://media.licdn.com/dms/image/v2/D4E0BAQFMhKgeR7EYAg/company-logo_200_200/company-logo_200_200/0/1719256413073/anthropicresearch_logo?e=1784160000&v=beta&t=sR55oTJzzGbaqmelyaXjouzTKXP9itR-CvLApmiIzdc',
+    issued: 'May 5, 2026', expiry: null,
+    verifyUrl: 'https://verify.skilljar.com/c/4fdhjaon45pd'
   }
 };
 
