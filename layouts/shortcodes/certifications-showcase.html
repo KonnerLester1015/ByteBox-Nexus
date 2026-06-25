@@ -375,6 +375,18 @@
 }
 </style>
 
+{{ $badgeCsa := .Page.Resources.GetMatch "servicenow-certified-system-administrator-csa.png" }}
+{{ $badgeAws := .Page.Resources.GetMatch "aws-certified-cloud-practitioner.png" }}
+{{ $badgeDataFoundations := .Page.Resources.GetMatch "certified-implementation-specialist-data-foundation.png" }}
+{{ $badgeHam := .Page.Resources.GetMatch "certified-implementation-specialist-hardware-asset-.png" }}
+{{ $badgeSuiteDataFoundations := .Page.Resources.GetMatch "suite-certification-data-foundations-cmdb-and-csdm.png" }}
+{{ $badgeCmdbHealth := .Page.Resources.GetMatch "micro-certification-cmdb-health.png" }}
+{{ $badgeConfigureCmdb := .Page.Resources.GetMatch "micro-certification-configure-the-cmdb.png" }}
+{{ $badgeFlowDesigner := .Page.Resources.GetMatch "micro-certification-flow-designer.png" }}
+{{ $badgeGoogleAiFundamentals := .Page.Resources.GetMatch "google-ai-fundamentals.png" }}
+{{ $badgeGoogleBrainstorm := .Page.Resources.GetMatch "google-ai-for-brainstorming-and-planning.1.png" }}
+{{ $badgeGoogleSupport := .Page.Resources.GetMatch "google-it-support-certificate.2.png" }}
+
 <div class="certifications-container">
   <div class="certifications-header">
     <p>Professional certifications and credentials across cloud platforms, IT infrastructure, and enterprise solutions.</p>
@@ -397,7 +409,7 @@
       <div class="cert-list">
 
         <div class="cert-row" onclick="openModal('cert-csa')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "servicenow-certified-system-administrator-csa.png" }}{{ .RelPermalink }}{{ end }}" alt="CSA">
+          <img class="cert-row-badge" src="{{ with $badgeCsa }}{{ .RelPermalink }}{{ end }}" alt="CSA">
           <div class="cert-row-info">
             <div class="cert-row-title">ServiceNow Certified System Administrator</div>
             <div class="cert-row-meta">ServiceNow · Dec 16, 2025</div>
@@ -409,7 +421,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-aws')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "aws-certified-cloud-practitioner.png" }}{{ .RelPermalink }}{{ end }}" alt="AWS">
+          <img class="cert-row-badge" src="{{ with $badgeAws }}{{ .RelPermalink }}{{ end }}" alt="AWS">
           <div class="cert-row-info">
             <div class="cert-row-title">AWS Certified Cloud Practitioner</div>
             <div class="cert-row-meta">Amazon Web Services · Nov 15, 2025</div>
@@ -421,7 +433,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-data-foundations')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "certified-implementation-specialist-data-foundation.png" }}{{ .RelPermalink }}{{ end }}" alt="DF">
+          <img class="cert-row-badge" src="{{ with $badgeDataFoundations }}{{ .RelPermalink }}{{ end }}" alt="DF">
           <div class="cert-row-info">
             <div class="cert-row-title">CIS — Data Foundations</div>
             <div class="cert-row-meta">ServiceNow · Apr 3, 2026</div>
@@ -433,7 +445,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-ham')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "certified-implementation-specialist-hardware-asset-.png" }}{{ .RelPermalink }}{{ end }}" alt="HAM">
+          <img class="cert-row-badge" src="{{ with $badgeHam }}{{ .RelPermalink }}{{ end }}" alt="HAM">
           <div class="cert-row-info">
             <div class="cert-row-title">CIS — Hardware Asset Management</div>
             <div class="cert-row-meta">ServiceNow · Jun 23, 2026</div>
@@ -445,7 +457,7 @@
         </div>
 
         <div class="cert-row" onclick="openModal('cert-google-support')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "google-it-support-certificate.2.png" }}{{ .RelPermalink }}{{ end }}" alt="Google IT Support">
+          <img class="cert-row-badge" src="{{ with $badgeGoogleSupport }}{{ .RelPermalink }}{{ end }}" alt="Google IT Support">
           <div class="cert-row-info">
             <div class="cert-row-title">Google IT Support Certificate</div>
             <div class="cert-row-meta">Google Career Certificates · Oct 20, 2025</div>
@@ -515,7 +527,7 @@
       <div class="cert-list">
 
         <div class="cert-row micro" onclick="openModal('cert-cmdb-health')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "micro-certification-cmdb-health.png" }}{{ .RelPermalink }}{{ end }}" alt="CMDB Health">
+          <img class="cert-row-badge" src="{{ with $badgeCmdbHealth }}{{ .RelPermalink }}{{ end }}" alt="CMDB Health">
           <div class="cert-row-info">
             <div class="cert-row-title">Micro-Cert — CMDB Health</div>
             <div class="cert-row-meta">ServiceNow · Jan 23, 2026</div>
@@ -527,7 +539,7 @@
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-configure-cmdb')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "micro-certification-configure-the-cmdb.png" }}{{ .RelPermalink }}{{ end }}" alt="Configure CMDB">
+          <img class="cert-row-badge" src="{{ with $badgeConfigureCmdb }}{{ .RelPermalink }}{{ end }}" alt="Configure CMDB">
           <div class="cert-row-info">
             <div class="cert-row-title">Micro-Cert — Configure the CMDB</div>
             <div class="cert-row-meta">ServiceNow · Jan 6, 2026</div>
@@ -539,7 +551,7 @@
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-flow-designer')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "micro-certification-flow-designer.png" }}{{ .RelPermalink }}{{ end }}" alt="Flow Designer">
+          <img class="cert-row-badge" src="{{ with $badgeFlowDesigner }}{{ .RelPermalink }}{{ end }}" alt="Flow Designer">
           <div class="cert-row-info">
             <div class="cert-row-title">Micro-Cert — Flow Designer</div>
             <div class="cert-row-meta">ServiceNow · Apr 3, 2026</div>
@@ -551,7 +563,7 @@
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-google-ai-fundamentals')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "google-ai-fundamentals.png" }}{{ .RelPermalink }}{{ end }}" alt="Google AI Fundamentals">
+          <img class="cert-row-badge" src="{{ with $badgeGoogleAiFundamentals }}{{ .RelPermalink }}{{ end }}" alt="Google AI Fundamentals">
           <div class="cert-row-info">
             <div class="cert-row-title">Google AI Fundamentals</div>
             <div class="cert-row-meta">Coursera · Apr 16, 2026</div>
@@ -563,7 +575,7 @@
         </div>
 
         <div class="cert-row micro" onclick="openModal('cert-google-brainstorm')">
-          <img class="cert-row-badge" src="{{ with .Page.Resources.GetMatch "google-ai-for-brainstorming-and-planning.1.png" }}{{ .RelPermalink }}{{ end }}" alt="Google AI Brainstorm">
+          <img class="cert-row-badge" src="{{ with $badgeGoogleBrainstorm }}{{ .RelPermalink }}{{ end }}" alt="Google AI Brainstorm">
           <div class="cert-row-info">
             <div class="cert-row-title">Google AI for Brainstorming and Planning</div>
             <div class="cert-row-meta">Coursera · Apr 16, 2026</div>
@@ -642,7 +654,7 @@ const certifications = {
     org: 'ServiceNow',
     tier: 'cert', tierLabel: 'Certification',
     description: 'Earners of the Certified System Administrator (CSA) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow system. This certification validates their ability to navigate the platform, configure applications, manage databases, and implement self-service and automation. Certified individuals handle data migration, integrations, and customizations to support efficient and scalable ServiceNow operations.',
-    badge: "{{ with .Page.Resources.GetMatch \"servicenow-certified-system-administrator-csa.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeCsa }}{{ .RelPermalink }}{{ end }}",
     issued: 'Dec 16, 2025', expiry: 'Dec 16, 2028',
     verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
   },
@@ -651,7 +663,7 @@ const certifications = {
     org: 'Amazon Web Services',
     tier: 'cert', tierLabel: 'Certification',
     description: 'Earners of this certification have a fundamental understanding of IT services and their uses in the AWS Cloud. They demonstrated cloud fluency and foundational AWS knowledge. Badge owners are able to identify essential AWS services necessary to set up AWS-focused projects.',
-    badge: "{{ with .Page.Resources.GetMatch \"aws-certified-cloud-practitioner.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeAws }}{{ .RelPermalink }}{{ end }}",
     issued: 'Nov 15, 2025', expiry: 'Nov 15, 2028',
     verifyUrl: 'https://www.credly.com/badges/a47642d8-7ff8-406e-b435-dbd90be7b9de/public_url'
   },
@@ -660,7 +672,7 @@ const certifications = {
     org: 'ServiceNow',
     tier: 'cert', tierLabel: 'Certification',
     description: 'Earners of the Certified Implementation Specialist - Data Foundations (CMDB and CSDM) Certification badge have the knowledge and skills to successfully design, implement, and operationalize a ServiceNow CMDB supporting the CSDM framework.',
-    badge: "{{ with .Page.Resources.GetMatch \"certified-implementation-specialist-data-foundation.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeDataFoundations }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 3, 2026', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/ff513280-db98-4d47-bfa7-0445f48a8623/public_url'
   },
@@ -669,7 +681,7 @@ const certifications = {
     org: 'ServiceNow',
     tier: 'cert', tierLabel: 'Certification',
     description: 'Earners of the Certified Implementation Specialist - Hardware Asset Management (CIS-HAM) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow HAM application. This certification validates their ability to manage hardware lifecycles, ensure data integrity, automate asset processes, and integrate IT asset management with workflows. Certified individuals optimize asset tracking, inventory management, and financial oversight to enhance IT operations.',
-    badge: "{{ with .Page.Resources.GetMatch \"certified-implementation-specialist-hardware-asset-.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeHam }}{{ .RelPermalink }}{{ end }}",
     issued: 'Jun 23, 2026', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/4ddff3f3-b69c-4fa6-9965-ec96296f9c15/public_url'
   },
@@ -678,7 +690,7 @@ const certifications = {
     org: 'ServiceNow',
     tier: 'suite', tierLabel: 'Suite Certification',
     description: 'Earners of this badge have achieved the Suite Certification - Data Foundations (CMDB and CSDM) Professional badge, demonstrating dedication and a comprehensive understanding of the required credential components within the suite.',
-    badge: "{{ with .Page.Resources.GetMatch \"suite-certification-data-foundations-cmdb-and-csdm.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeSuiteDataFoundations }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 3, 2026', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/615348b5-dff5-4b4e-aa90-e75ffa3c0cd1/public_url'
   },
@@ -687,7 +699,7 @@ const certifications = {
     org: 'ServiceNow',
     tier: 'micro', tierLabel: 'Badge',
     description: 'Earners of the Micro-Certification - CMDB Health badge have the knowledge and skills to implement best practices for maintaining CMDB health and ensuring data integrity. This includes configuring the CMDB Health Dashboard, managing CI reclassification, building queries with Query Builder, and performing remediation tasks.',
-    badge: "{{ with .Page.Resources.GetMatch \"micro-certification-cmdb-health.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeCmdbHealth }}{{ .RelPermalink }}{{ end }}",
     issued: 'Jan 23, 2026', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/613d6116-1cd0-4f63-974b-e2a94ed6faf4/public_url'
   },
@@ -696,7 +708,7 @@ const certifications = {
     org: 'ServiceNow',
     tier: 'micro', tierLabel: 'Badge',
     description: 'Earners of the Micro-Certification - Configure the CMDB badge have the knowledge and skills to configure the CMDB for effective data management and operations. This includes creating and managing CI Classes, configuring and testing Identification and Reconciliation Rules, enabling Multisource CMDB, and creating Data Refresh Rules.',
-    badge: "{{ with .Page.Resources.GetMatch \"micro-certification-configure-the-cmdb.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeConfigureCmdb }}{{ .RelPermalink }}{{ end }}",
     issued: 'Jan 6, 2026', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/fb67a00f-3894-4b2b-94e4-be1a2a3a37b0/public_url'
   },
@@ -705,7 +717,7 @@ const certifications = {
     org: 'ServiceNow',
     tier: 'micro', tierLabel: 'Badge',
     description: 'Earners of the Micro-Certification - Flow Designer badge have the knowledge and skills to implement Flow Designer, a platform feature that enables rich process automation capabilities. Badge holders have demonstrated their ability to build and test flows, create subflows, and develop custom actions while following best practices.',
-    badge: "{{ with .Page.Resources.GetMatch \"micro-certification-flow-designer.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeFlowDesigner }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 3, 2026', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/10e213d5-90cf-4ed8-9074-70bac3c09701/public_url'
   },
@@ -714,7 +726,7 @@ const certifications = {
     org: 'Coursera',
     tier: 'micro', tierLabel: 'Badge',
     description: 'Those who earn the AI Fundamentals badge from Google have adopted the "AI as a Collaborator" mindset and developed an understanding of the AI ecosystem, including models, features, and applications. They are familiar with AI strengths, limitations and risks, have mastered prompting and advanced techniques, and demonstrated the ability to use AI responsibly by applying the ACT framework (Ask, Check, Tell) to evaluate outputs for accuracy, bias, and privacy risks.',
-    badge: "{{ with .Page.Resources.GetMatch \"google-ai-fundamentals.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeGoogleAiFundamentals }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 16, 2026', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/734d730a-9b7c-4bc9-ad8c-a3ea58648687/public_url'
   },
@@ -723,7 +735,7 @@ const certifications = {
     org: 'Coursera',
     tier: 'micro', tierLabel: 'Badge',
     description: 'Those who earn the AI for Brainstorming and Planning badge from Google can transform abstract ideas into actionable project plans using AI. They have demonstrated the ability to use AI as a thought partner to brainstorm business concepts, conduct cost-benefit analyses, and identify project risks and dependencies. They are skilled in creating centralized project hubs and using scheduled actions to automate routine project management tasks.',
-    badge: "{{ with .Page.Resources.GetMatch \"google-ai-for-brainstorming-and-planning.1.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeGoogleBrainstorm }}{{ .RelPermalink }}{{ end }}",
     issued: 'Apr 16, 2026', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/1a92db60-bd9c-4b7f-bdb8-aee1de2b6400/public_url'
   },
@@ -732,7 +744,7 @@ const certifications = {
     org: 'Google Career Certificates',
     tier: 'cert', tierLabel: 'Certification',
     description: 'Those who earn the Google IT Support Certificate have completed five courses, developed by Google, that include hands-on, practice-based assessments designed to prepare them for entry-level roles in IT support. They are competent in foundational skills including troubleshooting and customer service, networking, operating systems, system administration, and security.',
-    badge: "{{ with .Page.Resources.GetMatch \"google-it-support-certificate.2.png\" }}{{ .RelPermalink }}{{ end }}",
+    badge: "{{ with $badgeGoogleSupport }}{{ .RelPermalink }}{{ end }}",
     issued: 'Oct 20, 2025', expiry: null,
     verifyUrl: 'https://www.credly.com/badges/f7cae72a-04e9-4b9b-9b06-9e12d6f6e460/public_url'
   }
