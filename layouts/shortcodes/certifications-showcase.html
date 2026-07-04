@@ -201,6 +201,73 @@
   margin-top: 1rem;
 }
 
+.planned-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
+  gap: 1rem;
+  margin-top: 0.5rem;
+}
+
+.planned-card {
+  padding: 1rem 1rem 1.05rem;
+  border-radius: 12px;
+  border: 1px solid rgba(150,150,150,0.18);
+  background: rgba(150,150,150,0.04);
+}
+
+.planned-card-top {
+  display: flex;
+  align-items: flex-start;
+  gap: 0.9rem;
+  margin-bottom: 0.85rem;
+}
+
+.planned-card-badge {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+.planned-card-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 1rem;
+  margin-bottom: 0.85rem;
+}
+
+.planned-card-title {
+  font-size: 0.98rem;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.planned-card-org {
+  margin-top: 0.25rem;
+  font-size: 0.8rem;
+  opacity: 0.6;
+}
+
+.planned-card-pill {
+  flex-shrink: 0;
+  padding: 3px 10px;
+  border-radius: 20px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  background: rgba(52, 102, 203, 0.12);
+  color: rgb(52, 102, 203);
+}
+
+.planned-card-description {
+  font-size: 0.86rem;
+  line-height: 1.65;
+  opacity: 0.8;
+}
+
 /* ── Modal ───────────────────────────────────────────── */
 .modal {
   display: none;
@@ -545,6 +612,8 @@
 {{ $badgeCsa := .Page.Resources.GetMatch "servicenow-certified-system-administrator-csa.png" }}
 {{ $badgeAws := .Page.Resources.GetMatch "aws-certified-cloud-practitioner.png" }}
 {{ $badgeItsm := .Page.Resources.GetMatch "certified-implementation-specialist-it-service-mana.png" }}
+{{ $badgeCad := .Page.Resources.GetMatch "Credential_Badge_-_Certified_Application_Developer.png" }}
+{{ $badgeEm := .Page.Resources.GetMatch "Credential_Badge_-_Certified_Implementation_Specialist_-_Event_Management.png" }}
 {{ $badgeDataFoundations := .Page.Resources.GetMatch "certified-implementation-specialist-data-foundation.png" }}
 {{ $badgeHam := .Page.Resources.GetMatch "certified-implementation-specialist-hardware-asset-.png" }}
 {{ $badgeSuiteDataFoundations := .Page.Resources.GetMatch "suite-certification-data-foundations-cmdb-and-csdm.png" }}
@@ -561,6 +630,8 @@
 {{ $badgeCsaUrl := "" }}{{ with $badgeCsa }}{{ $badgeCsaUrl = .RelPermalink }}{{ end }}
 {{ $badgeAwsUrl := "" }}{{ with $badgeAws }}{{ $badgeAwsUrl = .RelPermalink }}{{ end }}
 {{ $badgeItsmUrl := "" }}{{ with $badgeItsm }}{{ $badgeItsmUrl = .RelPermalink }}{{ end }}
+{{ $badgeCadUrl := "" }}{{ with $badgeCad }}{{ $badgeCadUrl = .RelPermalink }}{{ end }}
+{{ $badgeEmUrl := "" }}{{ with $badgeEm }}{{ $badgeEmUrl = .RelPermalink }}{{ end }}
 {{ $badgeDataFoundationsUrl := "" }}{{ with $badgeDataFoundations }}{{ $badgeDataFoundationsUrl = .RelPermalink }}{{ end }}
 {{ $badgeHamUrl := "" }}{{ with $badgeHam }}{{ $badgeHamUrl = .RelPermalink }}{{ end }}
 {{ $badgeSuiteDataFoundationsUrl := "" }}{{ with $badgeSuiteDataFoundations }}{{ $badgeSuiteDataFoundationsUrl = .RelPermalink }}{{ end }}
@@ -749,7 +820,35 @@
 
   <!-- ── IN PROGRESS / PLANNED ── -->
   <div id="in-progress" class="tab-content">
-    <p class="planned-empty">Nothing scheduled yet — check back soon.</p>
+    <div class="planned-grid">
+      <div class="planned-card">
+        <div class="planned-card-top">
+          <img class="planned-card-badge" src="{{ $badgeCadUrl }}" alt="Certified Application Developer">
+          <div>
+            <div class="planned-card-title">Certified Application Developer</div>
+            <div class="planned-card-org">ServiceNow</div>
+          </div>
+          <span class="planned-card-pill">Planned</span>
+        </div>
+        <div class="planned-card-description">
+          Earners of the Certified Application Developer (CAD) Certification badge have the knowledge and skills to design, develop, and deploy applications on the ServiceNow platform. This certification validates their ability to design data models, create user interfaces, implement security, automate processes, and integrate data. Certified individuals can build robust applications to solve business challenges and contribute to the ServiceNow ecosystem.
+        </div>
+      </div>
+
+      <div class="planned-card">
+        <div class="planned-card-top">
+          <img class="planned-card-badge" src="{{ $badgeEmUrl }}" alt="Certified Implementation Specialist - Event Management">
+          <div>
+            <div class="planned-card-title">Certified Implementation Specialist — Event Management</div>
+            <div class="planned-card-org">ServiceNow</div>
+          </div>
+          <span class="planned-card-pill">Planned</span>
+        </div>
+        <div class="planned-card-description">
+          Earners of the Certified Implementation Specialist - Event Management (CIS-EM) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow Event Management application. This certification validates their ability to manage event processing, configure alerts, integrate event sources, and use features like operator workspace and dependency maps. Certified individuals optimize IT operations by proactively addressing and resolving issues.
+        </div>
+      </div>
+    </div>
   </div>
 
 </div>
