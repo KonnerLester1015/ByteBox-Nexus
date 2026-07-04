@@ -98,13 +98,13 @@
   padding: 0.7rem 0.75rem;
   border-radius: 6px;
   cursor: pointer;
-  transition: background 0.15s;
+  transition: background 0.15s ease, border-color 0.15s ease;
   border: 1px solid transparent;
 }
 
 .cert-row:hover {
-  background: rgba(52, 102, 203, 0.05);
-  border-color: rgba(52, 102, 203, 0.12);
+  background: rgba(52, 102, 203, 0.03);
+  border-color: rgba(52, 102, 203, 0.08);
 }
 
 .cert-row-badge {
@@ -419,7 +419,7 @@
 }
 
 .cert-filter-chip:hover {
-  background-color: rgba(52, 102, 203, 0.18);
+  background-color: rgba(52, 102, 203, 0.14);
 }
 
 .cert-filter-chip.active {
@@ -457,7 +457,7 @@
   cursor: pointer;
   position: relative;
   overflow: hidden;
-  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+  transition: transform 0.2s ease, box-shadow 0.2s ease, border-color 0.2s ease;
 }
 
 .cert-card::before {
@@ -479,9 +479,9 @@
 }
 
 .cert-card:hover {
-  transform: translateY(-5px);
-  border-color: rgba(52, 102, 203, 0.4);
-  box-shadow: 0 8px 24px rgba(52, 102, 203, 0.15);
+  transform: translateY(-2px);
+  border-color: rgba(52, 102, 203, 0.25);
+  box-shadow: 0 4px 12px rgba(52, 102, 203, 0.08);
 }
 
 .cert-card-badge {
@@ -529,7 +529,7 @@
 
 @media (prefers-color-scheme: dark) {
   .cert-card:hover {
-    box-shadow: 0 8px 24px rgba(52, 102, 203, 0.25);
+    box-shadow: 0 4px 12px rgba(52, 102, 203, 0.16);
   }
 }
 
@@ -544,6 +544,7 @@
 
 {{ $badgeCsa := .Page.Resources.GetMatch "servicenow-certified-system-administrator-csa.png" }}
 {{ $badgeAws := .Page.Resources.GetMatch "aws-certified-cloud-practitioner.png" }}
+{{ $badgeItsm := .Page.Resources.GetMatch "certified-implementation-specialist-it-service-mana.png" }}
 {{ $badgeDataFoundations := .Page.Resources.GetMatch "certified-implementation-specialist-data-foundation.png" }}
 {{ $badgeHam := .Page.Resources.GetMatch "certified-implementation-specialist-hardware-asset-.png" }}
 {{ $badgeSuiteDataFoundations := .Page.Resources.GetMatch "suite-certification-data-foundations-cmdb-and-csdm.png" }}
@@ -553,13 +554,13 @@
 {{ $badgeGoogleAiFundamentals := .Page.Resources.GetMatch "google-ai-fundamentals.png" }}
 {{ $badgeGoogleBrainstorm := .Page.Resources.GetMatch "google-ai-for-brainstorming-and-planning.1.png" }}
 {{ $badgeGoogleSupport := .Page.Resources.GetMatch "google-it-support-certificate.2.png" }}
-{{ $badgePostman := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23FF6C37' width='100' height='100' rx='16'/%3E%3Ctext x='50' y='54' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='700'%3EPostman%3C/text%3E%3C/svg%3E" }}
-{{ $badgeCiti := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23005A9C' width='100' height='100' rx='16'/%3E%3Ctext x='50' y='54' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='700'%3ECITI%3C/text%3E%3C/svg%3E" }}
-{{ $badgeClaude := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23111827' width='100' height='100' rx='16'/%3E%3Ccircle cx='50' cy='36' r='14' fill='%23D9DEE7'/%3E%3Cpath d='M32 63c6-8 13-12 18-12s12 4 18 12' stroke='%23D9DEE7' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3Ctext x='50' y='82' font-size='17' fill='white' text-anchor='middle' font-weight='700'%3EAnthropic%3C/text%3E%3C/svg%3E" }}
-{{ $badgeSuiteCsdm := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSDM%3C/text%3E%3C/svg%3E" }}
+{{ $badgePostman := .Page.Resources.GetMatch "postman-logo.png" }}
+{{ $badgeCiti := .Page.Resources.GetMatch "citi-program-logo.png" }}
+{{ $badgeClaude := .Page.Resources.GetMatch "claude-logo.jpg" }}
 
 {{ $badgeCsaUrl := "" }}{{ with $badgeCsa }}{{ $badgeCsaUrl = .RelPermalink }}{{ end }}
 {{ $badgeAwsUrl := "" }}{{ with $badgeAws }}{{ $badgeAwsUrl = .RelPermalink }}{{ end }}
+{{ $badgeItsmUrl := "" }}{{ with $badgeItsm }}{{ $badgeItsmUrl = .RelPermalink }}{{ end }}
 {{ $badgeDataFoundationsUrl := "" }}{{ with $badgeDataFoundations }}{{ $badgeDataFoundationsUrl = .RelPermalink }}{{ end }}
 {{ $badgeHamUrl := "" }}{{ with $badgeHam }}{{ $badgeHamUrl = .RelPermalink }}{{ end }}
 {{ $badgeSuiteDataFoundationsUrl := "" }}{{ with $badgeSuiteDataFoundations }}{{ $badgeSuiteDataFoundationsUrl = .RelPermalink }}{{ end }}
@@ -579,6 +580,10 @@
     "description" "Earners of this certification have a fundamental understanding of IT services and their uses in the AWS Cloud. They demonstrated cloud fluency and foundational AWS knowledge. Badge owners are able to identify essential AWS services necessary to set up AWS-focused projects."
     "badge" $badgeAwsUrl "issued" "Nov 15, 2025" "issuedSort" "2025-11-15" "expiry" "Nov 15, 2028"
     "verifyUrl" "https://www.credly.com/badges/a47642d8-7ff8-406e-b435-dbd90be7b9de/public_url")
+  (dict "id" "cert-itsm" "title" "Certified Implementation Specialist — IT Service Management" "org" "ServiceNow" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
+    "description" "Earners of the Certified Implementation Specialist - IT Service Management (CIS-ITSM) Certification badge have the knowledge and skills to configure, implement, and maintain ServiceNow ITSM applications. This certification validates their ability to manage incidents, problems, and change lifecycles, configure service catalog and request management, and integrate with the CMDB. Certified individuals optimize IT service delivery and enhance operational efficiency."
+    "badge" $badgeItsmUrl "issued" "Jul 2, 2026" "issuedSort" "2026-07-02" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/6780b18f-147e-4b0d-a42a-8bdae7180b5c/public_url")
   (dict "id" "cert-data-foundations" "title" "Certified Implementation Specialist — Data Foundations" "org" "ServiceNow" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
     "description" "Earners of the Certified Implementation Specialist - Data Foundations (CMDB and CSDM) Certification badge have the knowledge and skills to successfully design, implement, and operationalize a ServiceNow CMDB supporting the CSDM framework."
     "badge" $badgeDataFoundationsUrl "issued" "Apr 3, 2026" "issuedSort" "2026-04-03" "expiry" nil
@@ -601,7 +606,7 @@
     "verifyUrl" "https://www.citiprogram.org/verify/?k35b9cadc-7f27-4554-b069-4edfb41551e8-63904007")
   (dict "id" "cert-suite-data-foundations" "title" "Suite Certification — Data Foundations (CMDB & CSDM)" "org" "ServiceNow" "tier" "suite" "tierLabel" "Suite Certification" "tagLabel" "Suite"
     "description" "Earners of this badge have achieved the Suite Certification - Data Foundations (CMDB and CSDM) Professional badge, demonstrating dedication and a comprehensive understanding of the required credential components within the suite."
-    "badge" $badgeSuiteCsdm "issued" "Apr 3, 2026" "issuedSort" "2026-04-03" "expiry" nil
+    "badge" $badgeSuiteDataFoundations "issued" "Apr 3, 2026" "issuedSort" "2026-04-03" "expiry" nil
     "verifyUrl" "https://www.credly.com/badges/615348b5-dff5-4b4e-aa90-e75ffa3c0cd1/public_url")
   (dict "id" "cert-cmdb-health" "title" "Micro-Certification — CMDB Health" "org" "ServiceNow" "tier" "micro" "tierLabel" "Badge" "tagLabel" "Badge"
     "description" "Earners of the Micro-Certification - CMDB Health badge have the knowledge and skills to implement best practices for maintaining CMDB health and ensuring data integrity. This includes configuring the CMDB Health Dashboard, managing CI reclassification, building queries with Query Builder, and performing remediation tasks."
