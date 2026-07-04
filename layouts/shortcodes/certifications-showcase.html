@@ -367,10 +367,178 @@
   background: rgba(255,255,255,0.14);
 }
 
+/* ── Stats bar ───────────────────────────────────────── */
+.cert-stats-bar {
+  display: flex;
+  gap: 2rem;
+  flex-wrap: wrap;
+  margin-bottom: 1.75rem;
+  padding-bottom: 1.5rem;
+  border-bottom: 1px solid rgba(150,150,150,0.12);
+}
+
+.cert-stat {
+  display: flex;
+  flex-direction: column;
+}
+
+.cert-stat-value {
+  font-size: 1.6rem;
+  font-weight: 800;
+  color: rgb(52, 102, 203);
+  line-height: 1.1;
+}
+
+.cert-stat-label {
+  font-size: 0.72rem;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  opacity: 0.5;
+  margin-top: 3px;
+}
+
+/* ── Issuer filter chips ─────────────────────────────── */
+.cert-filter-bar {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.6rem;
+  margin-bottom: 1.75rem;
+}
+
+.cert-filter-chip {
+  background-color: rgba(52, 102, 203, 0.1);
+  color: rgb(52, 102, 203);
+  padding: 6px 14px;
+  border-radius: 20px;
+  font-size: 0.82rem;
+  font-weight: 600;
+  border: 1px solid rgba(52, 102, 203, 0.2);
+  cursor: pointer;
+  transition: all 0.2s ease;
+}
+
+.cert-filter-chip:hover {
+  background-color: rgba(52, 102, 203, 0.18);
+}
+
+.cert-filter-chip.active {
+  background-color: rgb(52, 102, 203);
+  color: #fff;
+  border-color: rgb(52, 102, 203);
+}
+
+@media (prefers-color-scheme: dark) {
+  .cert-filter-chip {
+    background-color: rgba(52, 102, 203, 0.15);
+    color: rgb(100, 149, 237);
+    border-color: rgba(52, 102, 203, 0.3);
+  }
+  .cert-filter-chip.active {
+    background-color: rgb(52, 102, 203);
+    color: #fff;
+  }
+}
+
+/* ── Card grid (Certifications / Suite tiers) ────────── */
+.cert-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(240px, 1fr));
+  gap: 1rem;
+}
+
+.cert-card {
+  display: flex;
+  flex-direction: column;
+  padding: 1.25rem 1.25rem 1rem;
+  border-radius: 12px;
+  border: 1px solid rgba(150,150,150,0.2);
+  background-color: rgba(150,150,150,0.05);
+  cursor: pointer;
+  position: relative;
+  overflow: hidden;
+  transition: transform 0.25s ease, box-shadow 0.25s ease, border-color 0.25s ease;
+}
+
+.cert-card::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  height: 3px;
+  border-radius: 12px 12px 0 0;
+}
+
+.cert-card.cert::before {
+  background: linear-gradient(90deg, rgb(52, 102, 203), rgb(100, 149, 237));
+}
+
+.cert-card.suite::before {
+  background: linear-gradient(90deg, rgb(120, 80, 210), rgb(160, 120, 230));
+}
+
+.cert-card:hover {
+  transform: translateY(-5px);
+  border-color: rgba(52, 102, 203, 0.4);
+  box-shadow: 0 8px 24px rgba(52, 102, 203, 0.15);
+}
+
+.cert-card-badge {
+  width: 72px;
+  height: 72px;
+  border-radius: 8px;
+  object-fit: contain;
+  margin-bottom: 0.85rem;
+}
+
+.cert-card-title {
+  font-size: 0.95rem;
+  font-weight: 700;
+  line-height: 1.35;
+  margin-bottom: 0.25rem;
+}
+
+.cert-card-org {
+  font-size: 0.8rem;
+  opacity: 0.6;
+  margin-bottom: 0.75rem;
+}
+
+.cert-card-footer {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: auto;
+  padding-top: 0.75rem;
+  border-top: 1px solid rgba(150,150,150,0.12);
+}
+
+.cert-card-date {
+  font-size: 0.72rem;
+  opacity: 0.45;
+}
+
+/* ── Empty filter state ──────────────────────────────── */
+.cert-tier-empty {
+  display: none;
+  opacity: 0.45;
+  font-size: 0.85rem;
+  padding: 1rem 0;
+}
+
+@media (prefers-color-scheme: dark) {
+  .cert-card:hover {
+    box-shadow: 0 8px 24px rgba(52, 102, 203, 0.25);
+  }
+}
+
 /* ── Responsive ──────────────────────────────────────── */
 @media (max-width: 600px) {
   .cert-row-date { display: none; }
   .modal-content { padding: 1.5rem; }
+  .cert-grid { grid-template-columns: 1fr; }
+  .cert-stats-bar { gap: 1.25rem; }
 }
 </style>
 
@@ -388,10 +556,106 @@
 {{ $badgePostman := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23FF6C37' width='100' height='100' rx='16'/%3E%3Ctext x='50' y='54' font-size='24' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='700'%3EPostman%3C/text%3E%3C/svg%3E" }}
 {{ $badgeCiti := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23005A9C' width='100' height='100' rx='16'/%3E%3Ctext x='50' y='54' font-size='28' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='700'%3ECITI%3C/text%3E%3C/svg%3E" }}
 {{ $badgeClaude := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23111827' width='100' height='100' rx='16'/%3E%3Ccircle cx='50' cy='36' r='14' fill='%23D9DEE7'/%3E%3Cpath d='M32 63c6-8 13-12 18-12s12 4 18 12' stroke='%23D9DEE7' stroke-width='6' stroke-linecap='round' fill='none'/%3E%3Ctext x='50' y='82' font-size='17' fill='white' text-anchor='middle' font-weight='700'%3EAnthropic%3C/text%3E%3C/svg%3E" }}
+{{ $badgeSuiteCsdm := "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSDM%3C/text%3E%3C/svg%3E" }}
+
+{{ $badgeCsaUrl := "" }}{{ with $badgeCsa }}{{ $badgeCsaUrl = .RelPermalink }}{{ end }}
+{{ $badgeAwsUrl := "" }}{{ with $badgeAws }}{{ $badgeAwsUrl = .RelPermalink }}{{ end }}
+{{ $badgeDataFoundationsUrl := "" }}{{ with $badgeDataFoundations }}{{ $badgeDataFoundationsUrl = .RelPermalink }}{{ end }}
+{{ $badgeHamUrl := "" }}{{ with $badgeHam }}{{ $badgeHamUrl = .RelPermalink }}{{ end }}
+{{ $badgeSuiteDataFoundationsUrl := "" }}{{ with $badgeSuiteDataFoundations }}{{ $badgeSuiteDataFoundationsUrl = .RelPermalink }}{{ end }}
+{{ $badgeCmdbHealthUrl := "" }}{{ with $badgeCmdbHealth }}{{ $badgeCmdbHealthUrl = .RelPermalink }}{{ end }}
+{{ $badgeConfigureCmdbUrl := "" }}{{ with $badgeConfigureCmdb }}{{ $badgeConfigureCmdbUrl = .RelPermalink }}{{ end }}
+{{ $badgeFlowDesignerUrl := "" }}{{ with $badgeFlowDesigner }}{{ $badgeFlowDesignerUrl = .RelPermalink }}{{ end }}
+{{ $badgeGoogleAiFundamentalsUrl := "" }}{{ with $badgeGoogleAiFundamentals }}{{ $badgeGoogleAiFundamentalsUrl = .RelPermalink }}{{ end }}
+{{ $badgeGoogleBrainstormUrl := "" }}{{ with $badgeGoogleBrainstorm }}{{ $badgeGoogleBrainstormUrl = .RelPermalink }}{{ end }}
+{{ $badgeGoogleSupportUrl := "" }}{{ with $badgeGoogleSupport }}{{ $badgeGoogleSupportUrl = .RelPermalink }}{{ end }}
+
+{{ $certs := slice
+  (dict "id" "cert-csa" "title" "ServiceNow Certified System Administrator" "org" "ServiceNow" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
+    "description" "Earners of the Certified System Administrator (CSA) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow system. This certification validates their ability to navigate the platform, configure applications, manage databases, and implement self-service and automation. Certified individuals handle data migration, integrations, and customizations to support efficient and scalable ServiceNow operations."
+    "badge" $badgeCsaUrl "issued" "Dec 16, 2025" "issuedSort" "2025-12-16" "expiry" "Dec 16, 2028"
+    "verifyUrl" "https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester")
+  (dict "id" "cert-aws" "title" "AWS Certified Cloud Practitioner" "org" "Amazon Web Services" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
+    "description" "Earners of this certification have a fundamental understanding of IT services and their uses in the AWS Cloud. They demonstrated cloud fluency and foundational AWS knowledge. Badge owners are able to identify essential AWS services necessary to set up AWS-focused projects."
+    "badge" $badgeAwsUrl "issued" "Nov 15, 2025" "issuedSort" "2025-11-15" "expiry" "Nov 15, 2028"
+    "verifyUrl" "https://www.credly.com/badges/a47642d8-7ff8-406e-b435-dbd90be7b9de/public_url")
+  (dict "id" "cert-data-foundations" "title" "Certified Implementation Specialist — Data Foundations" "org" "ServiceNow" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
+    "description" "Earners of the Certified Implementation Specialist - Data Foundations (CMDB and CSDM) Certification badge have the knowledge and skills to successfully design, implement, and operationalize a ServiceNow CMDB supporting the CSDM framework."
+    "badge" $badgeDataFoundationsUrl "issued" "Apr 3, 2026" "issuedSort" "2026-04-03" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/ff513280-db98-4d47-bfa7-0445f48a8623/public_url")
+  (dict "id" "cert-ham" "title" "Certified Implementation Specialist — Hardware Asset Management" "org" "ServiceNow" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
+    "description" "Earners of the Certified Implementation Specialist - Hardware Asset Management (CIS-HAM) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow HAM application. This certification validates their ability to manage hardware lifecycles, ensure data integrity, automate asset processes, and integrate IT asset management with workflows. Certified individuals optimize asset tracking, inventory management, and financial oversight to enhance IT operations."
+    "badge" $badgeHamUrl "issued" "Jun 23, 2026" "issuedSort" "2026-06-23" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/4ddff3f3-b69c-4fa6-9965-ec96296f9c15/public_url")
+  (dict "id" "cert-google-support" "title" "Google IT Support Certificate" "org" "Google Career Certificates" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
+    "description" "Those who earn the Google IT Support Certificate have completed five courses, developed by Google, that include hands-on, practice-based assessments designed to prepare them for entry-level roles in IT support. They are competent in foundational skills including troubleshooting and customer service, networking, operating systems, system administration, and security."
+    "badge" $badgeGoogleSupportUrl "issued" "Oct 20, 2025" "issuedSort" "2025-10-20" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/f7cae72a-04e9-4b9b-9b06-9e12d6f6e460/public_url")
+  (dict "id" "cert-postman-fundamentals" "title" "Postman API Fundamentals Student Expert" "org" "Postman" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
+    "description" "This certificate recognizes foundational knowledge of API fundamentals and practical Postman skills, including sending requests, working with collections, understanding environments, and validating API behavior."
+    "badge" $badgePostman "issued" "Jun 2025" "issuedSort" "2025-06-01" "expiry" nil
+    "verifyUrl" "https://api.badgr.io/public/assertions/thcIs_wyTxaRt0sWLtxsvg?identity__email=lester20%40purdue.edu")
+  (dict "id" "cert-citi-rcr" "title" "Responsible Conduct of Research (RCR) Training" "org" "CITI Program" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
+    "description" "This training covers the standards and responsibilities for ethical research conduct, including integrity, data management, authorship, peer review, and compliance expectations."
+    "badge" $badgeCiti "issued" "Jul 2024" "issuedSort" "2024-07-01" "expiry" "Jul 2028"
+    "verifyUrl" "https://www.citiprogram.org/verify/?k35b9cadc-7f27-4554-b069-4edfb41551e8-63904007")
+  (dict "id" "cert-suite-data-foundations" "title" "Suite Certification — Data Foundations (CMDB & CSDM)" "org" "ServiceNow" "tier" "suite" "tierLabel" "Suite Certification" "tagLabel" "Suite"
+    "description" "Earners of this badge have achieved the Suite Certification - Data Foundations (CMDB and CSDM) Professional badge, demonstrating dedication and a comprehensive understanding of the required credential components within the suite."
+    "badge" $badgeSuiteCsdm "issued" "Apr 3, 2026" "issuedSort" "2026-04-03" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/615348b5-dff5-4b4e-aa90-e75ffa3c0cd1/public_url")
+  (dict "id" "cert-cmdb-health" "title" "Micro-Certification — CMDB Health" "org" "ServiceNow" "tier" "micro" "tierLabel" "Badge" "tagLabel" "Badge"
+    "description" "Earners of the Micro-Certification - CMDB Health badge have the knowledge and skills to implement best practices for maintaining CMDB health and ensuring data integrity. This includes configuring the CMDB Health Dashboard, managing CI reclassification, building queries with Query Builder, and performing remediation tasks."
+    "badge" $badgeCmdbHealthUrl "issued" "Jan 23, 2026" "issuedSort" "2026-01-23" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/613d6116-1cd0-4f63-974b-e2a94ed6faf4/public_url")
+  (dict "id" "cert-configure-cmdb" "title" "Micro-Certification — Configure the CMDB" "org" "ServiceNow" "tier" "micro" "tierLabel" "Badge" "tagLabel" "Badge"
+    "description" "Earners of the Micro-Certification - Configure the CMDB badge have the knowledge and skills to configure the CMDB for effective data management and operations. This includes creating and managing CI Classes, configuring and testing Identification and Reconciliation Rules, enabling Multisource CMDB, and creating Data Refresh Rules."
+    "badge" $badgeConfigureCmdbUrl "issued" "Jan 6, 2026" "issuedSort" "2026-01-06" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/fb67a00f-3894-4b2b-94e4-be1a2a3a37b0/public_url")
+  (dict "id" "cert-flow-designer" "title" "Micro-Certification — Flow Designer" "org" "ServiceNow" "tier" "micro" "tierLabel" "Badge" "tagLabel" "Badge"
+    "description" "Earners of the Micro-Certification - Flow Designer badge have the knowledge and skills to implement Flow Designer, a platform feature that enables rich process automation capabilities. Badge holders have demonstrated their ability to build and test flows, create subflows, and develop custom actions while following best practices."
+    "badge" $badgeFlowDesignerUrl "issued" "Apr 3, 2026" "issuedSort" "2026-04-03" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/10e213d5-90cf-4ed8-9074-70bac3c09701/public_url")
+  (dict "id" "cert-google-ai-fundamentals" "title" "Google AI Fundamentals" "org" "Coursera" "tier" "micro" "tierLabel" "Badge" "tagLabel" "Badge"
+    "description" "Those who earn the AI Fundamentals badge from Google have adopted the \"AI as a Collaborator\" mindset and developed an understanding of the AI ecosystem, including models, features, and applications. They are familiar with AI strengths, limitations and risks, have mastered prompting and advanced techniques, and demonstrated the ability to use AI responsibly by applying the ACT framework (Ask, Check, Tell) to evaluate outputs for accuracy, bias, and privacy risks."
+    "badge" $badgeGoogleAiFundamentalsUrl "issued" "Apr 16, 2026" "issuedSort" "2026-04-16" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/734d730a-9b7c-4bc9-ad8c-a3ea58648687/public_url")
+  (dict "id" "cert-google-brainstorm" "title" "Google AI for Brainstorming and Planning" "org" "Coursera" "tier" "micro" "tierLabel" "Badge" "tagLabel" "Badge"
+    "description" "Those who earn the AI for Brainstorming and Planning badge from Google can transform abstract ideas into actionable project plans using AI. They have demonstrated the ability to use AI as a thought partner to brainstorm business concepts, conduct cost-benefit analyses, and identify project risks and dependencies. They are skilled in creating centralized project hubs and using scheduled actions to automate routine project management tasks."
+    "badge" $badgeGoogleBrainstormUrl "issued" "Apr 16, 2026" "issuedSort" "2026-04-16" "expiry" nil
+    "verifyUrl" "https://www.credly.com/badges/1a92db60-bd9c-4b7f-bdb8-aee1de2b6400/public_url")
+  (dict "id" "cert-claude-cowork" "title" "Introduction to Claude Cowork" "org" "Anthropic" "tier" "micro" "tierLabel" "Badge" "tagLabel" "Badge"
+    "description" "This badge recognizes introductory familiarity with Claude Cowork and the core ideas behind using Anthropic tools for collaborative AI-assisted work."
+    "badge" $badgeClaude "issued" "May 5, 2026" "issuedSort" "2026-05-05" "expiry" nil
+    "verifyUrl" "https://verify.skilljar.com/c/4fdhjaon45pd")
+}}
+
+{{ $certTierItems := sort (where $certs "tier" "cert") "issuedSort" "desc" }}
+{{ $suiteTierItems := sort (where $certs "tier" "suite") "issuedSort" "desc" }}
+{{ $microTierItems := sort (where $certs "tier" "micro") "issuedSort" "desc" }}
+{{ $allSorted := sort $certs "issuedSort" "desc" }}
+{{ $mostRecent := index $allSorted 0 }}
+{{ $orgList := slice }}
+{{ range $certs }}{{ $orgList = $orgList | append .org }}{{ end }}
+{{ $orgs := uniq $orgList }}
 
 <div class="certifications-container">
   <div class="certifications-header">
     <p>Professional certifications and credentials across cloud platforms, IT infrastructure, and enterprise solutions.</p>
+  </div>
+
+  <div class="cert-stats-bar">
+    <div class="cert-stat">
+      <span class="cert-stat-value">{{ len $certs }}</span>
+      <span class="cert-stat-label">Credentials</span>
+    </div>
+    <div class="cert-stat">
+      <span class="cert-stat-value">{{ len $orgs }}</span>
+      <span class="cert-stat-label">Issuers</span>
+    </div>
+    <div class="cert-stat">
+      <span class="cert-stat-value">{{ $mostRecent.issued }}</span>
+      <span class="cert-stat-label">Most Recent</span>
+    </div>
   </div>
 
   <div class="tabs-container">
@@ -402,205 +666,78 @@
   <!-- ── COMPLETED ── -->
   <div id="completed" class="tab-content active">
 
+    <div class="cert-filter-bar">
+      <button class="cert-filter-chip active" data-issuer="all">All Issuers</button>
+      {{ range $orgs }}<button class="cert-filter-chip" data-issuer="{{ . }}">{{ . }}</button>
+      {{ end }}
+    </div>
+
     <!-- CERTIFICATIONS -->
     <div class="cert-tier">
       <div class="cert-tier-header">
         <span class="cert-tier-label">Certifications</span>
-        <span class="cert-tier-count">7 credentials</span>
+        <span class="cert-tier-count">{{ len $certTierItems }} credentials</span>
       </div>
-      <div class="cert-list">
-
-        <div class="cert-row" onclick="openModal('cert-csa')">
-          <img class="cert-row-badge" src="{{ with $badgeCsa }}{{ .RelPermalink }}{{ end }}" alt="CSA">
-          <div class="cert-row-info">
-            <div class="cert-row-title">ServiceNow Certified System Administrator</div>
-            <div class="cert-row-meta">ServiceNow · Dec 16, 2025</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Expires Dec 2028</span>
-            <span class="cert-tag cert">Certification</span>
+      <div class="cert-grid">
+        {{ range $certTierItems }}
+        <div class="cert-card cert" data-issuer="{{ .org }}" onclick="openModal('{{ .id }}')">
+          <img class="cert-card-badge" src="{{ .badge }}" alt="{{ .title }}">
+          <div class="cert-card-title">{{ .title }}</div>
+          <div class="cert-card-org">{{ .org }}</div>
+          <div class="cert-card-footer">
+            <span class="cert-card-date">{{ .issued }}</span>
+            <span class="cert-tag {{ .tier }}">{{ .tagLabel }}</span>
           </div>
         </div>
-
-        <div class="cert-row" onclick="openModal('cert-aws')">
-          <img class="cert-row-badge" src="{{ with $badgeAws }}{{ .RelPermalink }}{{ end }}" alt="AWS">
-          <div class="cert-row-info">
-            <div class="cert-row-title">AWS Certified Cloud Practitioner</div>
-            <div class="cert-row-meta">Amazon Web Services · Nov 15, 2025</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Expires Nov 2028</span>
-            <span class="cert-tag cert">Certification</span>
-          </div>
-        </div>
-
-        <div class="cert-row" onclick="openModal('cert-data-foundations')">
-          <img class="cert-row-badge" src="{{ with $badgeDataFoundations }}{{ .RelPermalink }}{{ end }}" alt="DF">
-          <div class="cert-row-info">
-            <div class="cert-row-title">CIS — Data Foundations</div>
-            <div class="cert-row-meta">ServiceNow · Apr 3, 2026</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Apr 2026</span>
-            <span class="cert-tag cert">Certification</span>
-          </div>
-        </div>
-
-        <div class="cert-row" onclick="openModal('cert-ham')">
-          <img class="cert-row-badge" src="{{ with $badgeHam }}{{ .RelPermalink }}{{ end }}" alt="HAM">
-          <div class="cert-row-info">
-            <div class="cert-row-title">CIS — Hardware Asset Management</div>
-            <div class="cert-row-meta">ServiceNow · Jun 23, 2026</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Jun 2026</span>
-            <span class="cert-tag cert">Certification</span>
-          </div>
-        </div>
-
-        <div class="cert-row" onclick="openModal('cert-google-support')">
-          <img class="cert-row-badge" src="{{ with $badgeGoogleSupport }}{{ .RelPermalink }}{{ end }}" alt="Google IT Support">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Google IT Support Certificate</div>
-            <div class="cert-row-meta">Google Career Certificates · Oct 20, 2025</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Oct 2025</span>
-            <span class="cert-tag cert">Certification</span>
-          </div>
-        </div>
-
-        <div class="cert-row" onclick="openModal('cert-postman-fundamentals')">
-          <img class="cert-row-badge" src="{{ $badgePostman }}" alt="Postman">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Postman API Fundamentals Student Expert</div>
-            <div class="cert-row-meta">Postman · Jun 2025</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Jun 2025</span>
-            <span class="cert-tag cert">Certification</span>
-          </div>
-        </div>
-
-        <div class="cert-row" onclick="openModal('cert-citi-rcr')">
-          <img class="cert-row-badge" src="{{ $badgeCiti }}" alt="CITI Program">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Responsible Conduct of Research (RCR) Training</div>
-            <div class="cert-row-meta">CITI Program · Jul 2024</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Expires Jul 2028</span>
-            <span class="cert-tag cert">Certification</span>
-          </div>
-        </div>
-
+        {{ end }}
       </div>
+      <p class="cert-tier-empty">No certifications match this filter.</p>
     </div>
 
     <!-- SUITE CERTIFICATIONS -->
     <div class="cert-tier">
       <div class="cert-tier-header">
         <span class="cert-tier-label">Suite Certifications</span>
-        <span class="cert-tier-count">1 credential</span>
+        <span class="cert-tier-count">{{ len $suiteTierItems }} credential{{ if ne (len $suiteTierItems) 1 }}s{{ end }}</span>
       </div>
-      <div class="cert-list">
-
-        <div class="cert-row" onclick="openModal('cert-suite-data-foundations')">
-          <img class="cert-row-badge" src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Crect fill='%23164b35' width='100' height='100'/%3E%3Ctext x='50' y='50' font-size='22' fill='white' text-anchor='middle' dominant-baseline='central' font-weight='bold'%3ECSDM%3C/text%3E%3C/svg%3E" alt="CSDM">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Suite Certification — Data Foundations (CMDB & CSDM)</div>
-            <div class="cert-row-meta">ServiceNow · Apr 3, 2026</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Apr 2026</span>
-            <span class="cert-tag suite">Suite</span>
+      <div class="cert-grid">
+        {{ range $suiteTierItems }}
+        <div class="cert-card suite" data-issuer="{{ .org }}" onclick="openModal('{{ .id }}')">
+          <img class="cert-card-badge" src="{{ .badge }}" alt="{{ .title }}">
+          <div class="cert-card-title">{{ .title }}</div>
+          <div class="cert-card-org">{{ .org }}</div>
+          <div class="cert-card-footer">
+            <span class="cert-card-date">{{ .issued }}</span>
+            <span class="cert-tag {{ .tier }}">{{ .tagLabel }}</span>
           </div>
         </div>
-
+        {{ end }}
       </div>
+      <p class="cert-tier-empty">No suite certifications match this filter.</p>
     </div>
 
     <!-- BADGES -->
     <div class="cert-tier">
       <div class="cert-tier-header">
         <span class="cert-tier-label">Micro-Certifications & Badges</span>
-        <span class="cert-tier-count">6 credentials</span>
+        <span class="cert-tier-count">{{ len $microTierItems }} credentials</span>
       </div>
       <div class="cert-list">
-
-        <div class="cert-row micro" onclick="openModal('cert-cmdb-health')">
-          <img class="cert-row-badge" src="{{ with $badgeCmdbHealth }}{{ .RelPermalink }}{{ end }}" alt="CMDB Health">
+        {{ range $microTierItems }}
+        <div class="cert-row micro" data-issuer="{{ .org }}" onclick="openModal('{{ .id }}')">
+          <img class="cert-row-badge" src="{{ .badge }}" alt="{{ .title }}">
           <div class="cert-row-info">
-            <div class="cert-row-title">Micro-Cert — CMDB Health</div>
-            <div class="cert-row-meta">ServiceNow · Jan 23, 2026</div>
+            <div class="cert-row-title">{{ .title }}</div>
+            <div class="cert-row-meta">{{ .org }} · {{ .issued }}</div>
           </div>
           <div class="cert-row-right">
-            <span class="cert-row-date">Jan 2026</span>
-            <span class="cert-tag micro">Badge</span>
+            <span class="cert-row-date">{{ .issued }}</span>
+            <span class="cert-tag {{ .tier }}">{{ .tagLabel }}</span>
           </div>
         </div>
-
-        <div class="cert-row micro" onclick="openModal('cert-configure-cmdb')">
-          <img class="cert-row-badge" src="{{ with $badgeConfigureCmdb }}{{ .RelPermalink }}{{ end }}" alt="Configure CMDB">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Micro-Cert — Configure the CMDB</div>
-            <div class="cert-row-meta">ServiceNow · Jan 6, 2026</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Jan 2026</span>
-            <span class="cert-tag micro">Badge</span>
-          </div>
-        </div>
-
-        <div class="cert-row micro" onclick="openModal('cert-flow-designer')">
-          <img class="cert-row-badge" src="{{ with $badgeFlowDesigner }}{{ .RelPermalink }}{{ end }}" alt="Flow Designer">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Micro-Cert — Flow Designer</div>
-            <div class="cert-row-meta">ServiceNow · Apr 3, 2026</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Apr 2026</span>
-            <span class="cert-tag micro">Badge</span>
-          </div>
-        </div>
-
-        <div class="cert-row micro" onclick="openModal('cert-google-ai-fundamentals')">
-          <img class="cert-row-badge" src="{{ with $badgeGoogleAiFundamentals }}{{ .RelPermalink }}{{ end }}" alt="Google AI Fundamentals">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Google AI Fundamentals</div>
-            <div class="cert-row-meta">Coursera · Apr 16, 2026</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Apr 2026</span>
-            <span class="cert-tag micro">Badge</span>
-          </div>
-        </div>
-
-        <div class="cert-row micro" onclick="openModal('cert-google-brainstorm')">
-          <img class="cert-row-badge" src="{{ with $badgeGoogleBrainstorm }}{{ .RelPermalink }}{{ end }}" alt="Google AI Brainstorm">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Google AI for Brainstorming and Planning</div>
-            <div class="cert-row-meta">Coursera · Apr 16, 2026</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">Apr 2026</span>
-            <span class="cert-tag micro">Badge</span>
-          </div>
-        </div>
-
-        <div class="cert-row micro" onclick="openModal('cert-claude-cowork')">
-          <img class="cert-row-badge" src="{{ $badgeClaude }}" alt="Anthropic">
-          <div class="cert-row-info">
-            <div class="cert-row-title">Introduction to Claude Cowork</div>
-            <div class="cert-row-meta">Anthropic · May 5, 2026</div>
-          </div>
-          <div class="cert-row-right">
-            <span class="cert-row-date">May 2026</span>
-            <span class="cert-tag micro">Badge</span>
-          </div>
-        </div>
-
+        {{ end }}
       </div>
+      <p class="cert-tier-empty">No badges match this filter.</p>
     </div>
 
   </div><!-- /completed -->
@@ -651,133 +788,17 @@
 
 <script>
 const certifications = {
-  'cert-csa': {
-    title: 'ServiceNow Certified System Administrator',
-    org: 'ServiceNow',
-    tier: 'cert', tierLabel: 'Certification',
-    description: 'Earners of the Certified System Administrator (CSA) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow system. This certification validates their ability to navigate the platform, configure applications, manage databases, and implement self-service and automation. Certified individuals handle data migration, integrations, and customizations to support efficient and scalable ServiceNow operations.',
-    badge: "{{ with $badgeCsa }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Dec 16, 2025', expiry: 'Dec 16, 2028',
-    verifyUrl: 'https://learning.servicenow.com/lxp/en/pages/nl-public-resume?id=nl_public&user=KonnerLester'
-  },
-  'cert-aws': {
-    title: 'AWS Certified Cloud Practitioner',
-    org: 'Amazon Web Services',
-    tier: 'cert', tierLabel: 'Certification',
-    description: 'Earners of this certification have a fundamental understanding of IT services and their uses in the AWS Cloud. They demonstrated cloud fluency and foundational AWS knowledge. Badge owners are able to identify essential AWS services necessary to set up AWS-focused projects.',
-    badge: "{{ with $badgeAws }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Nov 15, 2025', expiry: 'Nov 15, 2028',
-    verifyUrl: 'https://www.credly.com/badges/a47642d8-7ff8-406e-b435-dbd90be7b9de/public_url'
-  },
-  'cert-data-foundations': {
-    title: 'Certified Implementation Specialist — Data Foundations',
-    org: 'ServiceNow',
-    tier: 'cert', tierLabel: 'Certification',
-    description: 'Earners of the Certified Implementation Specialist - Data Foundations (CMDB and CSDM) Certification badge have the knowledge and skills to successfully design, implement, and operationalize a ServiceNow CMDB supporting the CSDM framework.',
-    badge: "{{ with $badgeDataFoundations }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Apr 3, 2026', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/ff513280-db98-4d47-bfa7-0445f48a8623/public_url'
-  },
-  'cert-ham': {
-    title: 'Certified Implementation Specialist — Hardware Asset Management',
-    org: 'ServiceNow',
-    tier: 'cert', tierLabel: 'Certification',
-    description: 'Earners of the Certified Implementation Specialist - Hardware Asset Management (CIS-HAM) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow HAM application. This certification validates their ability to manage hardware lifecycles, ensure data integrity, automate asset processes, and integrate IT asset management with workflows. Certified individuals optimize asset tracking, inventory management, and financial oversight to enhance IT operations.',
-    badge: "{{ with $badgeHam }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Jun 23, 2026', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/4ddff3f3-b69c-4fa6-9965-ec96296f9c15/public_url'
-  },
-  'cert-suite-data-foundations': {
-    title: 'Suite Certification — Data Foundations (CMDB & CSDM)',
-    org: 'ServiceNow',
-    tier: 'suite', tierLabel: 'Suite Certification',
-    description: 'Earners of this badge have achieved the Suite Certification - Data Foundations (CMDB and CSDM) Professional badge, demonstrating dedication and a comprehensive understanding of the required credential components within the suite.',
-    badge: "{{ with $badgeSuiteDataFoundations }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Apr 3, 2026', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/615348b5-dff5-4b4e-aa90-e75ffa3c0cd1/public_url'
-  },
-  'cert-cmdb-health': {
-    title: 'Micro-Certification — CMDB Health',
-    org: 'ServiceNow',
-    tier: 'micro', tierLabel: 'Badge',
-    description: 'Earners of the Micro-Certification - CMDB Health badge have the knowledge and skills to implement best practices for maintaining CMDB health and ensuring data integrity. This includes configuring the CMDB Health Dashboard, managing CI reclassification, building queries with Query Builder, and performing remediation tasks.',
-    badge: "{{ with $badgeCmdbHealth }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Jan 23, 2026', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/613d6116-1cd0-4f63-974b-e2a94ed6faf4/public_url'
-  },
-  'cert-configure-cmdb': {
-    title: 'Micro-Certification — Configure the CMDB',
-    org: 'ServiceNow',
-    tier: 'micro', tierLabel: 'Badge',
-    description: 'Earners of the Micro-Certification - Configure the CMDB badge have the knowledge and skills to configure the CMDB for effective data management and operations. This includes creating and managing CI Classes, configuring and testing Identification and Reconciliation Rules, enabling Multisource CMDB, and creating Data Refresh Rules.',
-    badge: "{{ with $badgeConfigureCmdb }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Jan 6, 2026', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/fb67a00f-3894-4b2b-94e4-be1a2a3a37b0/public_url'
-  },
-  'cert-flow-designer': {
-    title: 'Micro-Certification — Flow Designer',
-    org: 'ServiceNow',
-    tier: 'micro', tierLabel: 'Badge',
-    description: 'Earners of the Micro-Certification - Flow Designer badge have the knowledge and skills to implement Flow Designer, a platform feature that enables rich process automation capabilities. Badge holders have demonstrated their ability to build and test flows, create subflows, and develop custom actions while following best practices.',
-    badge: "{{ with $badgeFlowDesigner }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Apr 3, 2026', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/10e213d5-90cf-4ed8-9074-70bac3c09701/public_url'
-  },
-  'cert-google-ai-fundamentals': {
-    title: 'Google AI Fundamentals',
-    org: 'Coursera',
-    tier: 'micro', tierLabel: 'Badge',
-    description: 'Those who earn the AI Fundamentals badge from Google have adopted the "AI as a Collaborator" mindset and developed an understanding of the AI ecosystem, including models, features, and applications. They are familiar with AI strengths, limitations and risks, have mastered prompting and advanced techniques, and demonstrated the ability to use AI responsibly by applying the ACT framework (Ask, Check, Tell) to evaluate outputs for accuracy, bias, and privacy risks.',
-    badge: "{{ with $badgeGoogleAiFundamentals }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Apr 16, 2026', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/734d730a-9b7c-4bc9-ad8c-a3ea58648687/public_url'
-  },
-  'cert-google-brainstorm': {
-    title: 'Google AI for Brainstorming and Planning',
-    org: 'Coursera',
-    tier: 'micro', tierLabel: 'Badge',
-    description: 'Those who earn the AI for Brainstorming and Planning badge from Google can transform abstract ideas into actionable project plans using AI. They have demonstrated the ability to use AI as a thought partner to brainstorm business concepts, conduct cost-benefit analyses, and identify project risks and dependencies. They are skilled in creating centralized project hubs and using scheduled actions to automate routine project management tasks.',
-    badge: "{{ with $badgeGoogleBrainstorm }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Apr 16, 2026', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/1a92db60-bd9c-4b7f-bdb8-aee1de2b6400/public_url'
-  },
-  'cert-google-support': {
-    title: 'Google IT Support Certificate',
-    org: 'Google Career Certificates',
-    tier: 'cert', tierLabel: 'Certification',
-    description: 'Those who earn the Google IT Support Certificate have completed five courses, developed by Google, that include hands-on, practice-based assessments designed to prepare them for entry-level roles in IT support. They are competent in foundational skills including troubleshooting and customer service, networking, operating systems, system administration, and security.',
-    badge: "{{ with $badgeGoogleSupport }}{{ .RelPermalink }}{{ end }}",
-    issued: 'Oct 20, 2025', expiry: null,
-    verifyUrl: 'https://www.credly.com/badges/f7cae72a-04e9-4b9b-9b06-9e12d6f6e460/public_url'
+  {{ range $i, $c := $certs }}{{ if $i }},
+  {{ end }}"{{ $c.id }}": {
+    title: "{{ $c.title }}",
+    org: "{{ $c.org }}",
+    tier: "{{ $c.tier }}", tierLabel: "{{ $c.tierLabel }}",
+    description: "{{ $c.description }}",
+    badge: "{{ $c.badge }}",
+    issued: "{{ $c.issued }}", expiry: {{ if $c.expiry }}"{{ $c.expiry }}"{{ else }}null{{ end }},
+    verifyUrl: "{{ $c.verifyUrl }}"
   }
-  ,
-  'cert-postman-fundamentals': {
-    title: 'Postman API Fundamentals Student Expert',
-    org: 'Postman',
-    tier: 'cert', tierLabel: 'Certification',
-    description: 'This certificate recognizes foundational knowledge of API fundamentals and practical Postman skills, including sending requests, working with collections, understanding environments, and validating API behavior.',
-    badge: "{{ $badgePostman }}",
-    issued: 'Jun 2025', expiry: null,
-    verifyUrl: 'https://api.badgr.io/public/assertions/thcIs_wyTxaRt0sWLtxsvg?identity__email=lester20%40purdue.edu'
-  },
-  'cert-citi-rcr': {
-    title: 'Responsible Conduct of Research (RCR) Training',
-    org: 'CITI Program',
-    tier: 'cert', tierLabel: 'Certification',
-    description: 'This training covers the standards and responsibilities for ethical research conduct, including integrity, data management, authorship, peer review, and compliance expectations.',
-    badge: "{{ $badgeCiti }}",
-    issued: 'Jul 2024', expiry: 'Jul 2028',
-    verifyUrl: 'https://www.citiprogram.org/verify/?k35b9cadc-7f27-4554-b069-4edfb41551e8-63904007'
-  },
-  'cert-claude-cowork': {
-    title: 'Introduction to Claude Cowork',
-    org: 'Anthropic',
-    tier: 'micro', tierLabel: 'Badge',
-    description: 'This badge recognizes introductory familiarity with Claude Cowork and the core ideas behind using Anthropic tools for collaborative AI-assisted work.',
-    badge: "{{ $badgeClaude }}",
-    issued: 'May 5, 2026', expiry: null,
-    verifyUrl: 'https://verify.skilljar.com/c/4fdhjaon45pd'
-  }
+  {{ end }}
 };
 
 function openModal(certId) {
@@ -820,7 +841,26 @@ document.addEventListener('DOMContentLoaded', function () {
       document.getElementById(this.getAttribute('data-tab')).classList.add('active');
     });
   });
+  document.querySelectorAll('.cert-filter-chip').forEach(chip => {
+    chip.addEventListener('click', function () {
+      document.querySelectorAll('.cert-filter-chip').forEach(c => c.classList.remove('active'));
+      this.classList.add('active');
+      applyIssuerFilter(this.getAttribute('data-issuer'));
+    });
+  });
 });
+
+function applyIssuerFilter(issuer) {
+  document.querySelectorAll('.cert-card, .cert-row').forEach(el => {
+    el.style.display = (issuer === 'all' || el.getAttribute('data-issuer') === issuer) ? '' : 'none';
+  });
+  document.querySelectorAll('.cert-tier').forEach(tier => {
+    const items = tier.querySelectorAll('.cert-card, .cert-row');
+    const anyVisible = Array.from(items).some(el => el.style.display !== 'none');
+    const empty = tier.querySelector('.cert-tier-empty');
+    if (empty) empty.style.display = (items.length && !anyVisible) ? 'block' : 'none';
+  });
+}
 
 document.addEventListener('keydown', e => { if (e.key === 'Escape') closeModal(); });
 </script>

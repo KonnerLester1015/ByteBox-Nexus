@@ -43,27 +43,31 @@ menu:
       name: Blog
       pageRef: /blog
       weight: 3
+    - identifier: certifications
+      name: Certifications
+      pageRef: /certifications
+      weight: 4
     - identifier: about
       name: About Me
       pageRef: /about
-      weight: 4
+      weight: 5
     - identifier: more
       name: "More"
-      weight: 5
+      weight: 6
     - name: "Glossary"
       parent: more
       url: "/glossary"
     - name: Search
-      weight: 6
+      weight: 7
       params:
         type: search
     - name: GitHub
-      weight: 7
+      weight: 8
       url: "https://github.com/KonnerLester1015"
       params:
         icon: github
     - name: LinkedIn
-      weight: 8
+      weight: 9
       url: "https://linkedin.com/in/konner-lester-925289302"
       params:
         icon: linkedin
