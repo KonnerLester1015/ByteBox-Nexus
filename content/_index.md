@@ -63,6 +63,16 @@ layout: hextra-home
   >}}
 
   {{< hextra/feature-card
+    title="Certifications"
+    subtitle="View my verified certifications and achievements in various technologies and domains."
+    class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-lg:min-h-[340px]"
+    link="certifications/"
+    image="/certifications.png"
+    imageClass="hx:top-[35%] hx:left-[27px] hx:w-[130%] hx:sm:w-[110%] hx:dark:opacity-80"
+    style="background: radial-gradient(ellipse at 50% 90%,rgb(177, 204, 240),hsla(0,0%,100%,0));"
+  >}}
+
+  {{< hextra/feature-card
     title="Blog"
     subtitle="Read my latest articles on software development, tutorials, and insights from my journey in tech."
     class="hx:aspect-auto hx:md:aspect-[1.1/1] hx:max-md:min-h-[340px]"

@@ -230,6 +230,19 @@
   flex-shrink: 0;
 }
 
+.planned-card-badge.fallback {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(135deg, rgba(52, 102, 203, 0.15), rgba(120, 80, 210, 0.16));
+  color: rgb(52, 102, 203);
+  border: 1px solid rgba(52, 102, 203, 0.18);
+  font-size: 0.78rem;
+  font-weight: 800;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+}
+
 .planned-card-header {
   display: flex;
   align-items: flex-start;
@@ -626,6 +639,8 @@
 {{ $badgePostman := .Page.Resources.GetMatch "postman-logo.png" }}
 {{ $badgeCiti := .Page.Resources.GetMatch "citi-program-logo.png" }}
 {{ $badgeClaude := .Page.Resources.GetMatch "claude-logo.jpg" }}
+{{ $badgeGitHubFoundations := .Page.Resources.GetMatch "gitHub-foundations-badge.png" }}
+{{ $badgeAzureFundamentals := .Page.Resources.GetMatch "microsoft-certified-fundamentals-badge.svg" }}
 
 {{ $badgeCsaUrl := "" }}{{ with $badgeCsa }}{{ $badgeCsaUrl = .RelPermalink }}{{ end }}
 {{ $badgeAwsUrl := "" }}{{ with $badgeAws }}{{ $badgeAwsUrl = .RelPermalink }}{{ end }}
@@ -641,6 +656,8 @@
 {{ $badgeGoogleAiFundamentalsUrl := "" }}{{ with $badgeGoogleAiFundamentals }}{{ $badgeGoogleAiFundamentalsUrl = .RelPermalink }}{{ end }}
 {{ $badgeGoogleBrainstormUrl := "" }}{{ with $badgeGoogleBrainstorm }}{{ $badgeGoogleBrainstormUrl = .RelPermalink }}{{ end }}
 {{ $badgeGoogleSupportUrl := "" }}{{ with $badgeGoogleSupport }}{{ $badgeGoogleSupportUrl = .RelPermalink }}{{ end }}
+{{ $badgeGitHubFoundationsUrl := "" }}{{ with $badgeGitHubFoundations }}{{ $badgeGitHubFoundationsUrl = .RelPermalink }}{{ end }}
+{{ $badgeAzureFundamentalsUrl := "" }}{{ with $badgeAzureFundamentals }}{{ $badgeAzureFundamentalsUrl = .RelPermalink }}{{ end }}
 
 {{ $certs := slice
   (dict "id" "cert-csa" "title" "ServiceNow Certified System Administrator" "org" "ServiceNow" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
@@ -846,6 +863,42 @@
         </div>
         <div class="planned-card-description">
           Earners of the Certified Implementation Specialist - Event Management (CIS-EM) Certification badge have the knowledge and skills to configure, implement, and maintain the ServiceNow Event Management application. This certification validates their ability to manage event processing, configure alerts, integrate event sources, and use features like operator workspace and dependency maps. Certified individuals optimize IT operations by proactively addressing and resolving issues.
+        </div>
+      </div>
+
+      <div class="planned-card">
+        <div class="planned-card-top">
+          {{ if $badgeGitHubFoundationsUrl }}
+          <img class="planned-card-badge" src="{{ $badgeGitHubFoundationsUrl }}" alt="GitHub Foundations Certification">
+          {{ else }}
+          <div class="planned-card-badge fallback">GH</div>
+          {{ end }}
+          <div>
+            <div class="planned-card-title">GitHub Foundations Certification</div>
+            <div class="planned-card-org">GitHub</div>
+          </div>
+          <span class="planned-card-pill">Planned</span>
+        </div>
+        <div class="planned-card-description">
+          This exam is targeted towards GitHub users who want to validate their understanding of the foundational topics, products, and concepts of collaborating, contributing, and working on GitHub.
+        </div>
+      </div>
+
+      <div class="planned-card">
+        <div class="planned-card-top">
+          {{ if $badgeAzureFundamentalsUrl }}
+          <img class="planned-card-badge" src="{{ $badgeAzureFundamentalsUrl }}" alt="Microsoft Certified: Azure Fundamentals">
+          {{ else }}
+          <div class="planned-card-badge fallback">AZ</div>
+          {{ end }}
+          <div>
+            <div class="planned-card-title">Microsoft Certified: Azure Fundamentals</div>
+            <div class="planned-card-org">Microsoft</div>
+          </div>
+          <span class="planned-card-pill">Planned</span>
+        </div>
+        <div class="planned-card-description">
+          Demonstrate foundational knowledge of cloud concepts, core Azure services, plus Azure management and governance features and tools.
         </div>
       </div>
     </div>
