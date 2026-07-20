@@ -1,5 +1,5 @@
 ---
-title: Windows Environment Documentation
+title: Windows Environment
 type: docs
 sidebar:
   open: false
@@ -7,7 +7,6 @@ sidebar:
 
 This section collects guides, how-tos, and reference material for administering and developing in Windows environments. Topics include IIS, Active Directory, PowerShell automation, service accounts, and common troubleshooting patterns.
 
-## Quick Links
 {{< cards >}}
   {{< card link="iis/" title="IIS Configuration" icon="globe-alt" >}}
   <!-- {{< card link="powershell/" title="PowerShell & Scripting" icon="terminal" >}}

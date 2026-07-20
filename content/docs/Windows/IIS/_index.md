@@ -8,6 +8,6 @@ Welcome to the IIS documentation! Here you will find information on how to confi
 
 {{< cards >}}
 
-{{< card link="using-gmsa/" title="Using Group Managed Service Accounts" icon="user-circle" >}}
+{{< card link="using-gmsa/" title="Using gMSA" icon="user-circle" >}}
 
 {{< /cards >}}

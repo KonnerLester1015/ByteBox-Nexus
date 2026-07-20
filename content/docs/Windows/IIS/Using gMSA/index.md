@@ -1,15 +1,12 @@
 ---
-title: Using Group Managed Service Accounts
+title: Using gMSA
 type: docs
 sidebar:
   open: false
 ---
-
-To set up an IIS site to use a Group Managed Service Account (gMSA), follow these steps:
-
 ## Overview
 
-Let's set an example where we have a Windows Server 2019 machine named `WEB01` and we have multiple IIS sites running; in particular we have one called `MySite` that we want to have access to a network share. To do this we will create a gMSA called `gmsa-mysite` and assign it to the application pool of `MySite`.
+Let's set an example where we have a Windows Server 2019 machine named `WEB01` and we have multiple IIS sites running; in particular we have one called `MySite` that we want to have access to a network share. To do this we will create a Group Managed Service Account (gMSA) called `gmsa-mysite` and assign it to the application pool of `MySite`.
 
 {{< callout >}}
   Technically you could just set the computer object to have permissions to the share, but this is not a good practice. Using a gMSA allows you to have a dedicated account for the application pool that can be managed and rotated automatically by Active Directory. It also means if you ever need to move the application pool to another server, you can just add that server to the security group and it will work without having to change any passwords or permissions.
