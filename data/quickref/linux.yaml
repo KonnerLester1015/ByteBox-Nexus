@@ -1,0 +1,499 @@
+title: Linux & Bash
+kicker: Terminal Cheat Sheet
+lang: bash
+icon: fa-brands fa-linux
+color: "#E8752A"
+description: >-
+  Day-to-day Linux administration — files and permissions, text processing,
+  systemd, networking, storage, and the bash scripting patterns worth memorising.
+tags: [linux, bash, sysadmin, cli]
+
+sections:
+  - title: Files & Navigation
+    cards:
+      - title: Moving around
+        code: |
+          pwd                     # where am I
+          cd -                    # previous directory
+          cd ~user                # another user's home
+
+          ls -lah                 # long, all, human sizes
+          ls -lt                  # newest first
+          ls -lS                  # largest first
+
+          tree -L 2 -d            # directories, two levels
+
+      - title: find
+        code: |
+          find /var/log -name '*.log' -mtime +30
+          find . -type f -size +100M
+          find . -type d -name node_modules -prune -o -type f -print
+          find /etc -name '*.conf' -exec grep -l 'listen' {} +
+          find . -type f -mmin -60          # changed in last hour
+
+          find /tmp -type f -mtime +7 -delete
+        note: Use `-exec ... +` instead of `-exec ... \;` — it batches arguments and is far faster on large trees.
+
+      - title: Disk usage
+        code: |
+          df -hT                        # filesystems, with type
+          du -sh /var/*                 # size per child
+          du -h --max-depth=1 | sort -h
+          ncdu /var                     # interactive
+
+          lsof +D /var/log              # what has files open here
+          lsof | grep deleted           # space held by deleted files
+        note: If `df` and `du` disagree, a process is usually holding a deleted file open — find it with `lsof | grep deleted` and restart the process.
+
+      - title: Links and file info
+        code: |
+          ln -s /opt/app/current /usr/local/bin/app
+          readlink -f /usr/local/bin/app
+
+          stat file.txt
+          file archive.bin
+          sha256sum file.iso
+          realpath ./relative
+
+  - title: Permissions
+    cards:
+      - title: chmod and chown
+        code: |
+          chmod 640 file          # rw- r-- ---
+          chmod u+x,g-w file
+          chmod -R g+rX /srv/data # X = dirs and already-executable only
+
+          chown user:group file
+          chown -R www-data: /var/www
+          chgrp developers file
+        note: Capital `X` in chmod applies the execute bit to directories and files that already have it — the right choice for recursive fixes.
+
+      - title: Octal reference
+        table:
+          headers: [Digit, Permission]
+          rows:
+            - ["7", "`rwx` — read + write + execute"]
+            - ["6", "`rw-` — read + write"]
+            - ["5", "`r-x` — read + execute"]
+            - ["4", "`r--` — read only"]
+            - ["0", "`---` — no access"]
+            - ["755", "Owner full, others read+execute"]
+            - ["644", "Owner read+write, others read"]
+            - ["600", "Owner only — use for keys"]
+
+      - title: Special bits and ACLs
+        code: |
+          chmod u+s /usr/bin/tool     # setuid
+          chmod g+s /srv/shared       # setgid — inherit group
+          chmod +t /tmp               # sticky — only owner deletes
+
+          getfacl /srv/data
+          setfacl -m u:jdoe:rwx /srv/data
+          setfacl -m d:g:devs:rx /srv/data   # default for new files
+          setfacl -b /srv/data              # remove all ACLs
+
+      - title: sudo
+        code: |
+          sudo -u www-data whoami
+          sudo -i                     # full root login shell
+          sudo -l                     # what may I run
+          visudo -f /etc/sudoers.d/deploy
+
+          # /etc/sudoers.d/deploy
+          deploy ALL=(ALL) NOPASSWD: /bin/systemctl restart myapp
+
+  - title: Text Processing
+    cards:
+      - title: grep
+        code: |
+          grep -i 'error' app.log
+          grep -rn 'TODO' src/            # recursive with line numbers
+          grep -v '^#' config.conf        # invert: strip comments
+          grep -c 'GET' access.log        # count matches
+          grep -A3 -B1 'Exception' app.log
+          grep -E 'warn|error|fatal' app.log
+          grep -o '[0-9]\+\.[0-9]\+\.[0-9]\+\.[0-9]\+' access.log
+
+      - title: sed
+        code: |
+          sed 's/old/new/' file           # first per line
+          sed 's/old/new/g' file          # all
+          sed -i.bak 's/old/new/g' file   # in place, keep backup
+          sed -n '10,20p' file            # print a line range
+          sed '/^#/d' config              # delete comment lines
+          sed 's|/old/path|/new/path|g' f # alternate delimiter
+        note: Always test without `-i` first. `sed -i.bak` keeps a backup so a bad regex is recoverable.
+
+      - title: awk
+        code: |
+          awk '{print $1, $4}' access.log
+          awk -F: '{print $1}' /etc/passwd
+          awk '$3 > 100 {print $1}' data.txt
+          awk '{sum += $2} END {print sum}' data.txt
+          awk 'NR > 1' file.csv               # skip header
+          awk -F, '{a[$2]++} END {for (k in a) print k, a[k]}' data.csv
+
+      - title: Cutting and sorting
+        code: |
+          cut -d: -f1,3 /etc/passwd
+          cut -c1-10 file
+
+          sort -k2 -n data.txt
+          sort -u list.txt
+          sort | uniq -c | sort -rn | head    # top offenders
+
+          tr 'a-z' 'A-Z' < file
+          tr -d '\r' < dos.txt > unix.txt
+
+      - title: Viewing logs
+        code: |
+          tail -f /var/log/syslog
+          tail -n 200 -f app.log | grep --line-buffered ERROR
+          less +F app.log                  # ctrl-c to scroll, F to follow
+          head -50 file
+          zcat archive.log.gz | grep error
+        note: Add `--line-buffered` when piping `tail -f` into `grep`, otherwise output is buffered and appears in bursts.
+
+  - title: Processes
+    cards:
+      - title: Inspecting
+        code: |
+          ps aux | grep nginx
+          ps -ef --forest
+          ps -eo pid,ppid,user,%cpu,%mem,cmd --sort=-%cpu | head
+
+          top; htop
+          pgrep -a nginx
+          pidof nginx
+
+      - title: Signals
+        code: |
+          kill -TERM 1234       # polite (15)
+          kill -HUP  1234       # reload config (1)
+          kill -KILL 1234       # last resort (9)
+          pkill -f 'python app.py'
+          killall nginx
+
+          kill -l               # list all signals
+        note: Reach for `-TERM` first. `-KILL` gives the process no chance to flush buffers or clean up temp files.
+
+      - title: Background and persistence
+        code: |
+          command &                # background
+          jobs; fg %1; bg %1
+          disown -h %1
+          nohup ./long-job.sh > out.log 2>&1 &
+
+          tmux new -s work
+          tmux attach -t work      # ctrl-b d to detach
+          tmux ls
+
+      - title: Resource usage
+        code: |
+          free -h
+          vmstat 1 5
+          iostat -xz 1
+          uptime                   # load averages
+          nproc                    # CPU count
+
+  - title: systemd
+    cards:
+      - title: Managing units
+        code: |
+          systemctl status nginx
+          systemctl start|stop|restart|reload nginx
+          systemctl enable --now nginx
+          systemctl disable --now nginx
+          systemctl is-active nginx
+          systemctl is-enabled nginx
+
+          systemctl daemon-reload      # after editing unit files
+          systemctl list-units --failed
+
+      - title: journalctl
+        code: |
+          journalctl -u nginx -f
+          journalctl -u nginx --since '1 hour ago'
+          journalctl -u nginx --since today --until '10:00'
+          journalctl -p err -b               # errors this boot
+          journalctl -b -1                   # previous boot
+          journalctl --disk-usage
+          journalctl --vacuum-time=7d
+
+      - title: Writing a unit
+        lang: ini
+        code: |
+          # /etc/systemd/system/myapp.service
+          [Unit]
+          Description=My Application
+          After=network-online.target
+          Wants=network-online.target
+
+          [Service]
+          Type=simple
+          User=myapp
+          WorkingDirectory=/opt/myapp
+          ExecStart=/opt/myapp/bin/server
+          Restart=on-failure
+          RestartSec=5
+          Environment=NODE_ENV=production
+
+          [Install]
+          WantedBy=multi-user.target
+        note: Run `systemctl daemon-reload` after any unit file change, then `systemctl enable --now myapp`.
+
+      - title: Timers
+        code: |
+          systemctl list-timers --all
+          systemctl status backup.timer
+
+          # /etc/systemd/system/backup.timer
+          # [Timer]
+          # OnCalendar=*-*-* 02:00:00
+          # Persistent=true
+
+          systemd-analyze calendar 'Mon *-*-* 06:00:00'
+
+  - title: Networking
+    cards:
+      - title: Interfaces and routes
+        code: |
+          ip a
+          ip -brief addr
+          ip r                     # routing table
+          ip link set eth0 up
+          ip a add 10.0.0.5/24 dev eth0
+
+          nmcli device status
+          nmcli connection show
+
+      - title: Connections and ports
+        code: |
+          ss -tulpn                # listening TCP/UDP with process
+          ss -tan state established
+          ss -s                    # summary
+
+          lsof -i :443
+          nc -zv host 443          # port check
+          curl -sI https://example.com
+
+      - title: DNS and reachability
+        code: |
+          dig +short example.com
+          dig @1.1.1.1 example.com MX
+          dig -x 10.0.0.5          # reverse
+          host example.com
+          resolvectl status
+
+          ping -c 4 8.8.8.8
+          traceroute example.com
+          mtr example.com
+
+      - title: Firewall
+        code: |
+          # firewalld
+          firewall-cmd --list-all
+          firewall-cmd --add-port=8080/tcp --permanent
+          firewall-cmd --reload
+
+          # ufw
+          ufw status verbose
+          ufw allow 22/tcp
+          ufw enable
+
+          # nftables
+          nft list ruleset
+
+  - title: Storage
+    cards:
+      - title: Block devices
+        code: |
+          lsblk -f
+          blkid
+          fdisk -l /dev/sdb
+          parted /dev/sdb print
+
+          mkfs.ext4 -L data /dev/sdb1
+          mkfs.xfs /dev/sdb1
+
+      - title: Mounting
+        code: |
+          mount /dev/sdb1 /mnt/data
+          umount /mnt/data
+          mount -a                    # remount everything in fstab
+          findmnt
+
+          # /etc/fstab
+          # UUID=xxxx  /mnt/data  ext4  defaults,noatime  0 2
+        note: Always use `UUID=` in fstab rather than `/dev/sdX` — device names are not stable across reboots. Test with `mount -a` before rebooting.
+
+      - title: LVM
+        code: |
+          pvs; vgs; lvs
+          pvcreate /dev/sdb1
+          vgextend vg_data /dev/sdb1
+          lvextend -l +100%FREE /dev/vg_data/lv_data
+          resize2fs /dev/vg_data/lv_data     # ext4
+          xfs_growfs /mnt/data               # xfs
+
+      - title: NFS client
+        code: |
+          showmount -e nfs-server
+          mount -t nfs nfs-server:/export /mnt/nfs
+
+          # /etc/fstab
+          # nfs-server:/export /mnt/nfs nfs defaults,_netdev 0 0
+
+          nfsstat -c
+
+  - title: Users & Packages
+    cards:
+      - title: Users and groups
+        code: |
+          useradd -m -s /bin/bash -G sudo,docker jdoe
+          passwd jdoe
+          usermod -aG developers jdoe        # -a is essential
+          userdel -r jdoe
+
+          id jdoe
+          groups jdoe
+          getent passwd jdoe
+          chage -l jdoe                      # password aging
+        note: Forgetting `-a` with `usermod -G` **replaces** the user's supplementary groups instead of adding to them.
+
+      - title: Package managers
+        table:
+          headers: [Task, apt / dnf]
+          rows:
+            - ["Update index", "`apt update` / `dnf check-update`"]
+            - ["Upgrade all", "`apt upgrade` / `dnf upgrade`"]
+            - ["Install", "`apt install pkg` / `dnf install pkg`"]
+            - ["Remove", "`apt remove pkg` / `dnf remove pkg`"]
+            - ["Search", "`apt search x` / `dnf search x`"]
+            - ["What provides", "`apt-file search f` / `dnf provides f`"]
+            - ["Package of a file", "`dpkg -S f` / `rpm -qf f`"]
+            - ["List files", "`dpkg -L pkg` / `rpm -ql pkg`"]
+
+      - title: Archives and transfer
+        code: |
+          tar czf backup.tar.gz /srv/data
+          tar xzf backup.tar.gz -C /restore
+          tar tzf backup.tar.gz          # list contents
+
+          rsync -avz --progress src/ user@host:/dst/
+          rsync -avz --delete --dry-run src/ dst/
+
+          scp file user@host:/tmp/
+        note: A trailing slash on the rsync source copies the *contents* of the directory; without it you copy the directory itself.
+
+  - title: SSH
+    cards:
+      - title: Keys and config
+        code: |
+          ssh-keygen -t ed25519 -C 'konner@laptop'
+          ssh-copy-id user@host
+          ssh-add ~/.ssh/id_ed25519
+
+          # ~/.ssh/config
+          Host prod
+              HostName 10.0.0.10
+              User deploy
+              IdentityFile ~/.ssh/id_ed25519
+              ForwardAgent yes
+
+      - title: Tunnels and jump hosts
+        code: |
+          ssh -J bastion user@internal-host
+
+          ssh -L 8080:localhost:80 user@host      # local forward
+          ssh -R 9000:localhost:3000 user@host    # remote forward
+          ssh -D 1080 user@host                   # SOCKS proxy
+
+          ssh -N -f -L 5432:db:5432 user@bastion  # background tunnel
+
+      - title: Hardening
+        code: |
+          # /etc/ssh/sshd_config
+          PermitRootLogin no
+          PasswordAuthentication no
+          PubkeyAuthentication yes
+          AllowGroups ssh-users
+
+          sshd -t                     # validate before reloading
+          systemctl reload sshd
+        note: Keep your existing session open while testing a new sshd config. Validate with `sshd -t` first.
+
+  - title: Bash Scripting
+    cards:
+      - title: Safe script header
+        code: |
+          #!/usr/bin/env bash
+          set -Eeuo pipefail
+          IFS=$'\n\t'
+
+          trap 'echo "Failed at line $LINENO" >&2' ERR
+
+          SCRIPT_DIR=$(cd -- "$(dirname -- "${BASH_SOURCE[0]}")" && pwd)
+        note: "`-e` exit on error, `-u` error on unset variables, `-o pipefail` catch failures mid-pipeline, `-E` propagate the ERR trap into functions."
+
+      - title: Variables and defaults
+        code: |
+          name="${1:-default}"          # default if unset or empty
+          : "${API_URL:?must be set}"   # fail with a message
+
+          readonly MAX=10
+          declare -i count=0            # integer
+          declare -A map                # associative array
+          map[key]='value'
+
+          "${var,,}"                    # lowercase
+          "${var^^}"                    # uppercase
+          "${path##*/}"                 # basename
+          "${path%/*}"                  # dirname
+
+      - title: Conditionals
+        code: |
+          if [[ -f "$file" ]]; then :; fi     # regular file
+          if [[ -d "$dir"  ]]; then :; fi     # directory
+          if [[ -z "$s"    ]]; then :; fi     # empty string
+          if [[ -n "$s"    ]]; then :; fi     # non-empty
+          if [[ "$a" == "$b" ]]; then :; fi
+          if [[ "$s" =~ ^INC[0-9]+$ ]]; then :; fi
+          if (( count > 10 )); then :; fi     # arithmetic
+        note: Prefer `[[ ]]` over `[ ]` in bash — it handles empty variables and regex without the quoting landmines.
+
+      - title: Loops and functions
+        code: |
+          for f in *.log; do
+              [[ -e "$f" ]] || continue
+              gzip "$f"
+          done
+
+          while IFS= read -r line; do
+              printf '%s\n' "$line"
+          done < input.txt
+
+          while IFS=, read -r name email; do
+              echo "$name <$email>"
+          done < <(tail -n +2 users.csv)
+
+          deploy() {
+              local env="$1"
+              echo "Deploying to ${env}"
+          }
+
+      - title: Useful idioms
+        code: |
+          command -v jq >/dev/null || { echo 'jq required'; exit 1; }
+
+          tmp=$(mktemp -d)
+          trap 'rm -rf "$tmp"' EXIT
+
+          if output=$(some-cmd 2>&1); then
+              echo "ok"
+          else
+              echo "failed: $output" >&2
+          fi
+
+          printf '%s\n' "${array[@]}"
+        note: Always quote `"${array[@]}"` and `"$var"`. Unquoted expansion word-splits on whitespace and is the source of most bash bugs.

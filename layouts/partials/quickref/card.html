@@ -1,0 +1,71 @@
+{{- /*
+  Renders one quick-reference card.
+  Context: dict "card" <map> "sectionId" <string> "lang" <string>
+*/ -}}
+{{- $card := .card -}}
+{{- $sectionId := .sectionId -}}
+{{- $lang := or $card.lang .lang "text" -}}
+
+{{- /* Build the searchable haystack for this card */ -}}
+{{- $hay := slice ($card.title | default "") -}}
+{{- with $card.code }}{{ $hay = $hay | append . }}{{ end -}}
+{{- with $card.note }}{{ $hay = $hay | append . }}{{ end -}}
+{{- with $card.list }}{{ range . }}{{ $hay = $hay | append . }}{{ end }}{{ end -}}
+{{- with $card.table -}}
+  {{- with .headers }}{{ range . }}{{ $hay = $hay | append . }}{{ end }}{{ end -}}
+  {{- with .rows }}{{ range . }}{{ range . }}{{ $hay = $hay | append (string .) }}{{ end }}{{ end }}{{ end -}}
+{{- end -}}
+{{- with $card.tags }}{{ range . }}{{ $hay = $hay | append . }}{{ end }}{{ end -}}
+{{- $haystack := (delimit $hay " ") | lower -}}
+
+<article
+  class="qr-card"
+  data-qr-item
+  data-qr-section="{{ $sectionId }}"
+  data-qr-text="{{ $haystack }}"
+>
+  <header class="qr-card-head">
+    <h3 class="qr-card-title">{{ $card.title }}</h3>
+    {{- if $card.code }}
+    <button type="button" class="qr-copy" aria-label="Copy snippet" title="Copy snippet">
+      <i class="fa-regular fa-copy" aria-hidden="true"></i>
+    </button>
+    {{- end }}
+  </header>
+
+  <div class="qr-card-body">
+    {{- with $card.code }}
+      {{ transform.Highlight (trim . "\n") $lang "" }}
+    {{- end }}
+
+    {{- with $card.table }}
+      <table class="qr-table">
+        {{- with .headers }}
+        <thead>
+          <tr>{{ range . }}<th scope="col">{{ . }}</th>{{ end }}</tr>
+        </thead>
+        {{- end }}
+        <tbody>
+          {{- range .rows }}
+          <tr>{{ range . }}<td>{{ partial "quickref/inline.html" (string .) }}</td>{{ end }}</tr>
+          {{- end }}
+        </tbody>
+      </table>
+    {{- end }}
+
+    {{- with $card.list }}
+      <ul class="qr-list">
+        {{- range . }}
+        <li>{{ partial "quickref/inline.html" . }}</li>
+        {{- end }}
+      </ul>
+    {{- end }}
+  </div>
+
+  {{- with $card.note }}
+  <div class="qr-note">
+    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
+    <span>{{ partial "quickref/inline.html" . }}</span>
+  </div>
+  {{- end }}
+</article>

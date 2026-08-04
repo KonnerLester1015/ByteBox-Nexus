@@ -1,0 +1,5 @@
+{{- /* Escapes a plain string, then upgrades `backticks` to inline code and **text** to bold. */ -}}
+{{- $s := . | default "" | string | htmlEscape -}}
+{{- $s = replaceRE "`([^`]+)`" `<code class="qr-ic">$1</code>` $s -}}
+{{- $s = replaceRE `\*\*([^*]+)\*\*` "<strong>$1</strong>" $s -}}
+{{- return ($s | safeHTML) -}}

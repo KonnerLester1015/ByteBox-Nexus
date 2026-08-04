@@ -1,0 +1,731 @@
+title: ServiceNow Scripting
+kicker: Platform Cheat Sheet
+lang: javascript
+icon: fa-solid fa-diagram-project
+color: "#62D84E"
+description: >-
+  Server-side and client-side scripting patterns for the Now Platform — GlideRecord,
+  GlideAggregate, g_form, GlideAjax, REST, and the encoded query syntax you always forget.
+tags: [servicenow, javascript, glide, itsm]
+
+sections:
+  - title: GlideRecord Basics
+    cards:
+      - title: Query and loop
+        code: |
+          var gr = new GlideRecord('incident');
+          gr.addQuery('active', true);
+          gr.addQuery('priority', '<=', 2);
+          gr.orderByDesc('sys_created_on');
+          gr.setLimit(10);
+          gr.query();
+
+          while (gr.next()) {
+              gs.info('{0} — {1}', gr.getValue('number'),
+                                   gr.getDisplayValue('assigned_to'));
+          }
+        note: Always use `getValue()` / `getDisplayValue()` rather than `gr.field` — the raw property returns a GlideElement object, not a string.
+
+      - title: Fetch a single record
+        code: |
+          var gr = new GlideRecord('incident');
+          if (gr.get('number', 'INC0010023')) {
+              gs.info(gr.getValue('short_description'));
+          }
+
+          // by sys_id (single-argument form)
+          var u = new GlideRecord('sys_user');
+          u.get('62826bf03710200044e0bfc8bcbe5df1');
+
+      - title: Query builder methods
+        table:
+          headers: [Method, Purpose]
+          rows:
+            - ["addQuery(f, v)", "AND condition, defaults to `=`"]
+            - ["addQuery(f, op, v)", "Explicit operator: `>`, `<=`, `IN`, `LIKE`"]
+            - ["addOrCondition(f, v)", "OR — called on the returned QueryCondition"]
+            - ["addEncodedQuery(q)", "Paste a query string from the list filter"]
+            - ["addNullQuery(f)", "Field is empty"]
+            - ["addNotNullQuery(f)", "Field is not empty"]
+            - ["addActiveQuery()", "Shorthand for `active=true`"]
+            - ["orderBy(f) / orderByDesc(f)", "Sort ascending / descending"]
+            - ["setLimit(n)", "Cap rows returned"]
+            - ["chooseWindow(a, b)", "Row-range window (pagination)"]
+
+      - title: OR conditions
+        code: |
+          var gr = new GlideRecord('incident');
+          var qc = gr.addQuery('state', 1);
+          qc.addOrCondition('state', 2);
+          qc.addOrCondition('state', 3);
+          gr.query();
+        note: The OR applies to the condition returned by `addQuery`, not to the GlideRecord — chaining onto `gr` produces an AND instead.
+
+      - title: Row counts
+        code: |
+          var gr = new GlideRecord('incident');
+          gr.addActiveQuery();
+          gr.query();
+          gs.info(gr.getRowCount());
+
+          if (gr.hasNext()) { /* at least one result */ }
+        note: "`getRowCount()` walks the whole result set — use GlideAggregate for counts on large tables."
+
+      - title: Dot-walking
+        code: |
+          var gr = new GlideRecord('incident');
+          gr.addQuery('caller_id.department.name', 'Finance');
+          gr.query();
+
+          while (gr.next()) {
+              gs.info(gr.caller_id.manager.email + '');
+              gs.info(gr.getValue('caller_id.department'));
+          }
+        note: Append `+ ''` to coerce a dot-walked GlideElement to a string, or use `getValue()` with the dotted path.
+
+  - title: Encoded Queries
+    cards:
+      - title: Operators
+        table:
+          headers: [Token, Meaning]
+          rows:
+            - ["=", "Equals"]
+            - ["!=", "Not equals"]
+            - [">  <  >=  <=", "Greater / less than"]
+            - ["LIKE", "Contains"]
+            - ["NOTLIKE", "Does not contain"]
+            - ["STARTSWITH", "Starts with"]
+            - ["ENDSWITH", "Ends with"]
+            - ["IN", "Value in comma list"]
+            - ["NOT IN", "Value not in comma list"]
+            - ["ISEMPTY", "Field is empty"]
+            - ["ISNOTEMPTY", "Field is populated"]
+            - ["ANYTHING", "Matches all (useful placeholder)"]
+            - ["BETWEEN", "`priorityBETWEEN1@3`"]
+
+      - title: Joining conditions
+        table:
+          headers: [Token, Meaning]
+          rows:
+            - ["^", "AND"]
+            - ["^OR", "OR"]
+            - ["^NQ", "New query (separate OR group)"]
+            - ["^ORDERBY", "Sort ascending"]
+            - ["^ORDERBYDESC", "Sort descending"]
+            - ["^EQ", "Terminates the query string"]
+
+      - title: Real examples
+        lang: text
+        code: |
+          active=true^priority<=2^assignment_groupISNOTEMPTY
+
+          stateIN1,2,3^ORDERBYDESCsys_created_on
+
+          short_descriptionLIKEpassword^ORdescriptionLIKEpassword
+
+          sys_created_on>javascript:gs.beginningOfLastMonth()
+
+          assigned_to=javascript:gs.getUserID()
+        note: Build these by filtering a list in the UI, then right-click the breadcrumb and choose **Copy query**.
+
+      - title: Date helpers in queries
+        lang: text
+        code: |
+          javascript:gs.beginningOfToday()
+          javascript:gs.endOfYesterday()
+          javascript:gs.beginningOfLastWeek()
+          javascript:gs.beginningOfThisMonth()
+          javascript:gs.beginningOfLastMonth()
+          javascript:gs.daysAgoStart(7)
+          javascript:gs.daysAgoEnd(30)
+
+  - title: Insert, Update, Delete
+    cards:
+      - title: Insert a record
+        code: |
+          var gr = new GlideRecord('incident');
+          gr.initialize();
+          gr.setValue('short_description', 'Created from script');
+          gr.setValue('category', 'inquiry');
+          gr.caller_id.setDisplayValue('Abel Tuter');
+          var sysId = gr.insert();
+
+          gs.info('Created ' + sysId);
+        note: "`newRecord()` initialises *and* applies dictionary defaults; `initialize()` gives you a blank record."
+
+      - title: Update a record
+        code: |
+          var gr = new GlideRecord('incident');
+          if (gr.get('number', 'INC0010023')) {
+              gr.setValue('state', 6);
+              gr.work_notes = 'Closed by automation';
+              gr.update();
+          }
+
+      - title: Bulk update
+        code: |
+          var gr = new GlideRecord('incident');
+          gr.addQuery('state', 1);
+          gr.addQuery('sys_created_on', '<', gs.daysAgoStart(90));
+          gr.setValue('state', 8);
+          gr.updateMultiple();
+        note: "`updateMultiple()` skips business rules and does **not** trigger `setValue` on a per-row basis — do not combine it with `while (gr.next())`."
+
+      - title: Delete records
+        code: |
+          // single
+          var gr = new GlideRecord('u_scratch');
+          if (gr.get(sysId)) gr.deleteRecord();
+
+          // many — no business rules, no workflow
+          var old = new GlideRecord('u_scratch');
+          old.addQuery('sys_created_on', '<', gs.daysAgo(365));
+          old.deleteMultiple();
+
+      - title: Suppress side effects
+        code: |
+          gr.setWorkflow(false);      // no business rules / notifications
+          gr.autoSysFields(false);    // preserve sys_updated_on / _by
+          gr.setForceUpdate(true);    // write even if nothing changed
+        note: Use `autoSysFields(false)` sparingly — it makes auditing misleading. Never leave `setWorkflow(false)` on for records users expect to trigger notifications.
+
+  - title: GlideAggregate
+    cards:
+      - title: Count grouped
+        code: |
+          var ga = new GlideAggregate('incident');
+          ga.addQuery('active', true);
+          ga.addAggregate('COUNT', 'category');
+          ga.groupBy('category');
+          ga.orderByAggregate('COUNT', 'category');
+          ga.query();
+
+          while (ga.next()) {
+              gs.info(ga.category + ': ' +
+                      ga.getAggregate('COUNT', 'category'));
+          }
+
+      - title: Simple total
+        code: |
+          var ga = new GlideAggregate('incident');
+          ga.addEncodedQuery('active=true^priority=1');
+          ga.addAggregate('COUNT');
+          ga.query();
+          var total = ga.next() ? ga.getAggregate('COUNT') : 0;
+        note: Far cheaper than `getRowCount()` — the count happens in the database rather than by walking rows.
+
+      - title: Aggregate functions
+        table:
+          headers: [Function, Notes]
+          rows:
+            - ["COUNT", "Row count"]
+            - ["SUM", "Numeric fields only"]
+            - ["AVG", "Numeric average"]
+            - ["MIN / MAX", "Works on dates too"]
+            - ["groupBy(field)", "Group results"]
+            - ["addHaving(fn, f, op, v)", "Filter on the aggregate"]
+
+  - title: GlideSystem (gs)
+    cards:
+      - title: Logging
+        code: |
+          gs.info('Plain message');
+          gs.info('User {0} has {1} tasks', name, count);
+          gs.warn('Something looks off');
+          gs.error('Failed: ' + e.message);
+          gs.debug('Only when debug is enabled');
+        note: Those are scoped-app APIs and also work in global. Legacy global-only equivalents are `gs.log()`, `gs.logWarning()`, `gs.logError()`. Output lands in `syslog`.
+
+      - title: Current user
+        code: |
+          gs.getUserID();            // sys_id
+          gs.getUserName();          // user_name
+          gs.getUserDisplayName();   // full name
+          gs.hasRole('itil');
+          gs.getUser().getFullName();
+          gs.getUser().getEmail();
+          gs.getUser().isMemberOf('Service Desk');
+          gs.getUser().getMyGroups();
+
+      - title: Dates and time
+        code: |
+          gs.now();              // date only, user format
+          gs.nowDateTime();      // date + time, user format
+          gs.beginningOfToday();
+          gs.daysAgo(7);
+          gs.daysAgoStart(7);
+          gs.minutesAgo(30);
+          gs.beginningOfLastMonth();
+
+      - title: Messages and events
+        code: |
+          gs.addInfoMessage('Saved successfully');
+          gs.addErrorMessage('Missing approver');
+
+          gs.eventQueue('x_myapp.record.synced',
+                        current, parm1, parm2);
+
+          gs.getProperty('glide.servlet.uri');
+          gs.getProperty('my.custom.prop', 'fallback');
+          gs.generateGUID();
+        note: "`gs.addInfoMessage` renders on the next page load, so it is only useful in synchronous server-side code triggered by a UI action or before business rule."
+
+  - title: GlideDateTime
+    cards:
+      - title: Create and format
+        code: |
+          var gdt = new GlideDateTime();                    // now (UTC internally)
+          var d   = new GlideDateTime('2026-01-15 08:30:00');
+
+          gdt.getValue();          // '2026-01-15 08:30:00' UTC
+          gdt.getDisplayValue();   // in the user's timezone
+          gdt.getDate();           // GlideDate
+          gdt.getNumericValue();   // epoch milliseconds
+
+      - title: Arithmetic
+        code: |
+          var gdt = new GlideDateTime();
+          gdt.addDaysLocalTime(7);
+          gdt.addSeconds(3600);
+          gdt.addWeeksUTC(2);
+          gdt.subtract(1000 * 60 * 60);   // ms
+
+          var start = new GlideDateTime('2026-01-01 00:00:00');
+          var end   = new GlideDateTime('2026-01-04 12:00:00');
+          var dur   = GlideDateTime.subtract(start, end);
+          gs.info(dur.getDayPart());        // 3
+          gs.info(dur.getDisplayValue());   // 3 Days 12 Hours
+
+      - title: Field values
+        code: |
+          var gdt = new GlideDateTime(gr.getValue('opened_at'));
+          gr.setValue('due_date', gdt.getValue());
+
+          // compare
+          if (gdt.before(new GlideDateTime())) { /* in the past */ }
+          if (gdt.after(other)) { /* later */ }
+        note: Field values are always stored in UTC. Convert with `getDisplayValue()` only for output — never for comparisons.
+
+  - title: Client Scripts — g_form
+    cards:
+      - title: onChange skeleton
+        code: |
+          function onChange(control, oldValue, newValue, isLoading, isTemplate) {
+              if (isLoading || newValue === '') {
+                  return;
+              }
+
+              if (newValue === '1') {
+                  g_form.setMandatory('business_justification', true);
+              }
+          }
+
+      - title: onLoad / onSubmit
+        code: |
+          function onLoad() {
+              if (g_form.isNewRecord()) {
+                  g_form.setValue('category', 'inquiry');
+              }
+          }
+
+          function onSubmit() {
+              if (!g_form.getValue('short_description')) {
+                  g_form.addErrorMessage('Description is required');
+                  return false;   // blocks the save
+              }
+              return true;
+          }
+
+      - title: Reading and writing
+        code: |
+          g_form.getValue('state');
+          g_form.getDisplayValue('assigned_to');
+          g_form.setValue('state', '2');
+          g_form.setValue('assigned_to', sysId, 'Abel Tuter');
+          g_form.clearValue('assigned_to');
+          g_form.getReference('caller_id', function (user) {
+              g_form.setValue('location', user.location);
+          });
+        note: Always pass the callback to `getReference()` — the synchronous form blocks the browser and is flagged by ATF and instance scans.
+
+      - title: Field state
+        table:
+          headers: [Call, Effect]
+          rows:
+            - ["setMandatory(f, true)", "Required to save"]
+            - ["setReadOnly(f, true)", "Disable editing"]
+            - ["setDisplay(f, false)", "Hide and reclaim the space"]
+            - ["setVisible(f, false)", "Hide but keep the space"]
+            - ["setDisabled(f, true)", "Disable a choice option"]
+            - ["setLabelOf(f, 'New')", "Change the label"]
+            - ["flash(f, 'red', 2)", "Highlight briefly"]
+
+      - title: Choice lists
+        code: |
+          g_form.addOption('state', '10', 'Awaiting Vendor', 3);
+          g_form.removeOption('state', '7');
+          g_form.clearOptions('state');
+
+      - title: Messages
+        code: |
+          g_form.addInfoMessage('Ticket routed to Tier 2');
+          g_form.addErrorMessage('Invalid combination');
+          g_form.clearMessages();
+
+          g_form.showFieldMsg('cost_center',
+                              'Must be numeric', 'error');
+          g_form.hideFieldMsg('cost_center', true);
+
+      - title: Do not do this
+        list:
+          - "Never run a synchronous `GlideRecord` query in a client script — use GlideAjax."
+          - "Avoid `g_form.getReference()` without a callback."
+          - "Do not use jQuery or DOM manipulation; it breaks in Service Portal and Next Experience."
+          - "Prefer UI Policies over client scripts for simple show/hide/mandatory logic."
+
+  - title: GlideAjax
+    cards:
+      - title: Client side
+        code: |
+          var ga = new GlideAjax('UserLookupAjax');
+          ga.addParam('sysparm_name', 'getManager');
+          ga.addParam('sysparm_user', g_form.getValue('caller_id'));
+
+          ga.getXMLAnswer(function (answer) {
+              if (answer) {
+                  g_form.setValue('u_manager', answer);
+              }
+          });
+
+      - title: Script Include
+        code: |
+          var UserLookupAjax = Class.create();
+          UserLookupAjax.prototype = Object.extendsObject(
+              global.AbstractAjaxProcessor, {
+
+              getManager: function () {
+                  var id = this.getParameter('sysparm_user');
+                  var gr = new GlideRecord('sys_user');
+                  if (gr.get(id)) {
+                      return gr.getValue('manager');
+                  }
+                  return '';
+              },
+
+              type: 'UserLookupAjax'
+          });
+        note: Tick **Client callable** on the Script Include record, otherwise the call silently returns nothing.
+
+      - title: Returning JSON
+        code: |
+          // Script Include
+          getProfile: function () {
+              var gr = new GlideRecord('sys_user');
+              gr.get(this.getParameter('sysparm_user'));
+              return new global.JSON().encode({
+                  email: gr.getValue('email'),
+                  dept:  gr.getDisplayValue('department')
+              });
+          }
+
+          // Client
+          ga.getXMLAnswer(function (answer) {
+              var data = JSON.parse(answer);
+              g_form.setValue('email', data.email);
+          });
+
+  - title: Business Rules
+    cards:
+      - title: Skeleton
+        code: |
+          (function executeRule(current, previous /*null when async*/) {
+
+              if (current.priority <= 2 && !current.assignment_group.nil()) {
+                  current.work_notes = 'Escalation path applied';
+              }
+
+          })(current, previous);
+
+      - title: Change detection
+        code: |
+          current.isNewRecord();
+          current.operation();             // insert | update | delete
+          current.priority.changes();
+          current.state.changesTo(6);
+          current.state.changesFrom(1);
+          current.assigned_to.nil();
+          previous.state;                  // value before the save
+        note: "`previous` is null in **async** business rules — guard before dereferencing it."
+
+      - title: When to run
+        table:
+          headers: [Timing, Use for]
+          rows:
+            - ["before", "Modifying `current` before it is written — no `update()` needed"]
+            - ["after", "Updating *other* records once this one is saved"]
+            - ["async", "Slow work — runs in a scheduled job, no `previous`"]
+            - ["display", "Populating `g_scratchpad` for client scripts"]
+            - ["query", "Injecting row-level security filters"]
+
+      - title: Abort a transaction
+        code: |
+          if (current.u_locked == true) {
+              gs.addErrorMessage('This record is locked.');
+              current.setAbortAction(true);
+          }
+
+      - title: Display rule to scratchpad
+        code: |
+          // Business Rule — When: display
+          (function executeRule(current, previous) {
+              var gr = new GlideRecord('sys_user');
+              gr.get(current.getValue('caller_id'));
+              g_scratchpad.callerVip = gr.getValue('vip') == '1';
+          })(current, previous);
+
+          // Client script
+          if (g_scratchpad.callerVip) {
+              g_form.addInfoMessage('VIP caller');
+          }
+
+  - title: Script Includes
+    cards:
+      - title: Standard class
+        code: |
+          var TaskUtils = Class.create();
+          TaskUtils.prototype = {
+
+              initialize: function () {},
+
+              closeStale: function (days) {
+                  var gr = new GlideRecord('incident');
+                  gr.addQuery('state', 6);
+                  gr.addQuery('sys_updated_on', '<', gs.daysAgo(days));
+                  gr.query();
+                  var n = 0;
+                  while (gr.next()) {
+                      gr.setValue('state', 7);
+                      gr.update();
+                      n++;
+                  }
+                  return n;
+              },
+
+              type: 'TaskUtils'
+          };
+
+          // usage
+          new TaskUtils().closeStale(30);
+
+      - title: Static helper functions
+        code: |
+          var MathUtils = Class.create();
+
+          MathUtils.round = function (n, places) {
+              var f = Math.pow(10, places || 0);
+              return Math.round(n * f) / f;
+          };
+
+          // usage — no instantiation
+          MathUtils.round(3.14159, 2);
+
+      - title: Extending another include
+        code: |
+          var ChildUtils = Class.create();
+          ChildUtils.prototype = Object.extendsObject(ParentUtils, {
+
+              doThing: function () {
+                  return ParentUtils.prototype.doThing.call(this) + '!';
+              },
+
+              type: 'ChildUtils'
+          });
+
+  - title: Integrations — REST
+    cards:
+      - title: Outbound REST call
+        code: |
+          var r = new sn_ws.RESTMessageV2();
+          r.setEndpoint('https://api.example.com/v1/items');
+          r.setHttpMethod('POST');
+          r.setRequestHeader('Content-Type', 'application/json');
+          r.setRequestHeader('Authorization', 'Bearer ' + token);
+          r.setRequestBody(JSON.stringify({ name: 'widget' }));
+          r.setHttpTimeout(30000);
+
+          try {
+              var resp = r.execute();
+              var code = resp.getStatusCode();
+              var body = resp.getBody();
+
+              if (code >= 200 && code < 300) {
+                  var data = JSON.parse(body);
+              } else {
+                  gs.error('HTTP {0}: {1}', code, body);
+              }
+          } catch (ex) {
+              gs.error('REST failed: ' + ex.getMessage());
+          }
+
+      - title: Using a defined REST Message
+        code: |
+          var r = new sn_ws.RESTMessageV2('Example API', 'getItem');
+          r.setStringParameterNoEscape('item_id', '4711');
+          r.setMIDServer('MID-PROD-01');   // for internal endpoints
+
+          var resp = r.execute();
+        note: Named REST Messages keep credentials and endpoints out of your code and make them updatable without a code change.
+
+      - title: Scripted REST resource
+        code: |
+          (function process(request, response) {
+
+              var id     = request.pathParams.id;
+              var active = request.queryParams.active;
+              var body   = request.body ? request.body.data : {};
+
+              var gr = new GlideRecord('incident');
+              if (!gr.get(id)) {
+                  response.setStatus(404);
+                  response.setBody({ error: 'Not found' });
+                  return;
+              }
+
+              response.setStatus(200);
+              response.setBody({
+                  number: gr.getValue('number'),
+                  state:  gr.getDisplayValue('state')
+              });
+
+          })(request, response);
+
+      - title: Table API URLs
+        lang: text
+        code: |
+          GET  /api/now/table/incident?sysparm_limit=10
+          GET  /api/now/table/incident?sysparm_query=active=true^priority=1
+          GET  /api/now/table/incident/{sys_id}
+          POST /api/now/table/incident
+          PUT  /api/now/table/incident/{sys_id}
+
+          &sysparm_fields=number,short_description,state
+          &sysparm_display_value=true      (or all)
+          &sysparm_exclude_reference_link=true
+          &sysparm_offset=100
+
+  - title: Flow Designer & Events
+    cards:
+      - title: Call a subflow from script
+        code: |
+          var inputs = { record: current };
+
+          sn_fd.FlowAPI.getRunner()
+              .subflow('global.provision_account')
+              .inBackground()
+              .withInputs(inputs)
+              .run();
+        note: Use `.inForeground()` when you need the outputs back synchronously — it blocks the transaction, so keep the subflow short.
+
+      - title: Fire and consume an event
+        code: |
+          // fire
+          gs.eventQueue('incident.escalated', current,
+                        gs.getUserID(), current.getValue('priority'));
+
+          // Script Action / Notification receives:
+          //   event.parm1, event.parm2, event.instance
+        note: Register the event name in **System Policy > Events > Registry** first, or it will be discarded silently.
+
+  - title: Useful Tables
+    cards:
+      - title: Core task tables
+        table:
+          headers: [Table, Contents]
+          rows:
+            - ["task", "Parent of all task types"]
+            - ["incident", "Incidents"]
+            - ["problem", "Problems"]
+            - ["change_request", "Changes"]
+            - ["sc_request", "Requests (REQ)"]
+            - ["sc_req_item", "Requested items (RITM)"]
+            - ["sc_task", "Catalog tasks (SCTASK)"]
+            - ["sysapproval_approver", "Approval records"]
+
+      - title: Users and access
+        table:
+          headers: [Table, Contents]
+          rows:
+            - ["sys_user", "Users"]
+            - ["sys_user_group", "Groups"]
+            - ["sys_user_grmember", "Group membership"]
+            - ["sys_user_role", "Roles"]
+            - ["sys_user_has_role", "Role assignments"]
+            - ["sys_security_acl", "ACLs"]
+
+      - title: Platform tables
+        table:
+          headers: [Table, Contents]
+          rows:
+            - ["sys_script", "Business rules"]
+            - ["sys_script_include", "Script includes"]
+            - ["sys_script_client", "Client scripts"]
+            - ["sys_ui_policy", "UI policies"]
+            - ["sys_properties", "System properties"]
+            - ["sys_dictionary", "Field definitions"]
+            - ["sys_db_object", "Table definitions"]
+            - ["sys_choice", "Choice list values"]
+            - ["sysauto_script", "Scheduled jobs"]
+            - ["syslog", "Log output"]
+            - ["ecc_queue", "MID Server traffic"]
+            - ["sys_update_xml", "Update set payloads"]
+
+  - title: Navigation & Debugging
+    cards:
+      - title: URL shortcuts
+        lang: text
+        code: |
+          /incident_list.do?sysparm_query=active=true
+          /incident.do?sys_id=-1              new record
+          /sys.scripts.do                     background scripts
+          /sys_properties_list.do             all properties
+          /syslog_list.do                     platform logs
+          /stats.do                           instance stats
+          /cache.do                           flush the cache
+          /nav_to.do?uri=incident_list.do
+        note: Typing `incident.list` or `incident.form` in the filter navigator jumps straight to a list or blank form.
+
+      - title: Background script safety
+        code: |
+          // ALWAYS dry-run first
+          var DRY_RUN = true;
+          var gr = new GlideRecord('incident');
+          gr.addEncodedQuery('active=true^priority=1');
+          gr.query();
+
+          var count = 0;
+          while (gr.next()) {
+              count++;
+              if (!DRY_RUN) {
+                  gr.setValue('priority', 2);
+                  gr.update();
+              }
+          }
+          gs.info('Affected rows: ' + count);
+        note: Check the scope selector before running anything in **Scripts - Background**. Running in the wrong scope is the fastest way to a bad afternoon.
+
+      - title: Timing a script
+        code: |
+          var start = new GlideDateTime();
+          // ... work ...
+          var end = new GlideDateTime();
+          gs.info('Elapsed: ' +
+              GlideDateTime.subtract(start, end).getDisplayValue());
+
+      - title: Common gotchas
+        list:
+          - "`gr.field` returns a GlideElement, not a string — `==` comparisons against strings can surprise you. Use `getValue()`."
+          - "`gr.getValue()` returns `null` for empty fields, not an empty string."
+          - "Booleans come back as `'0'` / `'1'` strings from `getValue()`."
+          - "`updateMultiple()` and `deleteMultiple()` bypass business rules and workflow."
+          - "Scoped apps cannot write to tables in other scopes unless the target allows it."
+          - "Client scripts run in the browser — nothing from `gs.*` is available there."

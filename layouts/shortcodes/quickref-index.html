@@ -1,0 +1,85 @@
+{{- /*
+  Usage: {{< quickref-index >}}  (place on content/quickref/_index.md)
+  Lists every child page that declares `quickref: <id>` in its front matter
+  and pulls presentation metadata from data/quickref/<id>.yaml
+*/ -}}
+{{- $store := .Site.Data.quickref | default dict -}}
+{{- $pages := where .Page.Pages "Params.quickref" "!=" nil -}}
+{{- $sheets := slice -}}
+{{- range $pages -}}
+  {{- $d := index $store .Params.quickref -}}
+  {{- if $d -}}
+    {{- $count := 0 -}}
+    {{- range $d.sections }}{{ $count = add $count (len .cards) }}{{ end -}}
+    {{- $sheets = $sheets | append (dict "page" . "data" $d "count" $count) -}}
+  {{- end -}}
+{{- end -}}
+
+<div class="qr-root qr-index">
+  {{ partial "quickref/assets.html" .Page }}
+
+  <div class="qr-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <div class="qr-hero">
+    <div><span class="qr-hero-kicker"><span class="qr-dot"></span>{{ .Get "kicker" | default "Quick Reference" }}</span></div>
+    <p class="qr-hero-sub">{{ .Get "intro" | default "Dense, copy-ready cheat sheets for the tools I reach for most. Press / to search, hover any card to copy the snippet." }}</p>
+    <div class="qr-hero-meta">
+      <span class="qr-chip"><span data-qr-count>{{ len $sheets }}</span> sheets</span>
+      {{- $grand := 0 }}{{ range $sheets }}{{ $grand = add $grand .count }}{{ end }}
+      <span class="qr-chip">{{ $grand }} snippets</span>
+    </div>
+  </div>
+
+  <div class="qr-toolbar">
+    <div class="qr-search-wrap">
+      <i class="fa-solid fa-magnifying-glass qr-search-icon" aria-hidden="true"></i>
+      <input
+        type="search"
+        class="qr-search"
+        placeholder="Filter cheat sheets&hellip;"
+        aria-label="Filter quick references"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <span class="qr-kbd"><kbd>/</kbd></span>
+    </div>
+    <div class="qr-progress" aria-hidden="true"></div>
+  </div>
+
+  <section class="qr-section" data-qr-section-id="all">
+    <div class="qr-tiles">
+      {{- range $sheets }}
+        {{- $p := .page -}}{{- $d := .data -}}
+        {{- $hay := slice $d.title ($d.description | default "") -}}
+        {{- range $d.tags }}{{ $hay = $hay | append . }}{{ end -}}
+        {{- range $d.sections }}{{ $hay = $hay | append .title }}{{ end -}}
+        <a
+          class="qr-tile"
+          data-qr-item
+          data-qr-section="all"
+          data-qr-text="{{ (delimit $hay " ") | lower }}"
+          href="{{ $p.RelPermalink }}"
+          style="--qr-tile-c: {{ $d.color | default "#3466cb" }};"
+        >
+          <div class="qr-tile-top">
+            <span class="qr-tile-icon"><i class="{{ $d.icon | default "fa-solid fa-bolt" }}" aria-hidden="true"></i></span>
+            <span>
+              <span class="qr-tile-name">{{ $d.title }}</span><br>
+              <span class="qr-tile-count">{{ .count }} snippets &middot; {{ len $d.sections }} sections</span>
+            </span>
+          </div>
+          <p class="qr-tile-desc">{{ $d.description }}</p>
+          <div class="qr-tile-tags">
+            {{- range first 4 $d.tags }}<span class="qr-tile-tag">{{ . }}</span>{{ end }}
+          </div>
+          <span class="qr-tile-go">Open sheet <i class="fa-solid fa-arrow-right-long" aria-hidden="true"></i></span>
+        </a>
+      {{- end }}
+    </div>
+  </section>
+
+  <div class="qr-empty">
+    <i class="fa-solid fa-ghost" aria-hidden="true"></i>
+    <p>Nothing matches that filter.</p>
+  </div>
+</div>

@@ -1,0 +1,89 @@
+{{- /*
+  Usage:  {{< quickref-sheet id="powershell" >}}
+  Or omit `id` and set `quickref: powershell` in the page front matter.
+  Reads data/quickref/<id>.yaml
+*/ -}}
+{{- $id := .Get "id" | default .Page.Params.quickref -}}
+{{- $store := .Site.Data.quickref | default dict -}}
+{{- $d := index $store $id -}}
+
+{{- if not $d -}}
+  <div class="qr-missing">
+    <strong>Quick reference data not found.</strong><br>
+    Create <code>data/quickref/{{ $id | default "your-topic" }}.yaml</code>, or pass a valid id:
+    <code>&#123;&#123;&lt; quickref-sheet id="powershell" &gt;&#125;&#125;</code>
+  </div>
+{{- else -}}
+
+{{- $lang := $d.lang | default "text" -}}
+{{- $total := 0 -}}
+{{- range $d.sections }}{{ $total = add $total (len .cards) }}{{ end -}}
+
+<div class="qr-root qr-sheet">
+  {{ partial "quickref/assets.html" .Page }}
+
+  <div class="qr-aura" aria-hidden="true"><span></span><span></span><span></span></div>
+
+  <div class="qr-hero">
+    <a class="qr-back" href="{{ .Page.Parent.RelPermalink }}">
+      <i class="fa-solid fa-arrow-left-long" aria-hidden="true"></i> All quick references
+    </a>
+    <div>
+      <span class="qr-hero-kicker"><span class="qr-dot"></span>{{ $d.kicker | default "Cheat Sheet" }}</span>
+    </div>
+    {{- with $d.description }}<p class="qr-hero-sub">{{ . }}</p>{{ end }}
+    <div class="qr-hero-meta">
+      <span class="qr-chip"><span data-qr-count>{{ $total }}</span> snippets</span>
+      <span class="qr-chip">{{ len $d.sections }} sections</span>
+      {{- range $d.tags }}<span class="qr-chip">{{ . }}</span>{{ end }}
+    </div>
+  </div>
+
+  <div class="qr-toolbar">
+    <div class="qr-search-wrap">
+      <i class="fa-solid fa-magnifying-glass qr-search-icon" aria-hidden="true"></i>
+      <input
+        type="search"
+        class="qr-search"
+        placeholder="Search {{ $d.title }}&nbsp;&mdash; commands, methods, flags&hellip;"
+        aria-label="Search this quick reference"
+        autocomplete="off"
+        spellcheck="false"
+      >
+      <span class="qr-kbd"><kbd>/</kbd></span>
+    </div>
+    <div class="qr-pills" role="tablist" aria-label="Jump to section">
+      {{- range $i, $s := $d.sections }}
+        {{- $sid := printf "s%d" $i }}
+        <button type="button" class="qr-pill{{ if eq $i 0 }} qr-active{{ end }}" data-qr-target="{{ $sid }}" data-qr-jump role="tab">{{ $s.title }}</button>
+      {{- end }}
+    </div>
+    <div class="qr-progress" aria-hidden="true"></div>
+  </div>
+
+  {{- range $i, $s := $d.sections }}
+    {{- $sid := printf "s%d" $i }}
+    <section class="qr-section" data-qr-section-id="{{ $sid }}" id="qr-{{ $sid }}">
+      <div class="qr-section-head">
+        <span class="qr-section-num">{{ printf "%02d" (add $i 1) }}</span>
+        <h2>{{ $s.title }}</h2>
+      </div>
+      <div class="qr-grid">
+        {{- range $s.cards }}
+          {{ partial "quickref/card.html" (dict "card" . "sectionId" $sid "lang" $lang) }}
+        {{- end }}
+      </div>
+    </section>
+  {{- end }}
+
+  <div class="qr-empty">
+    <i class="fa-solid fa-ghost" aria-hidden="true"></i>
+    <p>No snippets match that search.</p>
+  </div>
+
+  <button type="button" class="qr-top" aria-label="Back to top">
+    <i class="fa-solid fa-arrow-up" aria-hidden="true"></i>
+  </button>
+</div>
+
+{{- end -}}

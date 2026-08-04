@@ -1,0 +1,809 @@
+title: PowerShell
+kicker: Shell Cheat Sheet
+lang: powershell
+icon: fa-solid fa-terminal
+color: "#2C6FD1"
+description: >-
+  Everyday PowerShell — the pipeline, objects, filtering, error handling, remoting,
+  REST calls, and the Active Directory cmdlets that make up most Windows automation.
+tags: [powershell, windows, automation, scripting]
+
+sections:
+  - title: Discovery
+    cards:
+      - title: Find and read help
+        code: |
+          Get-Command -Noun Service
+          Get-Command -Module ActiveDirectory
+          Get-Command *user* -CommandType Cmdlet
+
+          Get-Help Get-Process -Full
+          Get-Help Get-Process -Examples
+          Get-Help Get-Process -Online
+
+          Update-Help -Force
+        note: Run `Update-Help` once on a new machine, otherwise `-Examples` comes back empty.
+
+      - title: Inspect any object
+        code: |
+          Get-Service | Get-Member
+          Get-Service | Get-Member -MemberType Property
+
+          $obj | Format-List *
+          $obj.GetType().FullName
+        note: "`Get-Member` is the single most useful cmdlet in PowerShell — pipe anything into it when you do not know what you are holding."
+
+      - title: Version and environment
+        code: |
+          $PSVersionTable
+          $PSVersionTable.PSVersion.Major
+
+          $PSScriptRoot          # folder of the running script
+          $MyInvocation.MyCommand.Path
+          $env:COMPUTERNAME
+          $env:USERPROFILE
+          [Environment]::Is64BitProcess
+
+  - title: Variables & Types
+    cards:
+      - title: Declaring
+        code: |
+          $name = 'Konner'
+          $count = 42
+          [int]$strict = '7'          # typed, casts on assign
+          [string[]]$list = 'a','b'
+
+          $null -eq $value            # always put $null on the left
+          Set-Variable -Name x -Value 1 -Option ReadOnly
+        note: Put `$null` on the left of comparisons — `$value -eq $null` behaves oddly when `$value` is an array.
+
+      - title: Automatic variables
+        table:
+          headers: [Variable, Meaning]
+          rows:
+            - ["$_ / $PSItem", "Current pipeline object"]
+            - ["$?", "Did the last command succeed"]
+            - ["$LASTEXITCODE", "Exit code of the last native exe"]
+            - ["$Error", "Array of recent errors, newest first"]
+            - ["$PSScriptRoot", "Directory of the current script"]
+            - ["$args", "Unbound arguments"]
+            - ["$PROFILE", "Path to your profile script"]
+            - ["$Host", "Host program info"]
+
+      - title: Casting and conversion
+        code: |
+          [int]'42'
+          [datetime]'2026-01-15'
+          [guid]::NewGuid()
+          [bool]0                     # False
+          [math]::Round(3.14159, 2)
+
+          '123' -as [int]             # $null instead of throwing
+          [System.Net.IPAddress]::Parse('10.0.0.1')
+
+      - title: Scopes
+        code: |
+          $script:counter = 0        # script-wide
+          $global:config  = @{}      # session-wide
+          $local:temp     = 1        # default
+
+          function Bump { $script:counter++ }
+        note: Functions get a child scope. Assigning to `$counter` inside one creates a *new* local variable unless you qualify it.
+
+  - title: Operators
+    cards:
+      - title: Comparison
+        table:
+          headers: [Operator, Meaning]
+          rows:
+            - ["-eq / -ne", "Equal / not equal"]
+            - ["-gt / -ge", "Greater / greater-or-equal"]
+            - ["-lt / -le", "Less / less-or-equal"]
+            - ["-like / -notlike", "Wildcard match (`*`, `?`)"]
+            - ["-match / -notmatch", "Regex match, fills `$Matches`"]
+            - ["-contains", "Collection contains a value"]
+            - ["-in / -notin", "Value is in a collection"]
+            - ["-is / -isnot", "Type test"]
+            - ["-ceq, -clike", "Case-sensitive variants"]
+        note: Comparisons are case-insensitive by default. Prefix with `c` for case-sensitive, `i` to be explicit about insensitive.
+
+      - title: Logic and arithmetic
+        code: |
+          -and  -or  -not  -xor
+          !$true                    # same as -not
+
+          5 % 2                     # 1
+          2 -shl 3                  # 16
+          $a += 1
+          $list += 'item'           # rebuilds the array — slow in loops
+
+      - title: Ternary and null handling
+        code: |
+          # PowerShell 7+
+          $state = $ok ? 'good' : 'bad'
+
+          $name = $input ?? 'default'      # null coalescing
+          $config ??= @{}                  # assign if null
+          $len = $obj?.Name?.Length        # null conditional
+        note: These four are PowerShell 7 only. On Windows PowerShell 5.1 use `if/else` and explicit `$null` checks.
+
+      - title: Splatting
+        code: |
+          $params = @{
+              Name        = 'Spooler'
+              ComputerName = 'SRV01'
+              ErrorAction = 'Stop'
+          }
+          Get-Service @params
+        note: Splatting keeps long command lines readable and lets you build arguments conditionally.
+
+  - title: Arrays & Hashtables
+    cards:
+      - title: Arrays
+        code: |
+          $a = 1, 2, 3
+          $a = @(1, 2, 3)
+          $a = 1..10
+          $a = @()                 # empty
+
+          $a[0]; $a[-1]; $a[1..3]
+          $a.Count
+          $a -join ', '
+          $a | Sort-Object -Unique
+          $a += 4                  # creates a NEW array
+
+      - title: Fast list building
+        code: |
+          $list = [System.Collections.Generic.List[string]]::new()
+          foreach ($i in 1..10000) { $list.Add("item$i") }
+
+          # or capture pipeline output
+          $results = foreach ($i in 1..10000) { "item$i" }
+        note: "`$array += $item` copies the entire array each time. For anything over a few hundred items use a `List[T]` or capture the loop output."
+
+      - title: Hashtables
+        code: |
+          $h = @{ Name = 'Konner'; Role = 'Admin' }
+          $h['Name']
+          $h.Role
+          $h.Add('Site', 'HQ')
+          $h.Remove('Site')
+          $h.ContainsKey('Name')
+          $h.Keys; $h.Values
+
+          # ordered — preserves insertion order
+          $o = [ordered]@{ First = 1; Second = 2 }
+
+      - title: Custom objects
+        code: |
+          $obj = [pscustomobject]@{
+              Name   = 'SRV01'
+              Uptime = 42
+              Online = $true
+          }
+
+          $rows = foreach ($s in $servers) {
+              [pscustomobject]@{
+                  Server = $s
+                  Ping   = Test-Connection $s -Count 1 -Quiet
+              }
+          }
+          $rows | Format-Table -AutoSize
+        note: Emitting `[pscustomobject]` rather than formatted strings keeps your output pipeable into `Export-Csv`, `Where-Object`, and `ConvertTo-Json`.
+
+  - title: Strings
+    cards:
+      - title: Quoting and interpolation
+        code: |
+          "Hello $name"                 # expands
+          'Hello $name'                 # literal
+          "Count: $($items.Count)"      # subexpression
+          "Path: ${env:ProgramFiles}"
+          "Escaped: `$name  Tab:`t  NL:`n"
+
+          @"
+          Here-string, $name expands
+          "@
+
+          @'
+          Here-string, nothing expands
+          '@
+
+      - title: Common methods
+        code: |
+          $s.ToUpper(); $s.ToLower()
+          $s.Trim(); $s.TrimStart('/')
+          $s.Replace('a', 'b')
+          $s.Split(',')
+          $s.Substring(0, 5)
+          $s.StartsWith('INC'); $s.EndsWith('.log')
+          $s.Contains('error')
+          $s.PadLeft(8, '0')
+          [string]::IsNullOrWhiteSpace($s)
+
+      - title: Formatting
+        code: |
+          '{0} has {1} items' -f $name, $count
+          '{0:N2}' -f 1234.5678        # 1,234.57
+          '{0:P1}' -f 0.4567           # 45.7%
+          '{0:yyyy-MM-dd}' -f (Get-Date)
+          '{0,10}' -f 'right'          # pad to width
+
+          (Get-Date).ToString('yyyy-MM-dd HH:mm:ss')
+
+  - title: Flow Control
+    cards:
+      - title: Conditionals
+        code: |
+          if ($count -gt 10) {
+              'many'
+          } elseif ($count -gt 0) {
+              'some'
+          } else {
+              'none'
+          }
+
+          switch ($state) {
+              'open'   { 'Still open' }
+              'closed' { 'Done'; break }
+              default  { 'Unknown' }
+          }
+
+          switch -Regex ($name) {
+              '^INC' { 'Incident' }
+              '^RITM' { 'Request item' }
+          }
+
+      - title: Loops
+        code: |
+          foreach ($item in $collection) { $item }
+
+          for ($i = 0; $i -lt 10; $i++) { $i }
+
+          while ($running) { Start-Sleep -Seconds 1 }
+
+          do { $n++ } while ($n -lt 5)
+          do { $n++ } until ($n -ge 5)
+
+          1..5 | ForEach-Object { $_ * 2 }
+        note: "`foreach` is faster than `ForEach-Object` because it does not build a pipeline — but `ForEach-Object` streams, so it uses less memory on large inputs."
+
+      - title: Loop control
+        code: |
+          foreach ($x in $items) {
+              if ($x -eq 'skip')  { continue }
+              if ($x -eq 'stop')  { break }
+          }
+
+          # labelled, for nested loops
+          :outer foreach ($a in $x) {
+              foreach ($b in $y) {
+                  if ($b -eq 0) { break outer }
+              }
+          }
+
+  - title: The Pipeline
+    cards:
+      - title: Filtering and selecting
+        code: |
+          Get-Process | Where-Object CPU -gt 100
+          Get-Process | Where-Object { $_.CPU -gt 100 -and $_.Name -like 'chrome*' }
+
+          Get-Process | Select-Object Name, CPU, Id
+          Get-Process | Select-Object -First 5
+          Get-Process | Select-Object -ExpandProperty Name
+          Get-Process | Select-Object -Unique
+
+          Get-Service | Sort-Object Status, Name
+          Get-Process | Sort-Object CPU -Descending | Select-Object -First 10
+
+      - title: Grouping and measuring
+        code: |
+          Get-Service | Group-Object Status
+          Get-Service | Group-Object Status -NoElement
+
+          Get-ChildItem | Measure-Object Length -Sum -Average -Maximum
+
+          Get-Process |
+              Group-Object Name |
+              Where-Object Count -gt 1 |
+              Sort-Object Count -Descending
+
+      - title: Calculated properties
+        code: |
+          Get-ChildItem |
+              Select-Object Name,
+                  @{ Name = 'SizeMB'
+                     Expression = { [math]::Round($_.Length / 1MB, 2) } },
+                  @{ Name = 'Age'
+                     Expression = { (Get-Date) - $_.LastWriteTime } }
+
+      - title: Output destinations
+        code: |
+          ... | Out-File -FilePath log.txt -Encoding utf8
+          ... | Export-Csv out.csv -NoTypeInformation
+          ... | ConvertTo-Json -Depth 5 | Set-Content out.json
+          ... | Out-GridView -PassThru
+          ... | Format-Table -AutoSize
+          ... | Out-Null            # discard
+        note: "`Format-*` cmdlets destroy the objects — always put them last. Nothing useful survives past a `Format-Table`."
+
+  - title: Functions
+    cards:
+      - title: Advanced function
+        code: |
+          function Get-ServerHealth {
+              [CmdletBinding()]
+              param (
+                  [Parameter(Mandatory,
+                             ValueFromPipeline,
+                             ValueFromPipelineByPropertyName)]
+                  [string[]]$ComputerName,
+
+                  [ValidateRange(1, 60)]
+                  [int]$TimeoutSeconds = 5,
+
+                  [ValidateSet('Basic', 'Full')]
+                  [string]$Level = 'Basic',
+
+                  [switch]$IncludeDisks
+              )
+
+              begin   { $results = @() }
+
+              process {
+                  foreach ($c in $ComputerName) {
+                      Write-Verbose "Checking $c"
+                      $results += [pscustomobject]@{
+                          Computer = $c
+                          Online   = Test-Connection $c -Count 1 -Quiet
+                      }
+                  }
+              }
+
+              end     { $results }
+          }
+
+      - title: Parameter validation
+        table:
+          headers: [Attribute, Effect]
+          rows:
+            - ["[Parameter(Mandatory)]", "Prompts if omitted"]
+            - ["[ValidateSet('A','B')]", "Restricts values, enables tab-complete"]
+            - ["[ValidateRange(1,100)]", "Numeric bounds"]
+            - ["[ValidateNotNullOrEmpty()]", "Rejects null/empty"]
+            - ["[ValidatePattern('^INC')]", "Regex constraint"]
+            - ["[ValidateScript({...})]", "Arbitrary check"]
+            - ["[Alias('CN')]", "Alternate parameter name"]
+            - ["[switch]", "Boolean flag, no value needed"]
+
+      - title: Comment-based help
+        code: |
+          function Get-Thing {
+          <#
+          .SYNOPSIS
+              One-line summary.
+          .DESCRIPTION
+              Longer explanation.
+          .PARAMETER Name
+              What Name does.
+          .EXAMPLE
+              Get-Thing -Name 'foo'
+          .OUTPUTS
+              System.String
+          #>
+              [CmdletBinding()]
+              param ([string]$Name)
+          }
+
+      - title: SupportsShouldProcess
+        code: |
+          function Remove-OldLog {
+              [CmdletBinding(SupportsShouldProcess,
+                             ConfirmImpact = 'High')]
+              param ([string]$Path)
+
+              if ($PSCmdlet.ShouldProcess($Path, 'Delete')) {
+                  Remove-Item $Path -Force
+              }
+          }
+
+          Remove-OldLog -Path C:\logs\old.log -WhatIf
+        note: This gives your function `-WhatIf` and `-Confirm` for free. Add it to anything destructive.
+
+  - title: Files & Paths
+    cards:
+      - title: Browsing
+        code: |
+          Get-ChildItem C:\logs -Recurse -Filter *.log
+          Get-ChildItem -Directory
+          Get-ChildItem -File -Force        # include hidden
+
+          Get-ChildItem C:\logs -Recurse |
+              Where-Object { $_.LastWriteTime -lt (Get-Date).AddDays(-30) } |
+              Remove-Item -WhatIf
+
+      - title: Reading and writing
+        code: |
+          Get-Content .\file.txt
+          Get-Content .\file.txt -Raw          # single string
+          Get-Content .\big.log -Tail 50 -Wait # like tail -f
+          Get-Content .\file.txt -TotalCount 10
+
+          'line' | Out-File .\file.txt -Append
+          Set-Content .\file.txt -Value $text -Encoding utf8
+          Add-Content .\file.txt -Value 'more'
+
+      - title: Path helpers
+        code: |
+          Join-Path C:\logs 'app.log'
+          Split-Path C:\logs\app.log -Parent
+          Split-Path C:\logs\app.log -Leaf
+          Resolve-Path .\relative
+          Test-Path C:\logs -PathType Container
+          [System.IO.Path]::GetFileNameWithoutExtension($p)
+
+      - title: File operations
+        code: |
+          New-Item -ItemType Directory -Path C:\temp -Force
+          Copy-Item .\src -Destination .\dst -Recurse
+          Move-Item .\a.txt .\b.txt
+          Remove-Item .\temp -Recurse -Force
+          Rename-Item .\old.txt new.txt
+
+          Get-FileHash .\file.iso -Algorithm SHA256
+          Compress-Archive .\logs\* .\logs.zip
+          Expand-Archive .\logs.zip -DestinationPath .\out
+
+  - title: Error Handling
+    cards:
+      - title: Try / catch / finally
+        code: |
+          try {
+              Get-Content .\missing.txt -ErrorAction Stop
+          }
+          catch [System.IO.FileNotFoundException] {
+              Write-Warning "Not found: $($_.Exception.Message)"
+          }
+          catch {
+              Write-Error "Unexpected: $($_.Exception.Message)"
+              throw
+          }
+          finally {
+              Write-Verbose 'Cleanup'
+          }
+        note: Most cmdlet errors are **non-terminating** and will not be caught. Add `-ErrorAction Stop` to make them catchable.
+
+      - title: ErrorAction values
+        table:
+          headers: [Value, Behaviour]
+          rows:
+            - ["Continue", "Print the error, keep going (default)"]
+            - ["Stop", "Turn it into a terminating error"]
+            - ["SilentlyContinue", "Suppress and keep going"]
+            - ["Ignore", "Suppress and do not add to `$Error`"]
+            - ["Inquire", "Prompt the user"]
+        note: "`$ErrorActionPreference = 'Stop'` at the top of a script makes everything terminating — a good default for automation."
+
+      - title: Inspecting errors
+        code: |
+          $Error[0]
+          $Error[0].Exception.GetType().FullName
+          $Error[0].ScriptStackTrace
+          $Error[0].InvocationInfo.Line
+          $Error.Clear()
+
+          $_.Exception.Response.StatusCode.value__   # from Invoke-RestMethod
+
+      - title: Write-* streams
+        code: |
+          Write-Output  $obj      # 1  — the pipeline
+          Write-Error   'bad'     # 2
+          Write-Warning 'careful' # 3
+          Write-Verbose 'detail'  # 4  — needs -Verbose
+          Write-Debug   'trace'   # 5  — needs -Debug
+          Write-Information 'fyi' # 6
+          Write-Host    'always'  # console only
+
+          .\script.ps1 *> all.txt         # redirect every stream
+          .\script.ps1 2>&1 | Tee-Object log.txt
+        note: Avoid `Write-Host` in reusable code — it writes straight to the console and cannot be captured or piped.
+
+  - title: REST & Data Formats
+    cards:
+      - title: Invoke-RestMethod
+        code: |
+          $headers = @{
+              Authorization = "Bearer $token"
+              Accept        = 'application/json'
+          }
+
+          $resp = Invoke-RestMethod `
+              -Uri 'https://api.example.com/v1/items' `
+              -Method Get `
+              -Headers $headers `
+              -ErrorAction Stop
+
+          $resp.result | Select-Object number, state
+
+      - title: POST with a JSON body
+        code: |
+          $body = @{
+              short_description = 'Created from PowerShell'
+              urgency           = 2
+          } | ConvertTo-Json -Depth 5
+
+          Invoke-RestMethod -Uri $url -Method Post `
+              -Body $body -ContentType 'application/json' `
+              -Headers $headers
+
+      - title: Basic auth (ServiceNow Table API)
+        code: |
+          $pair  = "$user`:$pass"
+          $bytes = [Text.Encoding]::ASCII.GetBytes($pair)
+          $b64   = [Convert]::ToBase64String($bytes)
+
+          $headers = @{ Authorization = "Basic $b64" }
+
+          $uri = 'https://dev12345.service-now.com/api/now/table/incident' +
+                 '?sysparm_limit=10&sysparm_query=active=true'
+
+          (Invoke-RestMethod -Uri $uri -Headers $headers).result
+        note: Prefer OAuth over basic auth for anything that outlives a one-off script, and never commit credentials — use `Get-Credential` or a secret store.
+
+      - title: JSON and CSV
+        code: |
+          $obj  | ConvertTo-Json -Depth 10 -Compress
+          $json | ConvertFrom-Json
+
+          Import-Csv .\users.csv | ForEach-Object { $_.Email }
+          $data | Export-Csv .\out.csv -NoTypeInformation -Encoding utf8
+
+          Import-Csv .\in.csv -Delimiter ';'
+        note: "`ConvertTo-Json` defaults to a depth of 2 and silently truncates nested objects. Set `-Depth` explicitly."
+
+  - title: Remoting
+    cards:
+      - title: Run commands remotely
+        code: |
+          Invoke-Command -ComputerName SRV01, SRV02 -ScriptBlock {
+              Get-Service -Name Spooler
+          }
+
+          Invoke-Command -ComputerName SRV01 -FilePath .\audit.ps1
+
+          Invoke-Command -ComputerName $servers -ScriptBlock {
+              param($name)
+              Get-Service $name
+          } -ArgumentList 'Spooler'
+
+      - title: Persistent sessions
+        code: |
+          $s = New-PSSession -ComputerName SRV01 -Credential (Get-Credential)
+
+          Invoke-Command -Session $s -ScriptBlock { $x = 1 }
+          Invoke-Command -Session $s -ScriptBlock { $x }   # still 1
+
+          Enter-PSSession -Session $s
+          Exit-PSSession
+          Remove-PSSession $s
+
+      - title: Using local variables remotely
+        code: |
+          $path = 'C:\logs'
+
+          Invoke-Command -ComputerName SRV01 -ScriptBlock {
+              Get-ChildItem $using:path
+          }
+        note: The remote scriptblock cannot see local variables. Prefix them with `$using:` or pass them via `-ArgumentList`.
+
+      - title: Setup and troubleshooting
+        code: |
+          Enable-PSRemoting -Force
+          Test-WSMan -ComputerName SRV01
+          Get-Item WSMan:\localhost\Client\TrustedHosts
+          Set-Item WSMan:\localhost\Client\TrustedHosts -Value 'SRV01'
+
+  - title: Services, Processes, Registry
+    cards:
+      - title: Services
+        code: |
+          Get-Service -Name Spooler
+          Get-Service | Where-Object Status -eq 'Stopped'
+          Restart-Service Spooler -Force
+          Set-Service Spooler -StartupType Automatic
+          Get-Service -ComputerName SRV01
+
+          Get-CimInstance Win32_Service -Filter "Name='Spooler'" |
+              Select-Object Name, StartName, PathName
+
+      - title: Processes
+        code: |
+          Get-Process | Sort-Object WS -Descending | Select-Object -First 10
+          Get-Process -Name chrome | Stop-Process -Force
+          Start-Process notepad.exe
+          Start-Process powershell -Verb RunAs
+          Wait-Process -Name setup -Timeout 300
+
+      - title: Registry
+        code: |
+          Get-ItemProperty 'HKLM:\SOFTWARE\Microsoft\Windows NT\CurrentVersion'
+          Get-ItemPropertyValue 'HKLM:\...\CurrentVersion' -Name ProductName
+
+          New-Item   -Path 'HKLM:\SOFTWARE\MyApp' -Force
+          New-ItemProperty -Path 'HKLM:\SOFTWARE\MyApp' `
+              -Name Version -Value '1.0' -PropertyType String -Force
+          Remove-ItemProperty -Path 'HKLM:\SOFTWARE\MyApp' -Name Version
+
+      - title: Event log
+        code: |
+          Get-WinEvent -LogName System -MaxEvents 50
+
+          Get-WinEvent -FilterHashtable @{
+              LogName   = 'System'
+              Level     = 2                    # 2 = Error
+              StartTime = (Get-Date).AddHours(-24)
+          }
+
+          Get-WinEvent -FilterHashtable @{ LogName='Security'; Id=4625 } |
+              Select-Object TimeCreated, Message -First 20
+        note: "`-FilterHashtable` filters at the log provider and is dramatically faster than piping into `Where-Object`."
+
+  - title: Active Directory
+    cards:
+      - title: Users
+        code: |
+          Get-ADUser -Identity jdoe -Properties *
+          Get-ADUser -Filter "Enabled -eq '$true'" -SearchBase 'OU=Staff,DC=corp,DC=com'
+          Get-ADUser -LDAPFilter '(department=IT)' -Properties Department, Manager
+
+          Set-ADUser jdoe -Title 'Engineer' -Department 'IT'
+          Disable-ADAccount jdoe
+          Unlock-ADAccount jdoe
+
+      - title: Groups
+        code: |
+          Get-ADGroupMember 'Service Desk' -Recursive |
+              Select-Object Name, SamAccountName
+
+          Add-ADGroupMember    'Service Desk' -Members jdoe, asmith
+          Remove-ADGroupMember 'Service Desk' -Members jdoe -Confirm:$false
+
+          Get-ADPrincipalGroupMembership jdoe | Select-Object Name
+
+      - title: Stale account report
+        code: |
+          $cutoff = (Get-Date).AddDays(-90)
+
+          Get-ADUser -Filter { Enabled -eq $true } `
+                     -Properties LastLogonDate, Department |
+              Where-Object { $_.LastLogonDate -lt $cutoff } |
+              Select-Object Name, SamAccountName, Department, LastLogonDate |
+              Sort-Object LastLogonDate |
+              Export-Csv .\stale-accounts.csv -NoTypeInformation
+        note: Requires the RSAT ActiveDirectory module — `Import-Module ActiveDirectory` or install via `Add-WindowsCapability -Online -Name Rsat.ActiveDirectory*`.
+
+  - title: Modules, Jobs, Scheduling
+    cards:
+      - title: Modules
+        code: |
+          Get-Module -ListAvailable
+          Import-Module ActiveDirectory
+          Find-Module -Name ImportExcel
+          Install-Module ImportExcel -Scope CurrentUser
+          Update-Module ImportExcel
+          Get-InstalledModule
+
+          $env:PSModulePath -split ';'
+
+      - title: Background jobs
+        code: |
+          $job = Start-Job -ScriptBlock { Get-ChildItem C:\ -Recurse }
+          Get-Job
+          Receive-Job $job -Wait -AutoRemoveJob
+          Stop-Job $job; Remove-Job $job
+
+          # PowerShell 7 parallel
+          1..100 | ForEach-Object -Parallel {
+              Test-Connection "srv$_" -Count 1 -Quiet
+          } -ThrottleLimit 10
+
+      - title: Scheduled tasks
+        code: |
+          $action  = New-ScheduledTaskAction -Execute 'pwsh.exe' `
+                        -Argument '-File C:\scripts\sync.ps1'
+          $trigger = New-ScheduledTaskTrigger -Daily -At 2am
+
+          Register-ScheduledTask -TaskName 'NightlySync' `
+              -Action $action -Trigger $trigger `
+              -User 'SYSTEM' -RunLevel Highest
+
+          Get-ScheduledTask -TaskName 'NightlySync' | Get-ScheduledTaskInfo
+
+      - title: Credentials
+        code: |
+          $cred = Get-Credential
+
+          # Store for reuse by the SAME user on the SAME machine
+          $cred.Password | ConvertFrom-SecureString | Set-Content .\cred.txt
+          $secure = Get-Content .\cred.txt | ConvertTo-SecureString
+          $cred = [pscredential]::new('corp\svc_acct', $secure)
+
+          # Better: SecretManagement
+          Install-Module Microsoft.PowerShell.SecretStore -Scope CurrentUser
+          Get-Secret -Name ApiToken -AsPlainText
+        note: "`ConvertFrom-SecureString` uses DPAPI, so the file only decrypts for the same user on the same machine. That is a feature, not a bug."
+
+  - title: Regex
+    cards:
+      - title: Matching
+        code: |
+          'INC0010023' -match '^(INC|RITM)(\d+)$'
+          $Matches[0]    # whole match
+          $Matches[1]    # INC
+          $Matches[2]    # 0010023
+
+          'a1 b2 c3' -replace '\d', '#'
+          [regex]::Matches($text, '\d+') | ForEach-Object { $_.Value }
+
+      - title: Named captures
+        code: |
+          if ($line -match '(?<user>\w+)@(?<domain>[\w.]+)') {
+              $Matches.user
+              $Matches.domain
+          }
+
+          $log -replace '(?<ip>\d+\.\d+\.\d+\.\d+)', 'IP:${ip}'
+
+      - title: Common patterns
+        table:
+          headers: [Pattern, Matches]
+          rows:
+            - ["^ $", "Start / end of string"]
+            - ["\\d \\w \\s", "Digit, word char, whitespace"]
+            - ["+ * ?", "One-or-more, zero-or-more, optional"]
+            - ["{2,5}", "Between 2 and 5 times"]
+            - ["(?i)", "Case-insensitive from here"]
+            - ["(?:...)", "Non-capturing group"]
+            - ["(?=...)", "Positive lookahead"]
+
+  - title: Gotchas
+    cards:
+      - title: Things that bite
+        list:
+          - "A single-item pipeline result is **not** an array. Wrap in `@()` when you need `.Count` to be reliable."
+          - "`$array += $item` reallocates the whole array — use `List[T]` in loops."
+          - "`Format-Table` and friends emit format objects, not data. Always last in the pipeline."
+          - "Non-terminating errors ignore `try/catch` unless you add `-ErrorAction Stop`."
+          - "`Write-Host` output cannot be captured or redirected in Windows PowerShell 5.1."
+          - "`ConvertTo-Json` truncates at depth 2 by default."
+          - "Comparing to `$null` — put `$null` on the left side."
+          - "`-contains` tests collection membership, not substrings. Use `-like` or `-match` for text."
+
+      - title: Execution policy
+        code: |
+          Get-ExecutionPolicy -List
+          Set-ExecutionPolicy RemoteSigned -Scope CurrentUser
+
+          # one-off bypass
+          pwsh -ExecutionPolicy Bypass -File .\script.ps1
+
+          Unblock-File .\downloaded.ps1
+        note: Execution policy is a safety rail, not a security boundary. Do not treat it as one.
+
+      - title: Useful one-liners
+        code: |
+          # Top 10 largest files under a path
+          Get-ChildItem C:\ -Recurse -File -EA SilentlyContinue |
+              Sort-Object Length -Descending |
+              Select-Object -First 10 FullName,
+                  @{n='MB';e={[math]::Round($_.Length/1MB,1)}}
+
+          # Disk free space
+          Get-CimInstance Win32_LogicalDisk -Filter 'DriveType=3' |
+              Select-Object DeviceID,
+                  @{n='FreeGB';e={[math]::Round($_.FreeSpace/1GB,1)}}
+
+          # Who is logged on
+          Get-CimInstance Win32_ComputerSystem |
+              Select-Object UserName
