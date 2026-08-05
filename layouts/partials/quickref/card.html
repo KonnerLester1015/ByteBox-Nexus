@@ -1,71 +1,105 @@
 {{- /*
   Renders one quick-reference card.
   Context: dict "card" <map> "sectionId" <string> "lang" <string>
+
+  A card can carry `code`, `output`, `note`, `table`, `list`.
+  When a card has `code` plus at least one of `output`/`note`, the code / output /
+  notes render as tabs so they share a single vertical footprint.
 */ -}}
 {{- $card := .card -}}
 {{- $sectionId := .sectionId -}}
 {{- $lang := or $card.lang .lang "text" -}}
 
-{{- /* Build the searchable haystack for this card */ -}}
-{{- $hay := slice ($card.title | default "") -}}
-{{- with $card.code }}{{ $hay = $hay | append . }}{{ end -}}
-{{- with $card.note }}{{ $hay = $hay | append . }}{{ end -}}
-{{- with $card.list }}{{ range . }}{{ $hay = $hay | append . }}{{ end }}{{ end -}}
-{{- with $card.table -}}
-  {{- with .headers }}{{ range . }}{{ $hay = $hay | append . }}{{ end }}{{ end -}}
-  {{- with .rows }}{{ range . }}{{ range . }}{{ $hay = $hay | append (string .) }}{{ end }}{{ end }}{{ end -}}
-{{- end -}}
-{{- with $card.tags }}{{ range . }}{{ $hay = $hay | append . }}{{ end }}{{ end -}}
-{{- $haystack := (delimit $hay " ") | lower -}}
+{{- $hasCode := $card.code -}}
+{{- $hasOutput := $card.output -}}
+{{- $hasNote := $card.note -}}
+{{- $tabbed := and $hasCode (or $hasOutput $hasNote) -}}
+
+{{- /* Stable id prefix so each tab can point at the panel it controls. The
+       card index keeps it unique even if two cards in a section share a title. */ -}}
+{{- $cid := printf "qr-%s-c%d-%s" $sectionId (.index | default 0) (anchorize ($card.title | default "card")) -}}
 
 <article
   class="qr-card"
   data-qr-item
   data-qr-section="{{ $sectionId }}"
-  data-qr-text="{{ $haystack }}"
 >
   <header class="qr-card-head">
     <h3 class="qr-card-title">{{ $card.title }}</h3>
-    {{- if $card.code }}
-    <button type="button" class="qr-copy" aria-label="Copy snippet" title="Copy snippet">
-      <i class="fa-regular fa-copy" aria-hidden="true"></i>
-    </button>
-    {{- end }}
   </header>
 
+  {{- if $tabbed }}
+  <div class="qr-tabs" role="tablist" aria-label="{{ $card.title }} views">
+    <button type="button" class="qr-tab qr-active" data-qr-tab="script" role="tab" aria-selected="true" tabindex="0" id="{{ $cid }}-tab-script" aria-controls="{{ $cid }}-panel-script">Script</button>
+    {{- if $hasOutput }}<button type="button" class="qr-tab" data-qr-tab="output" role="tab" aria-selected="false" tabindex="-1" id="{{ $cid }}-tab-output" aria-controls="{{ $cid }}-panel-output">Output</button>{{ end }}
+    {{- if $hasNote }}<button type="button" class="qr-tab" data-qr-tab="notes" role="tab" aria-selected="false" tabindex="-1" id="{{ $cid }}-tab-notes" aria-controls="{{ $cid }}-panel-notes">Notes</button>{{ end }}
+  </div>
+  {{- end }}
+
   <div class="qr-card-body">
-    {{- with $card.code }}
-      {{ transform.Highlight (trim . "\n") $lang "" }}
+    {{- if or $hasCode $hasOutput }}
+    <button type="button" class="qr-copy" aria-label="Copy snippet" title="Copy snippet">
+      {{- /* Heroicons "duplicate" (outline) — inline so it does not depend on the Font Awesome CDN */ -}}
+      <svg class="qr-copy-i qr-copy-i-idle" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M8 16H6a2 2 0 0 1-2-2V6a2 2 0 0 1 2-2h8a2 2 0 0 1 2 2v2m-6 12h8a2 2 0 0 0 2-2v-8a2 2 0 0 0-2-2h-8a2 2 0 0 0-2 2v8a2 2 0 0 0 2 2z" />
+      </svg>
+      <svg class="qr-copy-i qr-copy-i-done" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+        <path d="M5 13l4 4L19 7" />
+      </svg>
+    </button>
     {{- end }}
+    {{- if $tabbed }}
+      <div class="qr-panel qr-active" data-qr-panel="script" role="tabpanel" tabindex="0" id="{{ $cid }}-panel-script" aria-labelledby="{{ $cid }}-tab-script">
+        {{ transform.Highlight (trim $card.code "\n") $lang "" }}
+      </div>
+      {{- with $card.output }}
+      <div class="qr-panel qr-panel-output" data-qr-panel="output" role="tabpanel" tabindex="0" id="{{ $cid }}-panel-output" aria-labelledby="{{ $cid }}-tab-output" hidden>
+        {{ transform.Highlight (trim . "\n") "text" "" }}
+      </div>
+      {{- end }}
+      {{- with $card.note }}
+      <div class="qr-panel qr-panel-notes" data-qr-panel="notes" role="tabpanel" tabindex="0" id="{{ $cid }}-panel-notes" aria-labelledby="{{ $cid }}-tab-notes" hidden>
+        <div class="qr-note qr-note-tab">
+          {{ partial "quickref/icon.html" (dict "name" "fa-circle-info" "class" "qr-icon qr-note-icon") }}
+          <span>{{ partial "quickref/inline.html" . }}</span>
+        </div>
+      </div>
+      {{- end }}
+    {{- else }}
+      {{- with $card.code }}
+        {{ transform.Highlight (trim . "\n") $lang "" }}
+      {{- end }}
 
-    {{- with $card.table }}
-      <table class="qr-table">
-        {{- with .headers }}
-        <thead>
-          <tr>{{ range . }}<th scope="col">{{ . }}</th>{{ end }}</tr>
-        </thead>
-        {{- end }}
-        <tbody>
-          {{- range .rows }}
-          <tr>{{ range . }}<td>{{ partial "quickref/inline.html" (string .) }}</td>{{ end }}</tr>
+      {{- with $card.table }}
+        <table class="qr-table">
+          {{- with .headers }}
+          <thead>
+            <tr>{{ range . }}<th scope="col">{{ . }}</th>{{ end }}</tr>
+          </thead>
           {{- end }}
-        </tbody>
-      </table>
-    {{- end }}
+          <tbody>
+            {{- range .rows }}
+            <tr>{{ range . }}<td>{{ partial "quickref/inline.html" (string .) }}</td>{{ end }}</tr>
+            {{- end }}
+          </tbody>
+        </table>
+      {{- end }}
 
-    {{- with $card.list }}
-      <ul class="qr-list">
-        {{- range . }}
-        <li>{{ partial "quickref/inline.html" . }}</li>
-        {{- end }}
-      </ul>
+      {{- with $card.list }}
+        <ul class="qr-list">
+          {{- range . }}
+          <li>{{ partial "quickref/inline.html" . }}</li>
+          {{- end }}
+        </ul>
+      {{- end }}
     {{- end }}
   </div>
 
-  {{- with $card.note }}
+  {{- /* Non-tabbed cards keep their note inline below the body */ -}}
+  {{- if and $card.note (not $tabbed) }}
   <div class="qr-note">
-    <i class="fa-solid fa-circle-info" aria-hidden="true"></i>
-    <span>{{ partial "quickref/inline.html" . }}</span>
+    {{ partial "quickref/icon.html" (dict "name" "fa-circle-info" "class" "qr-icon qr-note-icon") }}
+    <span>{{ partial "quickref/inline.html" $card.note }}</span>
   </div>
   {{- end }}
 </article>

@@ -1,7 +1,8 @@
+# Authoring guide: docs/quickref-authoring.md
 title: ServiceNow Scripting
 kicker: Platform Cheat Sheet
 lang: javascript
-icon: fa-solid fa-diagram-project
+icon: fa-diagram-project
 color: "#62D84E"
 description: >-
   Server-side and client-side scripting patterns for the Now Platform — GlideRecord,
@@ -24,6 +25,10 @@ sections:
               gs.info('{0} — {1}', gr.getValue('number'),
                                    gr.getDisplayValue('assigned_to'));
           }
+        output: |
+          *** Script: INC0010023 — Alice Nguyen
+          *** Script: INC0009911 — Bob Carter
+          *** Script: INC0009887 — Priya Shah
         note: Always use `getValue()` / `getDisplayValue()` rather than `gr.field` — the raw property returns a GlideElement object, not a string.
 
       - title: Fetch a single record
@@ -69,6 +74,8 @@ sections:
           gs.info(gr.getRowCount());
 
           if (gr.hasNext()) { /* at least one result */ }
+        output: |
+          *** Script: 1284
         note: "`getRowCount()` walks the whole result set — use GlideAggregate for counts on large tables."
 
       - title: Dot-walking

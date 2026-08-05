@@ -40,8 +40,8 @@ menu:
       pageRef: /projects
       weight: 2
     - identifier: blog
-      name: Blog
-      pageRef: /blog
+      name: Quick Ref
+      pageRef: /quickref
       weight: 3
     - identifier: certifications
       name: Certifications
@@ -57,6 +57,9 @@ menu:
     - name: "Glossary"
       parent: more
       url: "/glossary"
+    - name: Blog
+      parent: more
+      url: /blog
     - name: Search
       weight: 7
       params:

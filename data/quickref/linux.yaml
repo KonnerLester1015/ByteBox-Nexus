@@ -1,7 +1,8 @@
+# Authoring guide: docs/quickref-authoring.md
 title: Linux & Bash
 kicker: Terminal Cheat Sheet
 lang: bash
-icon: fa-brands fa-linux
+icon: fa-linux
 color: "#E8752A"
 description: >-
   Day-to-day Linux administration — files and permissions, text processing,
@@ -43,6 +44,11 @@ sections:
 
           lsof +D /var/log              # what has files open here
           lsof | grep deleted           # space held by deleted files
+        output: |
+          Filesystem     Type   Size  Used Avail Use% Mounted on
+          /dev/sda1      ext4    98G   41G    52G  45% /
+          tmpfs          tmpfs  3.9G     0   3.9G   0% /dev/shm
+          /dev/sdb1      xfs    500G  318G   182G  64% /data
         note: If `df` and `du` disagree, a process is usually holding a deleted file open — find it with `lsof | grep deleted` and restart the process.
 
       - title: Links and file info

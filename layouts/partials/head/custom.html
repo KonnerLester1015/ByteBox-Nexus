@@ -1,7 +1,6 @@
-<link
-  rel="stylesheet"
-  href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.6.0/css/all.min.css"
-  integrity="sha512-KK8N5+K3Xx7A7LRjX9M2xDlYzQzB6R3yE1tS9IplfEQX4ZvmvDxiDwT5ZDnV+XwQdcXzE76LLScN3qzH+X7R2A=="
-  crossorigin="anonymous"
-  referrerpolicy="no-referrer"
-/>
+{{- /*
+  Icons come from data/icons.yaml as inline SVG (see the `icon` shortcode and
+  layouts/partials/quickref/icon.html), so there is no Font Awesome stylesheet
+  to load. The CDN <link> that used to live here was blocked by a mismatched
+  SRI hash anyway, which is why every <i class="fa-..."> rendered as an empty box.
+*/ -}}

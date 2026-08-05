@@ -9,16 +9,17 @@
   --qr-accent: #3466cb;
   --qr-accent-soft: rgba(52, 102, 203, 0.10);
   --qr-accent-line: rgba(52, 102, 203, 0.35);
-  --qr-accent-2: #7c3aed;
+  --qr-accent-2: #1d4ed8;
   --qr-surface: #ffffff;
   --qr-surface-2: #f4f7fc;
   --qr-border: rgba(15, 23, 42, 0.10);
+  --qr-hover-border: rgba(52, 102, 203, 0.28);
   --qr-text: #0f172a;
   --qr-muted: #5b6b83;
+  --qr-tag-text: #3d4d63;
   --qr-code-bg: #f6f8fc;
   --qr-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 10px 28px -16px rgba(15, 23, 42, 0.35);
   --qr-shadow-hi: 0 2px 4px rgba(52, 102, 203, 0.08), 0 18px 40px -18px rgba(52, 102, 203, 0.55);
-  --qr-sheen: rgba(255, 255, 255, 0.65);
   --qr-radius: 14px;
 
   color: var(--qr-text);
@@ -30,87 +31,112 @@ html.dark .qr-root {
   --qr-accent: #7aa2f7;
   --qr-accent-soft: rgba(122, 162, 247, 0.12);
   --qr-accent-line: rgba(122, 162, 247, 0.40);
-  --qr-accent-2: #a78bfa;
+  --qr-accent-2: #a9c4ff;
   --qr-surface: rgba(255, 255, 255, 0.028);
   --qr-surface-2: rgba(255, 255, 255, 0.055);
   --qr-border: rgba(255, 255, 255, 0.10);
+  /* Dark mode sits on a near-black surface, so the same alpha reads far
+     brighter than it does in light mode — pull it well back. */
+  --qr-hover-border: rgba(122, 162, 247, 0.18);
   --qr-text: #dfe6f3;
   --qr-muted: #93a3bb;
+  --qr-tag-text: #b9c6da;
   --qr-code-bg: rgba(2, 6, 23, 0.45);
   --qr-shadow: 0 1px 2px rgba(0, 0, 0, 0.30), 0 12px 32px -18px rgba(0, 0, 0, 0.85);
   --qr-shadow-hi: 0 0 0 1px rgba(122, 162, 247, 0.28), 0 20px 44px -20px rgba(122, 162, 247, 0.35);
-  --qr-sheen: rgba(255, 255, 255, 0.10);
 }
 
 .qr-root *,
 .qr-root *::before,
 .qr-root *::after { box-sizing: border-box; }
 
-/* ---------- Ambient background ---------- */
-.qr-aura {
-  position: absolute;
-  inset: -80px -40px auto -40px;
-  height: 420px;
-  pointer-events: none;
-  z-index: 0;
-  overflow: hidden;
-  mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
-  -webkit-mask-image: linear-gradient(to bottom, #000 0%, transparent 100%);
-}
-.qr-aura span {
-  position: absolute;
-  display: block;
-  border-radius: 50%;
-  filter: blur(70px);
-  opacity: 0.32;
-  animation: qr-drift 18s ease-in-out infinite alternate;
-}
-.qr-aura span:nth-child(1) { width: 380px; height: 380px; left: 4%;  top: -120px; background: var(--qr-accent); }
-.qr-aura span:nth-child(2) { width: 300px; height: 300px; left: 46%; top: -160px; background: var(--qr-accent-2); animation-delay: -6s; }
-.qr-aura span:nth-child(3) { width: 340px; height: 340px; right: 2%; top: -110px; background: var(--qr-accent); animation-delay: -12s; }
-html.dark .qr-aura span { opacity: 0.22; }
+/* Each sheet sets --qr-sheet-c from its YAML `color`. The raw hex is not safe
+   as small text — ServiceNow green fails contrast on white, and the same hex is
+   too dark on the dark theme — so header text uses a mixed-down/up variant. */
+.qr-sheet { --qr-sheet-ink: color-mix(in srgb, var(--qr-sheet-c, var(--qr-accent)) 50%, #0b1120); }
+html.dark .qr-sheet { --qr-sheet-ink: color-mix(in srgb, var(--qr-sheet-c, var(--qr-accent)) 75%, #ffffff); }
 
-@keyframes qr-drift {
-  from { transform: translate3d(0, 0, 0) scale(1); }
-  to   { transform: translate3d(40px, 30px, 0) scale(1.15); }
+/* One focus ring for every interactive element in a quick reference:
+   TOC links, card tabs, copy buttons, index tiles, back-to-top. */
+.qr-root :focus-visible {
+  outline: 2px solid var(--qr-accent);
+  outline-offset: 2px;
+}
+
+/* ---------- Icons (inline SVG from data/icons.yaml) ---------- */
+.qr-icon {
+  width: 1em;
+  height: 1em;
+  display: inline-block;
+  vertical-align: -0.125em;
+  flex: 0 0 auto;
+  fill: currentColor;
 }
 
 /* ---------- Hero ---------- */
 .qr-hero {
   position: relative;
   z-index: 1;
-  text-align: center;
+  text-align: left;
+  padding: 0.25rem 0 1.5rem;
+}
+
+/* The index has no kicker — the theme's centred <h1> is the page title, so the
+   hero centres under it. Sheet heroes keep their left-aligned, editorial look. */
+.qr-index .qr-hero { text-align: center; padding-top: 0; }
+.qr-index .qr-hero-sub { margin-inline: auto; }
+.qr-index .qr-hero-meta { justify-content: center; }
+/* ---------- Sheet header ----------
+   Sheets render their own <h1> (see layouts/wide.html), so the back link,
+   icon, title, counts and description are one left-aligned block. */
+.qr-sheet-head {
+  position: relative;
+  z-index: 1;
   padding: 0.25rem 0 1.75rem;
 }
-.qr-hero-kicker {
-  display: inline-flex;
+.qr-sheet-title-row {
+  display: flex;
   align-items: center;
-  gap: 0.5rem;
-  font-size: 0.72rem;
+  gap: 0.85rem;
+  margin-top: 0.75rem;
+}
+.qr-sheet-heading { min-width: 0; }
+.qr-sheet-icon {
+  display: grid;
+  place-items: center;
+  width: 40px; height: 40px;
+  flex: 0 0 auto;
+  border-radius: 11px;
+  color: #fff;
+  background: linear-gradient(135deg, var(--qr-sheet-c, var(--qr-accent)), color-mix(in srgb, var(--qr-sheet-c, var(--qr-accent)) 70%, black));
+  /* Neutral depth rather than a coloured halo. */
+  box-shadow: 0 2px 5px -3px rgba(15, 23, 42, 0.45);
+}
+.qr-sheet-icon .qr-icon { width: 18px; height: 18px; }
+.qr-sheet-title {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  font-size: 1.6rem !important;
   font-weight: 700;
-  letter-spacing: 0.14em;
-  text-transform: uppercase;
-  color: var(--qr-accent);
-  background: var(--qr-accent-soft);
-  border: 1px solid var(--qr-accent-line);
-  padding: 0.35rem 0.85rem;
-  border-radius: 999px;
-  margin-bottom: 0.9rem;
+  letter-spacing: -0.02em;
+  color: var(--qr-text);
+  line-height: 1.2;
 }
-.qr-hero-kicker .qr-dot {
-  width: 6px; height: 6px; border-radius: 50%;
-  background: var(--qr-accent);
-  box-shadow: 0 0 0 0 var(--qr-accent);
-  animation: qr-pulse 2.4s ease-out infinite;
+.qr-sheet-count {
+  display: block;
+  margin-top: 0.15rem;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.04em;
+  color: var(--qr-muted);
 }
-@keyframes qr-pulse {
-  0%   { box-shadow: 0 0 0 0 rgba(52, 102, 203, 0.55); }
-  70%  { box-shadow: 0 0 0 9px rgba(52, 102, 203, 0); }
-  100% { box-shadow: 0 0 0 0 rgba(52, 102, 203, 0); }
-}
+/* The theme's prose styles put a large margin on <p> inside .content, which is
+   what made the old header's spacing lopsided. Set it explicitly. */
+.qr-sheet-head .qr-hero-sub { margin: 0.9rem 0 0 !important; }
+
 .qr-hero-sub {
   max-width: 46rem;
-  margin: 0 auto;
   color: var(--qr-muted);
   font-size: 1rem;
   line-height: 1.65;
@@ -118,7 +144,7 @@ html.dark .qr-aura span { opacity: 0.22; }
 .qr-hero-meta {
   display: flex;
   flex-wrap: wrap;
-  justify-content: center;
+  justify-content: flex-start;
   gap: 0.5rem;
   margin-top: 1.1rem;
 }
@@ -133,135 +159,138 @@ html.dark .qr-aura span { opacity: 0.22; }
   letter-spacing: 0.02em;
 }
 
-/* ---------- Toolbar ---------- */
-.qr-toolbar {
+/* ---------- Two-column layout (TOC + content) ---------- */
+.qr-layout {
+  position: relative;
+  z-index: 1;
+  display: grid;
+  grid-template-columns: minmax(0, 1fr);
+  gap: 1.5rem;
+}
+@media (min-width: 1024px) {
+  .qr-layout { grid-template-columns: 210px minmax(0, 1fr); gap: 2rem; align-items: start; }
+}
+.qr-main { min-width: 0; }
+
+/* ---------- Table of contents ---------- */
+.qr-toc {
   position: sticky;
   top: var(--hextra-navbar-height, 4rem);
-  z-index: 20;
-  margin: 0 0 1.75rem;
-  padding: 0.85rem 0 0.7rem;
-  background: color-mix(in srgb, var(--qr-surface) 88%, transparent);
-  backdrop-filter: blur(14px) saturate(160%);
-  -webkit-backdrop-filter: blur(14px) saturate(160%);
-  border-bottom: 1px solid var(--qr-border);
+  z-index: 15;
+  align-self: start;
 }
-html.light .qr-toolbar { background: rgba(255, 255, 255, 0.85); }
-html.dark  .qr-toolbar { background: rgba(11, 17, 32, 0.82); }
+.qr-toc-nav { display: flex; flex-direction: column; gap: 0.1rem; }
 
-.qr-progress {
-  position: absolute;
-  left: 0; bottom: -1px;
-  height: 2px;
-  width: 0%;
-  background: linear-gradient(90deg, var(--qr-accent), var(--qr-accent-2));
-  border-radius: 2px;
-  transition: width 120ms linear;
-}
-
-.qr-search-wrap {
+.qr-toc-link {
   position: relative;
-  max-width: 34rem;
-  margin: 0 auto 0.7rem;
+  display: grid;
+  grid-template-columns: auto auto 1fr auto;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.4rem 0.5rem;
+  border-radius: 8px;
+  font-size: 0.82rem;
+  font-weight: 500;
+  color: var(--qr-muted) !important;
+  text-decoration: none !important;
+  transition: color 0.2s ease, background 0.2s ease;
 }
-.qr-search-wrap > .qr-search-icon {
-  position: absolute;
-  left: 0.95rem;
-  top: 50%;
-  transform: translateY(-50%);
+.qr-toc-link:hover { color: var(--qr-text) !important; background: var(--qr-surface-2); }
+.qr-toc-dot {
+  width: 6px; height: 6px;
+  border-radius: 50%;
+  background: transparent;
+  transition: background 0.2s ease, transform 0.2s ease;
+}
+.qr-toc-num {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, monospace;
+  font-size: 0.68rem;
+  font-weight: 700;
   color: var(--qr-muted);
-  pointer-events: none;
-  font-size: 0.9rem;
+  opacity: 0.7;
 }
-.qr-search {
-  width: 100%;
-  padding: 0.68rem 4.6rem 0.68rem 2.5rem;
-  font-size: 0.92rem;
-  color: var(--qr-text);
-  background: var(--qr-surface-2);
-  border: 1px solid var(--qr-border);
-  border-radius: 12px;
-  outline: none;
-  transition: border-color 0.22s ease, box-shadow 0.22s ease, background 0.22s ease;
-  font-family: inherit;
-}
-.qr-search::placeholder { color: var(--qr-muted); opacity: 0.8; }
-.qr-search:focus {
-  border-color: var(--qr-accent-line);
-  box-shadow: 0 0 0 4px var(--qr-accent-soft);
-}
-.qr-kbd {
-  position: absolute;
-  right: 0.75rem;
-  top: 50%;
-  transform: translateY(-50%);
-  display: flex;
-  gap: 0.25rem;
-  pointer-events: none;
-}
-.qr-kbd kbd {
-  font-family: ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-  font-size: 0.66rem;
-  line-height: 1;
-  padding: 0.28rem 0.4rem;
-  color: var(--qr-muted);
-  background: var(--qr-surface);
-  border: 1px solid var(--qr-border);
-  border-bottom-width: 2px;
-  border-radius: 5px;
-}
-.qr-search:not(:placeholder-shown) ~ .qr-kbd { opacity: 0; }
-
-/* ---------- Section pills ---------- */
-.qr-pills {
-  display: flex;
-  flex-wrap: nowrap;
-  gap: 0.4rem;
-  overflow-x: auto;
-  scrollbar-width: none;
-  padding-bottom: 0.15rem;
-  justify-content: flex-start;
-  scroll-behavior: smooth;
-}
-.qr-pills::-webkit-scrollbar { display: none; }
-@media (min-width: 900px) { .qr-pills { flex-wrap: wrap; justify-content: center; } }
-
-.qr-pill {
-  position: relative;
-  flex: 0 0 auto;
-  font-size: 0.78rem;
-  font-weight: 600;
+.qr-toc-label { min-width: 0; }
+.qr-toc-count {
+  font-size: 0.65rem;
+  font-weight: 700;
   color: var(--qr-muted);
   background: var(--qr-surface-2);
   border: 1px solid var(--qr-border);
   border-radius: 999px;
-  padding: 0.36rem 0.85rem;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: color 0.2s ease, border-color 0.2s ease, transform 0.2s ease, background 0.2s ease;
-  overflow: hidden;
-  font-family: inherit;
+  padding: 0.05rem 0.4rem;
+  line-height: 1.4;
 }
-.qr-pill::before {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(120deg, transparent, var(--qr-sheen), transparent);
-  transform: translateX(-120%);
-  transition: transform 0.6s ease;
+.qr-toc-link.qr-active {
+  color: var(--qr-accent) !important;
+  background: var(--qr-accent-soft);
+  font-weight: 700;
 }
-.qr-pill:hover::before { transform: translateX(120%); }
-.qr-pill:hover { color: var(--qr-accent); border-color: var(--qr-accent-line); transform: translateY(-1px); }
-.qr-pill.qr-active {
-  color: #fff;
-  background: linear-gradient(135deg, var(--qr-accent), var(--qr-accent-2));
-  border-color: transparent;
-  box-shadow: 0 6px 16px -8px var(--qr-accent);
+.qr-toc-link.qr-active .qr-toc-dot { background: var(--qr-accent); transform: scale(1.2); }
+.qr-toc-link.qr-active .qr-toc-num { color: var(--qr-accent); opacity: 1; }
+
+/* On a sheet the active section takes that sheet's colour, matching the
+   section number it points at. Same ink/tint pair as .qr-sheet .qr-section-num. */
+.qr-sheet .qr-toc-link.qr-active {
+  color: var(--qr-sheet-ink) !important;
+  background: color-mix(in srgb, var(--qr-sheet-c, var(--qr-accent)) 12%, transparent);
 }
-html.dark .qr-pill.qr-active { color: #0b1120; }
+.qr-sheet .qr-toc-link.qr-active .qr-toc-dot { background: var(--qr-sheet-ink); }
+.qr-sheet .qr-toc-link.qr-active .qr-toc-num { color: var(--qr-sheet-ink); }
+
+/* Mobile: TOC becomes a sticky horizontal scroll strip */
+@media (max-width: 1023px) {
+  .qr-toc {
+    margin: 0 0 1.25rem;
+    padding: 0.5rem 0;
+    background: color-mix(in srgb, var(--qr-surface) 90%, transparent);
+    backdrop-filter: blur(14px) saturate(160%);
+    -webkit-backdrop-filter: blur(14px) saturate(160%);
+    border-bottom: 1px solid var(--qr-border);
+  }
+  html.light .qr-toc { background: rgba(255, 255, 255, 0.88); }
+  html.dark  .qr-toc { background: rgba(11, 17, 32, 0.85); }
+  .qr-toc-nav {
+    flex-direction: row;
+    gap: 0.4rem;
+    overflow-x: auto;
+    scrollbar-width: none;
+    scroll-behavior: smooth;
+  }
+  .qr-toc-nav::-webkit-scrollbar { display: none; }
+  .qr-toc-link {
+    flex: 0 0 auto;
+    grid-template-columns: auto auto;
+    border: 1px solid var(--qr-border);
+    background: var(--qr-surface-2);
+    white-space: nowrap;
+    border-radius: 999px;
+    padding: 0.34rem 0.75rem;
+  }
+  .qr-toc-link .qr-toc-dot, .qr-toc-link .qr-toc-count { display: none; }
+  .qr-toc-link.qr-active {
+    color: #fff !important;
+    background: linear-gradient(135deg, var(--qr-accent), var(--qr-accent-2));
+    border-color: transparent;
+  }
+  html.dark .qr-toc-link.qr-active { color: #0b1120 !important; }
+  .qr-toc-link.qr-active .qr-toc-num { color: inherit; }
+
+  /* The active chip inverts its text, so it needs a background that is dark in
+     the light theme and light in the dark theme — which is exactly what
+     --qr-sheet-ink already is. Using the raw sheet colour here would put white
+     text on light green. */
+  .qr-sheet .qr-toc-link.qr-active {
+    color: #fff !important;
+    background: linear-gradient(135deg, var(--qr-sheet-ink), color-mix(in srgb, var(--qr-sheet-ink) 80%, black));
+  }
+  html.dark .qr-sheet .qr-toc-link.qr-active {
+    color: #0b1120 !important;
+    background: linear-gradient(135deg, var(--qr-sheet-ink), color-mix(in srgb, var(--qr-sheet-ink) 80%, white));
+  }
+}
 
 /* ---------- Sections ---------- */
 .qr-section { position: relative; z-index: 1; margin-bottom: 2.4rem; scroll-margin-top: 9rem; }
-.qr-section[hidden] { display: none; }
 
 .qr-section-head {
   display: flex;
@@ -298,58 +327,67 @@ html.dark .qr-pill.qr-active { color: #0b1120; }
   background: var(--qr-accent-soft);
   border: 1px solid var(--qr-accent-line);
 }
-
-/* ---------- Masonry grid ---------- */
-.qr-grid {
-  column-gap: 1rem;
-  column-count: 1;
+/* On a sheet the section number carries that sheet's colour. Scoped to
+   .qr-sheet so the landing page and any other use stay on the blue accent. */
+.qr-sheet .qr-section-num {
+  color: var(--qr-sheet-ink);
+  background: color-mix(in srgb, var(--qr-sheet-c, var(--qr-accent)) 12%, transparent);
+  border-color: color-mix(in srgb, var(--qr-sheet-c, var(--qr-accent)) 35%, transparent);
 }
-@media (min-width: 700px)  { .qr-grid { column-count: 2; } }
-@media (min-width: 1180px) { .qr-grid { column-count: 3; } }
-@media (min-width: 1680px) { .qr-grid { column-count: 4; } }
+
+/* ---------- Card grid ---------- */
+.qr-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(300px, 1fr));
+  gap: 1rem;
+  align-items: start;
+}
+
+/* ---------- Entrance animation ----------
+   Cards and tiles are visible by default so the page still reads with
+   JavaScript blocked or broken. The script adds .qr-anim to the root only
+   when it has actually wired up the IntersectionObserver that reveals them. */
+.qr-anim .qr-card:not(.qr-in),
+.qr-anim .qr-tile:not(.qr-in) {
+  opacity: 0;
+  transform: translateY(14px);
+}
 
 /* ---------- Card ---------- */
 .qr-card {
   position: relative;
-  break-inside: avoid;
-  page-break-inside: avoid;
-  display: block;
+  display: flex;
+  flex-direction: column;
   width: 100%;
-  margin: 0 0 1rem;
   background: var(--qr-surface);
   border: 1px solid var(--qr-border);
   border-radius: var(--qr-radius);
   box-shadow: var(--qr-shadow);
   overflow: hidden;
-  opacity: 0;
-  transform: translateY(14px);
   transition:
     opacity 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     box-shadow 0.3s ease,
     border-color 0.3s ease;
 }
-.qr-card.qr-in { opacity: 1; transform: translateY(0); }
-.qr-card[hidden] { display: none; }
 
+/* Hairline accent that fades out to the right, so it reads as a highlight
+   rather than a progress bar filling up. */
 .qr-card::before {
   content: "";
   position: absolute;
   top: 0; left: 0;
-  height: 2px;
+  height: 1px;
   width: 100%;
-  background: linear-gradient(90deg, var(--qr-accent), var(--qr-accent-2));
-  transform: scaleX(0);
-  transform-origin: left;
-  transition: transform 0.45s cubic-bezier(0.22, 1, 0.36, 1);
+  background: linear-gradient(90deg, var(--qr-accent-line), transparent 70%);
+  opacity: 0;
+  transition: opacity 0.3s ease;
   z-index: 2;
 }
+.qr-card:hover::before { opacity: 1; }
 .qr-card:hover {
-  border-color: var(--qr-accent-line);
-  box-shadow: var(--qr-shadow-hi);
-  transform: translateY(-3px);
+  border-color: var(--qr-hover-border);
 }
-.qr-card:hover::before { transform: scaleX(1); }
 
 .qr-card-head {
   display: flex;
@@ -361,17 +399,6 @@ html.dark .qr-pill.qr-active { color: #0b1120; }
   position: relative;
   overflow: hidden;
 }
-.qr-card-head::after {
-  content: "";
-  position: absolute;
-  inset: 0;
-  background: linear-gradient(115deg, transparent 20%, var(--qr-sheen) 50%, transparent 80%);
-  transform: translateX(-130%);
-  transition: transform 0.75s cubic-bezier(0.22, 1, 0.36, 1);
-  pointer-events: none;
-}
-.qr-card:hover .qr-card-head::after { transform: translateX(130%); }
-
 .qr-card-title {
   margin: 0 !important;
   padding: 0 !important;
@@ -383,26 +410,38 @@ html.dark .qr-pill.qr-active { color: #0b1120; }
   flex: 1;
   min-width: 0;
 }
-.qr-card-mark { background: var(--qr-accent-soft); color: var(--qr-accent); border-radius: 3px; padding: 0 2px; }
-
 .qr-copy {
-  flex: 0 0 auto;
+  position: absolute;
+  top: 0.4rem;
+  right: 0.4rem;
+  z-index: 3;
   display: grid;
   place-items: center;
-  width: 26px;
-  height: 26px;
+  width: 32px;
+  height: 32px;
   border-radius: 7px;
-  border: 1px solid transparent;
-  background: transparent;
+  border: 1px solid var(--qr-border);
+  background: var(--qr-surface);
   color: var(--qr-muted);
   cursor: pointer;
   font-size: 0.78rem;
   opacity: 0;
-  transform: scale(0.85);
-  transition: all 0.2s ease;
+  transform: translateY(-2px);
+  transition: opacity 0.18s ease, transform 0.18s ease, color 0.18s ease,
+              background 0.18s ease, border-color 0.18s ease;
+}
+/* Grow the hit area to 44px without growing the visual box. */
+.qr-copy::before {
+  content: "";
+  position: absolute;
+  inset: -6px;
 }
 .qr-card:hover .qr-copy,
-.qr-copy:focus-visible { opacity: 1; transform: scale(1); }
+.qr-copy:focus-visible { opacity: 1; transform: none; }
+/* Touch devices never hover, so the button has to be visible up front. */
+@media (hover: none) {
+  .qr-copy { opacity: 0.6; transform: none; }
+}
 .qr-copy:hover {
   color: var(--qr-accent);
   background: var(--qr-accent-soft);
@@ -411,7 +450,43 @@ html.dark .qr-pill.qr-active { color: #0b1120; }
 .qr-copy.qr-copied { color: #16a34a; border-color: rgba(22, 163, 74, 0.4); background: rgba(22, 163, 74, 0.12); }
 html.dark .qr-copy.qr-copied { color: #4ade80; }
 
-.qr-card-body { padding: 0; }
+.qr-copy-i { width: 16px; height: 16px; display: block; pointer-events: none; }
+.qr-copy .qr-copy-i-done,
+.qr-copy.qr-copied .qr-copy-i-idle { display: none; }
+.qr-copy.qr-copied .qr-copy-i-done { display: block; }
+
+.qr-card-body { padding: 0; position: relative; }
+
+/* ---------- Card tabs (Script / Output / Notes) ---------- */
+.qr-tabs {
+  display: flex;
+  gap: 0.15rem;
+  padding: 0.4rem 0.5rem 0;
+  background: var(--qr-surface-2);
+  border-bottom: 1px solid var(--qr-border);
+}
+.qr-tab {
+  position: relative;
+  font-family: inherit;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.01em;
+  color: var(--qr-muted);
+  background: transparent;
+  border: 0;
+  border-bottom: 2px solid transparent;
+  padding: 0.3rem 0.6rem 0.4rem;
+  cursor: pointer;
+  transition: color 0.18s ease, border-color 0.18s ease;
+}
+.qr-tab:hover { color: var(--qr-text); }
+.qr-tab.qr-active {
+  color: var(--qr-accent);
+  border-bottom-color: var(--qr-accent);
+}
+.qr-panel[hidden] { display: none; }
+.qr-panel-notes .qr-note { border-top: 0; background: transparent; }
+.qr-panel-output pre.chroma { color: var(--qr-muted) !important; }
 
 /* Code inside cards */
 .qr-card-body .highlight { margin: 0 !important; border-radius: 0 !important; border: 0 !important; }
@@ -427,9 +502,25 @@ html.dark .qr-copy.qr-copied { color: #4ade80; }
   padding: 0.8rem 0.9rem !important;
   font-size: 0.775rem !important;
   line-height: 1.62 !important;
-  overflow-x: auto;
+  overflow-x: hidden;
+  white-space: pre-wrap !important;
+  overflow-wrap: anywhere;
   tab-size: 2;
 }
+/* Hextra styles every <code> that is not inside .hextra-code-block as *inline*
+   code — border, background, radius, padding. transform.Highlight emits a bare
+   <pre><code>, so that rule wraps the whole block in an inline box and leaves a
+   stray rounded cap at the start of the first line and the end of the last one.
+   Strip it back to plain text; the <pre> carries the styling here. */
+.qr-card-body pre.chroma code,
+.qr-card-body .highlight code {
+  white-space: inherit !important;
+  background: none !important;
+  border: 0 !important;
+  border-radius: 0 !important;
+  padding: 0 !important;
+}
+.qr-card-body pre.chroma code { font-size: inherit !important; }
 .qr-card-body code { font-size: 0.775rem; }
 
 /* Table inside cards */
@@ -488,26 +579,16 @@ html.dark .qr-ic { color: #a8c4ff; }
 }
 .qr-note i { color: var(--qr-accent); margin-top: 0.15rem; }
 
-/* ---------- Empty state ---------- */
-.qr-empty {
-  display: none;
-  text-align: center;
-  padding: 3.5rem 1rem;
-  color: var(--qr-muted);
-  position: relative;
-  z-index: 1;
-}
-.qr-empty.qr-show { display: block; animation: qr-fade-up 0.4s ease both; }
-.qr-empty i { font-size: 1.8rem; color: var(--qr-accent); opacity: 0.6; display: block; margin-bottom: 0.7rem; }
-@keyframes qr-fade-up { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: none; } }
-
 /* ---------- Index tiles ---------- */
+/* Cap the tile width so they stop stretching on wide screens, and centre the
+   row so the leftover width is symmetric margin instead of a gap on the right. */
 .qr-tiles {
   position: relative;
   z-index: 1;
   display: grid;
   gap: 1rem;
-  grid-template-columns: repeat(auto-fill, minmax(270px, 1fr));
+  grid-template-columns: repeat(auto-fill, minmax(270px, 380px));
+  justify-content: center;
 }
 .qr-tile {
   position: relative;
@@ -522,16 +603,12 @@ html.dark .qr-ic { color: #a8c4ff; }
   text-decoration: none !important;
   color: inherit !important;
   overflow: hidden;
-  opacity: 0;
-  transform: translateY(16px);
   transition:
     opacity 0.55s cubic-bezier(0.22, 1, 0.36, 1),
     transform 0.4s cubic-bezier(0.22, 1, 0.36, 1),
     border-color 0.3s ease,
     box-shadow 0.3s ease;
 }
-.qr-tile.qr-in { opacity: 1; transform: translateY(0); }
-.qr-tile[hidden] { display: none; }
 .qr-tile::after {
   content: "";
   position: absolute;
@@ -542,10 +619,11 @@ html.dark .qr-ic { color: #a8c4ff; }
   transition: opacity 0.35s ease;
   pointer-events: none;
 }
-.qr-tile:hover { transform: translateY(-5px); border-color: var(--qr-accent-line); box-shadow: var(--qr-shadow-hi); }
-.qr-tile:hover::after { opacity: 1; }
+.qr-tile:hover { transform: translateY(-2px); border-color: var(--qr-hover-border); box-shadow: var(--qr-shadow); }
+.qr-tile:hover::after { opacity: 0.6; }
 
 .qr-tile-top { display: flex; align-items: center; gap: 0.7rem; }
+.qr-tile-heading { min-width: 0; }
 .qr-tile-icon {
   display: grid;
   place-items: center;
@@ -554,13 +632,25 @@ html.dark .qr-ic { color: #a8c4ff; }
   border-radius: 11px;
   font-size: 1.05rem;
   color: #fff;
-  background: linear-gradient(135deg, var(--qr-tile-c, #3466cb), color-mix(in srgb, var(--qr-tile-c, #3466cb) 55%, #7c3aed));
-  box-shadow: 0 6px 16px -8px var(--qr-tile-c, #3466cb);
+  background: linear-gradient(135deg, var(--qr-tile-c, #3466cb), color-mix(in srgb, var(--qr-tile-c, #3466cb) 70%, black));
+  box-shadow: 0 2px 5px -3px rgba(15, 23, 42, 0.45);
   transition: transform 0.35s cubic-bezier(0.34, 1.56, 0.64, 1);
 }
-.qr-tile:hover .qr-tile-icon { transform: scale(1.08) rotate(-6deg); }
-.qr-tile-name { font-size: 1rem; font-weight: 700; letter-spacing: -0.01em; }
-.qr-tile-count { font-size: 0.7rem; color: var(--qr-muted); font-weight: 600; letter-spacing: 0.04em; }
+.qr-tile:hover .qr-tile-icon { transform: scale(1.03); }
+.qr-tile-icon .qr-icon { width: 18px; height: 18px; }
+/* <h2>, so the theme's prose styles have to be neutralised like the other
+   quickref headings. */
+.qr-tile-name {
+  margin: 0 !important;
+  padding: 0 !important;
+  border: 0 !important;
+  font-size: 1rem !important;
+  font-weight: 700;
+  letter-spacing: -0.01em;
+  color: var(--qr-text);
+  display: block;
+}
+.qr-tile-count { display: block; font-size: 0.7rem; color: var(--qr-muted); font-weight: 600; letter-spacing: 0.04em; }
 .qr-tile-desc { font-size: 0.83rem; line-height: 1.55; color: var(--qr-muted); flex: 1; }
 .qr-tile-tags { display: flex; flex-wrap: wrap; gap: 0.3rem; }
 .qr-tile-tag {
@@ -569,7 +659,7 @@ html.dark .qr-ic { color: #a8c4ff; }
   letter-spacing: 0.03em;
   padding: 0.18rem 0.48rem;
   border-radius: 5px;
-  color: var(--qr-muted);
+  color: var(--qr-tag-text);
   background: var(--qr-surface-2);
   border: 1px solid var(--qr-border);
 }
@@ -605,7 +695,7 @@ html.dark .qr-ic { color: #a8c4ff; }
   right: 1.25rem;
   bottom: 1.25rem;
   z-index: 30;
-  width: 42px; height: 42px;
+  width: 44px; height: 44px;
   display: grid;
   place-items: center;
   border-radius: 50%;
@@ -645,11 +735,28 @@ html.light .qr-top { background: rgba(255, 255, 255, 0.9); }
 
 /* ---------- Print ---------- */
 @media print {
-  .qr-toolbar, .qr-aura, .qr-top, .qr-copy { display: none !important; }
+  .qr-toc, .qr-top, .qr-copy, .qr-tabs { display: none !important; }
+  .qr-layout { display: block; }
   .qr-card { break-inside: avoid; box-shadow: none; opacity: 1 !important; transform: none !important; }
-  .qr-grid { column-count: 2; }
+  .qr-panel[hidden] { display: block !important; }
 }
 </style>
+
+<script>
+/* Opt in to the entrance animation before any card is parsed, so the cards
+   never flash in and then hide. Without this the markup renders visible,
+   which is exactly what we want when scripting is off or broken. */
+(function () {
+  var d = document.documentElement;
+  if (!("IntersectionObserver" in window)) return;
+  if (window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+  d.classList.add("qr-anim");
+  // If the main script below never got to run, un-hide everything.
+  setTimeout(function () {
+    if (d.getAttribute("data-qr-booted") !== "1") d.classList.remove("qr-anim");
+  }, 3000);
+})();
+</script>
 
 <script>
 (function () {
@@ -663,11 +770,7 @@ html.light .qr-top { background: rgba(255, 255, 255, 0.9); }
 
     var cards   = Array.prototype.slice.call(root.querySelectorAll("[data-qr-item]"));
     var sections= Array.prototype.slice.call(root.querySelectorAll(".qr-section"));
-    var search  = root.querySelector(".qr-search");
-    var pills   = Array.prototype.slice.call(root.querySelectorAll(".qr-pill"));
-    var empty   = root.querySelector(".qr-empty");
-    var counter = root.querySelector("[data-qr-count]");
-    var progress= root.querySelector(".qr-progress");
+    var navLinks= Array.prototype.slice.call(root.querySelectorAll("[data-qr-nav]"));
     var topBtn  = root.querySelector(".qr-top");
 
     /* ---- staggered reveal ---- */
@@ -692,23 +795,71 @@ html.light .qr-top { background: rgba(255, 255, 255, 0.9); }
       cards.forEach(function (c) { io.observe(c); });
     }
 
+    /* ---- card tabs (Script / Output / Notes) ---- */
+    function activateTab(tab) {
+      var card = tab.closest("[data-qr-item]");
+      if (!card) return;
+      var name = tab.getAttribute("data-qr-tab");
+      card.querySelectorAll(".qr-tab").forEach(function (t) {
+        var on = t === tab;
+        t.classList.toggle("qr-active", on);
+        t.setAttribute("aria-selected", on ? "true" : "false");
+        // Roving tabindex: only the selected tab is a tab stop, so Tab moves
+        // out of the tablist rather than through every tab in it.
+        t.setAttribute("tabindex", on ? "0" : "-1");
+      });
+      card.querySelectorAll(".qr-panel").forEach(function (p) {
+        p.hidden = p.getAttribute("data-qr-panel") !== name;
+      });
+      var copy = card.querySelector(".qr-copy");
+      if (copy) copy.style.visibility = (name === "notes") ? "hidden" : "";
+    }
+
+    root.addEventListener("click", function (ev) {
+      var tab = ev.target.closest ? ev.target.closest(".qr-tab") : null;
+      if (!tab || !root.contains(tab)) return;
+      activateTab(tab);
+    });
+
+    root.addEventListener("keydown", function (ev) {
+      var tab = ev.target.closest ? ev.target.closest(".qr-tab") : null;
+      if (!tab || !root.contains(tab)) return;
+
+      var list = tab.closest(".qr-tabs");
+      if (!list) return;
+      var tabs = Array.prototype.slice.call(list.querySelectorAll(".qr-tab"));
+      var i = tabs.indexOf(tab);
+      var next = null;
+
+      if (ev.key === "ArrowRight" || ev.key === "ArrowDown") next = tabs[(i + 1) % tabs.length];
+      else if (ev.key === "ArrowLeft" || ev.key === "ArrowUp") next = tabs[(i - 1 + tabs.length) % tabs.length];
+      else if (ev.key === "Home") next = tabs[0];
+      else if (ev.key === "End") next = tabs[tabs.length - 1];
+      else return;
+
+      ev.preventDefault();
+      activateTab(next);
+      next.focus();
+    });
+
     /* ---- copy buttons ---- */
     root.addEventListener("click", function (ev) {
       var btn = ev.target.closest ? ev.target.closest(".qr-copy") : null;
       if (!btn || !root.contains(btn)) return;
       ev.preventDefault();
       var card = btn.closest("[data-qr-item]");
-      var pre = card && card.querySelector("pre");
-      var text = pre ? pre.innerText : (card ? card.innerText : "");
+      var pre = card && (card.querySelector(".qr-panel:not([hidden]) pre") || card.querySelector("pre"));
+      // textContent, not innerText: chroma already ends every line with a literal
+      // "\n" inside .cl, and the theme makes .chroma .line display:flex, so
+      // innerText would add a second break at each line boundary.
+      var src = pre || card;
+      var text = src ? src.textContent.replace(/\n+$/, "") : "";
+      // The button carries both icons; .qr-copied decides which one shows.
       var done = function () {
         btn.classList.add("qr-copied");
-        var icon = btn.querySelector("i");
-        var prev = icon ? icon.className : "";
-        if (icon) icon.className = "fa-solid fa-check";
         btn.setAttribute("aria-label", "Copied");
         setTimeout(function () {
           btn.classList.remove("qr-copied");
-          if (icon) icon.className = prev;
           btn.setAttribute("aria-label", "Copy snippet");
         }, 1400);
       };
@@ -726,91 +877,48 @@ html.light .qr-top { background: rgba(255, 255, 255, 0.9); }
       }
     });
 
-    /* ---- search / filter ---- */
-    var activeSection = "all";
-
-    function highlight(el, term) {
-      var original = el.getAttribute("data-qr-raw");
-      if (original === null) {
-        original = el.textContent;
-        el.setAttribute("data-qr-raw", original);
-      }
-      if (!term) { el.textContent = original; return; }
-      var i = original.toLowerCase().indexOf(term);
-      if (i < 0) { el.textContent = original; return; }
-      el.textContent = "";
-      el.appendChild(document.createTextNode(original.slice(0, i)));
-      var m = document.createElement("mark");
-      m.className = "qr-card-mark";
-      m.textContent = original.slice(i, i + term.length);
-      el.appendChild(m);
-      el.appendChild(document.createTextNode(original.slice(i + term.length)));
-    }
-
-    function apply() {
-      var term = (search ? search.value : "").trim().toLowerCase();
-      var visible = 0;
-
-      cards.forEach(function (card) {
-        var inSection = activeSection === "all" || card.getAttribute("data-qr-section") === activeSection;
-        var match = !term || (card.getAttribute("data-qr-text") || "").indexOf(term) > -1;
-        var show = inSection && match;
-        card.hidden = !show;
-        if (show) visible++;
-        var title = card.querySelector(".qr-card-title, .qr-tile-name");
-        if (title) highlight(title, term);
-      });
-
-      sections.forEach(function (sec) {
-        var any = sec.querySelector("[data-qr-item]:not([hidden])");
-        sec.hidden = !any;
-      });
-
-      if (empty) empty.classList.toggle("qr-show", visible === 0);
-      if (counter) counter.textContent = visible;
-    }
-
-    if (search) {
-      var t;
-      search.addEventListener("input", function () {
-        clearTimeout(t);
-        t = setTimeout(apply, 90);
-      });
-      search.addEventListener("keydown", function (e) {
-        if (e.key === "Escape") { search.value = ""; apply(); search.blur(); }
-      });
-      document.addEventListener("keydown", function (e) {
-        if (e.key === "/" && document.activeElement !== search) {
-          var tag = (document.activeElement && document.activeElement.tagName) || "";
-          if (tag === "INPUT" || tag === "TEXTAREA") return;
-          e.preventDefault();
-          search.focus();
-          search.select();
-        }
-      });
-    }
-
-    /* ---- section pills ---- */
-    pills.forEach(function (pill) {
-      pill.addEventListener("click", function () {
-        var target = pill.getAttribute("data-qr-target");
-        pills.forEach(function (p) { p.classList.toggle("qr-active", p === pill); });
-
-        if (pill.hasAttribute("data-qr-jump")) {
-          activeSection = "all";
-          apply();
-          var sec = root.querySelector('[data-qr-section-id="' + target + '"]');
-          if (sec) sec.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
-        } else {
-          activeSection = target;
-          apply();
-        }
+    /* ---- TOC links: smooth-scroll to section ---- */
+    navLinks.forEach(function (link) {
+      link.addEventListener("click", function (ev) {
+        var target = link.getAttribute("data-qr-target");
+        var sec = root.querySelector('[data-qr-section-id="' + target + '"]');
+        if (!sec) return;
+        ev.preventDefault();
+        setActiveLink(target);
+        // Hold the spy on the clicked section while the smooth-scroll settles,
+        // otherwise mid-flight positions briefly light up the section above.
+        spyLockUntil = Date.now() + 800;
+        sec.scrollIntoView({ behavior: reduced ? "auto" : "smooth", block: "start" });
       });
     });
 
-    /* ---- scroll spy + progress + back to top ---- */
+    function setActiveLink(id) {
+      navLinks.forEach(function (l) {
+        var on = l.getAttribute("data-qr-target") === id;
+        l.classList.toggle("qr-active", on);
+        if (on && l.scrollIntoView) {
+          // keep the active chip in view on the mobile strip
+          var strip = l.parentNode;
+          if (strip && strip.scrollWidth > strip.clientWidth) {
+            l.scrollIntoView({ block: "nearest", inline: "center" });
+          }
+        }
+      });
+    }
+
+    /* ---- scroll spy + back to top ---- */
     var spyTargets = sections.filter(function (s) { return s.hasAttribute("data-qr-section-id"); });
     var ticking = false;
+    var spyLockUntil = 0;
+
+    // Match the spy line to where a section actually comes to rest after a jump
+    // (its scroll-margin-top), plus a small buffer, so the clicked section — not
+    // the one above it — is the one that highlights.
+    var spyOffset = 150;
+    if (spyTargets[0]) {
+      var sm = parseFloat(getComputedStyle(spyTargets[0]).scrollMarginTop);
+      if (sm) spyOffset = sm + 8;
+    }
 
     function onScroll() {
       if (ticking) return;
@@ -818,30 +926,18 @@ html.light .qr-top { background: rgba(255, 255, 255, 0.9); }
       requestAnimationFrame(function () {
         ticking = false;
 
-        if (progress) {
-          var rect = root.getBoundingClientRect();
-          var total = rect.height - window.innerHeight;
-          var passed = -rect.top;
-          var pct = total > 0 ? Math.min(Math.max(passed / total, 0), 1) : 0;
-          progress.style.width = (pct * 100).toFixed(1) + "%";
-        }
-
         if (topBtn) topBtn.classList.toggle("qr-show", window.scrollY > 700);
 
-        if (spyTargets.length && pills.length) {
+        if (Date.now() < spyLockUntil) return;
+
+        if (spyTargets.length && navLinks.length) {
           var best = null;
           var bestTop = -Infinity;
           spyTargets.forEach(function (s) {
-            if (s.hidden) return;
-            var top = s.getBoundingClientRect().top - 140;
+            var top = s.getBoundingClientRect().top - spyOffset;
             if (top <= 0 && top > bestTop) { bestTop = top; best = s; }
           });
-          if (best) {
-            var id = best.getAttribute("data-qr-section-id");
-            pills.forEach(function (p) {
-              p.classList.toggle("qr-active", p.getAttribute("data-qr-target") === id);
-            });
-          }
+          if (best) setActiveLink(best.getAttribute("data-qr-section-id"));
         }
       });
     }
@@ -863,11 +959,10 @@ html.light .qr-top { background: rgba(255, 255, 255, 0.9); }
         tile.style.setProperty("--qr-my", ((e.clientY - r.top) / r.height * 100) + "%");
       });
     });
-
-    apply();
   }
 
   function boot() {
+    document.documentElement.setAttribute("data-qr-booted", "1");
     document.querySelectorAll(".qr-root").forEach(init);
   }
 

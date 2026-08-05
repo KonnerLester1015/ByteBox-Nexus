@@ -1,7 +1,8 @@
+# Authoring guide: docs/quickref-authoring.md
 title: PowerShell
 kicker: Shell Cheat Sheet
 lang: powershell
-icon: fa-solid fa-terminal
+icon: fa-terminal
 color: "#2C6FD1"
 description: >-
   Everyday PowerShell — the pipeline, objects, filtering, error handling, remoting,
@@ -43,6 +44,13 @@ sections:
           $env:COMPUTERNAME
           $env:USERPROFILE
           [Environment]::Is64BitProcess
+        output: |
+          Name                           Value
+          ----                           -----
+          PSVersion                      7.4.1
+          PSEdition                      Core
+          Platform                       Win32NT
+          OS                             Microsoft Windows 10.0.22631
 
   - title: Variables & Types
     cards:

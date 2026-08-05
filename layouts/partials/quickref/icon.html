@@ -1,0 +1,15 @@
+{{- /*
+  Renders an inline SVG icon from data/icons.yaml.
+  Context: dict "name" <key> "class" <css class, optional>
+
+  Quickref uses this instead of Hextra's {{< icon >}} shortcode so it can put
+  its own class on the <svg> for sizing and colour.
+*/ -}}
+{{- $name := .name -}}
+{{- $class := .class | default "qr-icon" -}}
+{{- with index site.Data.icons $name -}}
+  {{- $svg := replace . "<svg " (printf "<svg class=%q aria-hidden=\"true\" " $class) 1 -}}
+  {{- $svg | safeHTML -}}
+{{- else -}}
+  {{- warnf "quickref: icon %q not found in data/icons.yaml" $name -}}
+{{- end -}}
