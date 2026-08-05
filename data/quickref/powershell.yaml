@@ -5,8 +5,8 @@ lang: powershell
 icon: fa-terminal
 color: "#2C6FD1"
 description: >-
-  Everyday PowerShell — the pipeline, objects, filtering, error handling, remoting,
-  REST calls, and the Active Directory cmdlets that make up most Windows automation.
+  Everyday PowerShell — the pipeline, objects, filtering, error handling, REST calls,
+  and the Active Directory cmdlets that make up most Windows automation.
 tags: [powershell, windows, automation, scripting]
 
 sections:
@@ -89,15 +89,6 @@ sections:
           '123' -as [int]             # $null instead of throwing
           [System.Net.IPAddress]::Parse('10.0.0.1')
 
-      - title: Scopes
-        code: |
-          $script:counter = 0        # script-wide
-          $global:config  = @{}      # session-wide
-          $local:temp     = 1        # default
-
-          function Bump { $script:counter++ }
-        note: Functions get a child scope. Assigning to `$counter` inside one creates a *new* local variable unless you qualify it.
-
   - title: Operators
     cards:
       - title: Comparison
@@ -135,16 +126,6 @@ sections:
           $len = $obj?.Name?.Length        # null conditional
         note: These four are PowerShell 7 only. On Windows PowerShell 5.1 use `if/else` and explicit `$null` checks.
 
-      - title: Splatting
-        code: |
-          $params = @{
-              Name        = 'Spooler'
-              ComputerName = 'SRV01'
-              ErrorAction = 'Stop'
-          }
-          Get-Service @params
-        note: Splatting keeps long command lines readable and lets you build arguments conditionally.
-
   - title: Arrays & Hashtables
     cards:
       - title: Arrays
@@ -159,15 +140,6 @@ sections:
           $a -join ', '
           $a | Sort-Object -Unique
           $a += 4                  # creates a NEW array
-
-      - title: Fast list building
-        code: |
-          $list = [System.Collections.Generic.List[string]]::new()
-          foreach ($i in 1..10000) { $list.Add("item$i") }
-
-          # or capture pipeline output
-          $results = foreach ($i in 1..10000) { "item$i" }
-        note: "`$array += $item` copies the entire array each time. For anything over a few hundred items use a `List[T]` or capture the loop output."
 
       - title: Hashtables
         code: |
@@ -338,40 +310,6 @@ sections:
 
   - title: Functions
     cards:
-      - title: Advanced function
-        code: |
-          function Get-ServerHealth {
-              [CmdletBinding()]
-              param (
-                  [Parameter(Mandatory,
-                             ValueFromPipeline,
-                             ValueFromPipelineByPropertyName)]
-                  [string[]]$ComputerName,
-
-                  [ValidateRange(1, 60)]
-                  [int]$TimeoutSeconds = 5,
-
-                  [ValidateSet('Basic', 'Full')]
-                  [string]$Level = 'Basic',
-
-                  [switch]$IncludeDisks
-              )
-
-              begin   { $results = @() }
-
-              process {
-                  foreach ($c in $ComputerName) {
-                      Write-Verbose "Checking $c"
-                      $results += [pscustomobject]@{
-                          Computer = $c
-                          Online   = Test-Connection $c -Count 1 -Quiet
-                      }
-                  }
-              }
-
-              end     { $results }
-          }
-
       - title: Parameter validation
         table:
           headers: [Attribute, Effect]
@@ -403,21 +341,6 @@ sections:
               [CmdletBinding()]
               param ([string]$Name)
           }
-
-      - title: SupportsShouldProcess
-        code: |
-          function Remove-OldLog {
-              [CmdletBinding(SupportsShouldProcess,
-                             ConfirmImpact = 'High')]
-              param ([string]$Path)
-
-              if ($PSCmdlet.ShouldProcess($Path, 'Delete')) {
-                  Remove-Item $Path -Force
-              }
-          }
-
-          Remove-OldLog -Path C:\logs\old.log -WhatIf
-        note: This gives your function `-WhatIf` and `-Confirm` for free. Add it to anything destructive.
 
   - title: Files & Paths
     cards:
@@ -545,20 +468,6 @@ sections:
               -Body $body -ContentType 'application/json' `
               -Headers $headers
 
-      - title: Basic auth (ServiceNow Table API)
-        code: |
-          $pair  = "$user`:$pass"
-          $bytes = [Text.Encoding]::ASCII.GetBytes($pair)
-          $b64   = [Convert]::ToBase64String($bytes)
-
-          $headers = @{ Authorization = "Basic $b64" }
-
-          $uri = 'https://dev12345.service-now.com/api/now/table/incident' +
-                 '?sysparm_limit=10&sysparm_query=active=true'
-
-          (Invoke-RestMethod -Uri $uri -Headers $headers).result
-        note: Prefer OAuth over basic auth for anything that outlives a one-off script, and never commit credentials — use `Get-Credential` or a secret store.
-
       - title: JSON and CSV
         code: |
           $obj  | ConvertTo-Json -Depth 10 -Compress
@@ -569,48 +478,6 @@ sections:
 
           Import-Csv .\in.csv -Delimiter ';'
         note: "`ConvertTo-Json` defaults to a depth of 2 and silently truncates nested objects. Set `-Depth` explicitly."
-
-  - title: Remoting
-    cards:
-      - title: Run commands remotely
-        code: |
-          Invoke-Command -ComputerName SRV01, SRV02 -ScriptBlock {
-              Get-Service -Name Spooler
-          }
-
-          Invoke-Command -ComputerName SRV01 -FilePath .\audit.ps1
-
-          Invoke-Command -ComputerName $servers -ScriptBlock {
-              param($name)
-              Get-Service $name
-          } -ArgumentList 'Spooler'
-
-      - title: Persistent sessions
-        code: |
-          $s = New-PSSession -ComputerName SRV01 -Credential (Get-Credential)
-
-          Invoke-Command -Session $s -ScriptBlock { $x = 1 }
-          Invoke-Command -Session $s -ScriptBlock { $x }   # still 1
-
-          Enter-PSSession -Session $s
-          Exit-PSSession
-          Remove-PSSession $s
-
-      - title: Using local variables remotely
-        code: |
-          $path = 'C:\logs'
-
-          Invoke-Command -ComputerName SRV01 -ScriptBlock {
-              Get-ChildItem $using:path
-          }
-        note: The remote scriptblock cannot see local variables. Prefix them with `$using:` or pass them via `-ArgumentList`.
-
-      - title: Setup and troubleshooting
-        code: |
-          Enable-PSRemoting -Force
-          Test-WSMan -ComputerName SRV01
-          Get-Item WSMan:\localhost\Client\TrustedHosts
-          Set-Item WSMan:\localhost\Client\TrustedHosts -Value 'SRV01'
 
   - title: Services, Processes, Registry
     cards:
@@ -679,19 +546,7 @@ sections:
 
           Get-ADPrincipalGroupMembership jdoe | Select-Object Name
 
-      - title: Stale account report
-        code: |
-          $cutoff = (Get-Date).AddDays(-90)
-
-          Get-ADUser -Filter { Enabled -eq $true } `
-                     -Properties LastLogonDate, Department |
-              Where-Object { $_.LastLogonDate -lt $cutoff } |
-              Select-Object Name, SamAccountName, Department, LastLogonDate |
-              Sort-Object LastLogonDate |
-              Export-Csv .\stale-accounts.csv -NoTypeInformation
-        note: Requires the RSAT ActiveDirectory module — `Import-Module ActiveDirectory` or install via `Add-WindowsCapability -Online -Name Rsat.ActiveDirectory*`.
-
-  - title: Modules, Jobs, Scheduling
+  - title: Modules
     cards:
       - title: Modules
         code: |
@@ -704,44 +559,6 @@ sections:
 
           $env:PSModulePath -split ';'
 
-      - title: Background jobs
-        code: |
-          $job = Start-Job -ScriptBlock { Get-ChildItem C:\ -Recurse }
-          Get-Job
-          Receive-Job $job -Wait -AutoRemoveJob
-          Stop-Job $job; Remove-Job $job
-
-          # PowerShell 7 parallel
-          1..100 | ForEach-Object -Parallel {
-              Test-Connection "srv$_" -Count 1 -Quiet
-          } -ThrottleLimit 10
-
-      - title: Scheduled tasks
-        code: |
-          $action  = New-ScheduledTaskAction -Execute 'pwsh.exe' `
-                        -Argument '-File C:\scripts\sync.ps1'
-          $trigger = New-ScheduledTaskTrigger -Daily -At 2am
-
-          Register-ScheduledTask -TaskName 'NightlySync' `
-              -Action $action -Trigger $trigger `
-              -User 'SYSTEM' -RunLevel Highest
-
-          Get-ScheduledTask -TaskName 'NightlySync' | Get-ScheduledTaskInfo
-
-      - title: Credentials
-        code: |
-          $cred = Get-Credential
-
-          # Store for reuse by the SAME user on the SAME machine
-          $cred.Password | ConvertFrom-SecureString | Set-Content .\cred.txt
-          $secure = Get-Content .\cred.txt | ConvertTo-SecureString
-          $cred = [pscredential]::new('corp\svc_acct', $secure)
-
-          # Better: SecretManagement
-          Install-Module Microsoft.PowerShell.SecretStore -Scope CurrentUser
-          Get-Secret -Name ApiToken -AsPlainText
-        note: "`ConvertFrom-SecureString` uses DPAPI, so the file only decrypts for the same user on the same machine. That is a feature, not a bug."
-
   - title: Regex
     cards:
       - title: Matching
@@ -753,15 +570,6 @@ sections:
 
           'a1 b2 c3' -replace '\d', '#'
           [regex]::Matches($text, '\d+') | ForEach-Object { $_.Value }
-
-      - title: Named captures
-        code: |
-          if ($line -match '(?<user>\w+)@(?<domain>[\w.]+)') {
-              $Matches.user
-              $Matches.domain
-          }
-
-          $log -replace '(?<ip>\d+\.\d+\.\d+\.\d+)', 'IP:${ip}'
 
       - title: Common patterns
         table:

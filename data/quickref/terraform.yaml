@@ -1,0 +1,27 @@
+# Authoring guide: docs/quickref-authoring.md
+title: Terraform
+lang: terraform
+icon: fa-cubes
+color: "#7B42BC"
+description: >-
+  The core Terraform workflow — initialise a working directory, preview what will
+  change, then apply it. Growing as I go.
+tags: [terraform, iac, devops]
+
+sections:
+  - title: Core Workflow
+    cards:
+      - title: terraform init
+        code: |
+          terraform init
+        note: Run this first, in the folder holding your `.tf` files. It downloads the providers the configuration needs and creates the `.terraform` directory. Safe to re-run — do so any time you add a provider or module.
+
+      - title: terraform plan
+        code: |
+          terraform plan
+        note: Shows what Terraform *would* do without changing anything. Read the `+` (create), `~` (update) and `-` (destroy) markers before you apply.
+
+      - title: terraform apply
+        code: |
+          terraform apply
+        note: Makes the changes. Prints the same plan first and waits for you to type `yes`, so there is still a chance to back out.

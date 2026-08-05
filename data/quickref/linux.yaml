@@ -87,17 +87,6 @@ sections:
             - ["644", "Owner read+write, others read"]
             - ["600", "Owner only — use for keys"]
 
-      - title: Special bits and ACLs
-        code: |
-          chmod u+s /usr/bin/tool     # setuid
-          chmod g+s /srv/shared       # setgid — inherit group
-          chmod +t /tmp               # sticky — only owner deletes
-
-          getfacl /srv/data
-          setfacl -m u:jdoe:rwx /srv/data
-          setfacl -m d:g:devs:rx /srv/data   # default for new files
-          setfacl -b /srv/data              # remove all ACLs
-
       - title: sudo
         code: |
           sudo -u www-data whoami
@@ -129,15 +118,6 @@ sections:
           sed '/^#/d' config              # delete comment lines
           sed 's|/old/path|/new/path|g' f # alternate delimiter
         note: Always test without `-i` first. `sed -i.bak` keeps a backup so a bad regex is recoverable.
-
-      - title: awk
-        code: |
-          awk '{print $1, $4}' access.log
-          awk -F: '{print $1}' /etc/passwd
-          awk '$3 > 100 {print $1}' data.txt
-          awk '{sum += $2} END {print sum}' data.txt
-          awk 'NR > 1' file.csv               # skip header
-          awk -F, '{a[$2]++} END {for (k in a) print k, a[k]}' data.csv
 
       - title: Cutting and sorting
         code: |
@@ -183,17 +163,6 @@ sections:
           kill -l               # list all signals
         note: Reach for `-TERM` first. `-KILL` gives the process no chance to flush buffers or clean up temp files.
 
-      - title: Background and persistence
-        code: |
-          command &                # background
-          jobs; fg %1; bg %1
-          disown -h %1
-          nohup ./long-job.sh > out.log 2>&1 &
-
-          tmux new -s work
-          tmux attach -t work      # ctrl-b d to detach
-          tmux ls
-
       - title: Resource usage
         code: |
           free -h
@@ -225,40 +194,6 @@ sections:
           journalctl -b -1                   # previous boot
           journalctl --disk-usage
           journalctl --vacuum-time=7d
-
-      - title: Writing a unit
-        lang: ini
-        code: |
-          # /etc/systemd/system/myapp.service
-          [Unit]
-          Description=My Application
-          After=network-online.target
-          Wants=network-online.target
-
-          [Service]
-          Type=simple
-          User=myapp
-          WorkingDirectory=/opt/myapp
-          ExecStart=/opt/myapp/bin/server
-          Restart=on-failure
-          RestartSec=5
-          Environment=NODE_ENV=production
-
-          [Install]
-          WantedBy=multi-user.target
-        note: Run `systemctl daemon-reload` after any unit file change, then `systemctl enable --now myapp`.
-
-      - title: Timers
-        code: |
-          systemctl list-timers --all
-          systemctl status backup.timer
-
-          # /etc/systemd/system/backup.timer
-          # [Timer]
-          # OnCalendar=*-*-* 02:00:00
-          # Persistent=true
-
-          systemd-analyze calendar 'Mon *-*-* 06:00:00'
 
   - title: Networking
     cards:
@@ -295,21 +230,6 @@ sections:
           traceroute example.com
           mtr example.com
 
-      - title: Firewall
-        code: |
-          # firewalld
-          firewall-cmd --list-all
-          firewall-cmd --add-port=8080/tcp --permanent
-          firewall-cmd --reload
-
-          # ufw
-          ufw status verbose
-          ufw allow 22/tcp
-          ufw enable
-
-          # nftables
-          nft list ruleset
-
   - title: Storage
     cards:
       - title: Block devices
@@ -332,25 +252,6 @@ sections:
           # /etc/fstab
           # UUID=xxxx  /mnt/data  ext4  defaults,noatime  0 2
         note: Always use `UUID=` in fstab rather than `/dev/sdX` — device names are not stable across reboots. Test with `mount -a` before rebooting.
-
-      - title: LVM
-        code: |
-          pvs; vgs; lvs
-          pvcreate /dev/sdb1
-          vgextend vg_data /dev/sdb1
-          lvextend -l +100%FREE /dev/vg_data/lv_data
-          resize2fs /dev/vg_data/lv_data     # ext4
-          xfs_growfs /mnt/data               # xfs
-
-      - title: NFS client
-        code: |
-          showmount -e nfs-server
-          mount -t nfs nfs-server:/export /mnt/nfs
-
-          # /etc/fstab
-          # nfs-server:/export /mnt/nfs nfs defaults,_netdev 0 0
-
-          nfsstat -c
 
   - title: Users & Packages
     cards:
@@ -406,28 +307,6 @@ sections:
               User deploy
               IdentityFile ~/.ssh/id_ed25519
               ForwardAgent yes
-
-      - title: Tunnels and jump hosts
-        code: |
-          ssh -J bastion user@internal-host
-
-          ssh -L 8080:localhost:80 user@host      # local forward
-          ssh -R 9000:localhost:3000 user@host    # remote forward
-          ssh -D 1080 user@host                   # SOCKS proxy
-
-          ssh -N -f -L 5432:db:5432 user@bastion  # background tunnel
-
-      - title: Hardening
-        code: |
-          # /etc/ssh/sshd_config
-          PermitRootLogin no
-          PasswordAuthentication no
-          PubkeyAuthentication yes
-          AllowGroups ssh-users
-
-          sshd -t                     # validate before reloading
-          systemctl reload sshd
-        note: Keep your existing session open while testing a new sshd config. Validate with `sshd -t` first.
 
   - title: Bash Scripting
     cards:
@@ -488,18 +367,3 @@ sections:
               echo "Deploying to ${env}"
           }
 
-      - title: Useful idioms
-        code: |
-          command -v jq >/dev/null || { echo 'jq required'; exit 1; }
-
-          tmp=$(mktemp -d)
-          trap 'rm -rf "$tmp"' EXIT
-
-          if output=$(some-cmd 2>&1); then
-              echo "ok"
-          else
-              echo "failed: $output" >&2
-          fi
-
-          printf '%s\n' "${array[@]}"
-        note: Always quote `"${array[@]}"` and `"$var"`. Unquoted expansion word-splits on whitespace and is the source of most bash bugs.

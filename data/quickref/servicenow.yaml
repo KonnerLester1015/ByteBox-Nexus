@@ -6,7 +6,7 @@ icon: fa-diagram-project
 color: "#62D84E"
 description: >-
   Server-side and client-side scripting patterns for the Now Platform — GlideRecord,
-  GlideAggregate, g_form, GlideAjax, REST, and the encoded query syntax you always forget.
+  GlideAggregate, g_form, REST, and the encoded query syntax you always forget.
 tags: [servicenow, javascript, glide, itsm]
 
 sections:
@@ -135,17 +135,6 @@ sections:
           assigned_to=javascript:gs.getUserID()
         note: Build these by filtering a list in the UI, then right-click the breadcrumb and choose **Copy query**.
 
-      - title: Date helpers in queries
-        lang: text
-        code: |
-          javascript:gs.beginningOfToday()
-          javascript:gs.endOfYesterday()
-          javascript:gs.beginningOfLastWeek()
-          javascript:gs.beginningOfThisMonth()
-          javascript:gs.beginningOfLastMonth()
-          javascript:gs.daysAgoStart(7)
-          javascript:gs.daysAgoEnd(30)
-
   - title: Insert, Update, Delete
     cards:
       - title: Insert a record
@@ -189,13 +178,6 @@ sections:
           old.addQuery('sys_created_on', '<', gs.daysAgo(365));
           old.deleteMultiple();
 
-      - title: Suppress side effects
-        code: |
-          gr.setWorkflow(false);      // no business rules / notifications
-          gr.autoSysFields(false);    // preserve sys_updated_on / _by
-          gr.setForceUpdate(true);    // write even if nothing changed
-        note: Use `autoSysFields(false)` sparingly — it makes auditing misleading. Never leave `setWorkflow(false)` on for records users expect to trigger notifications.
-
   - title: GlideAggregate
     cards:
       - title: Count grouped
@@ -220,17 +202,6 @@ sections:
           ga.query();
           var total = ga.next() ? ga.getAggregate('COUNT') : 0;
         note: Far cheaper than `getRowCount()` — the count happens in the database rather than by walking rows.
-
-      - title: Aggregate functions
-        table:
-          headers: [Function, Notes]
-          rows:
-            - ["COUNT", "Row count"]
-            - ["SUM", "Numeric fields only"]
-            - ["AVG", "Numeric average"]
-            - ["MIN / MAX", "Works on dates too"]
-            - ["groupBy(field)", "Group results"]
-            - ["addHaving(fn, f, op, v)", "Filter on the aggregate"]
 
   - title: GlideSystem (gs)
     cards:
@@ -390,57 +361,6 @@ sections:
           - "Do not use jQuery or DOM manipulation; it breaks in Service Portal and Next Experience."
           - "Prefer UI Policies over client scripts for simple show/hide/mandatory logic."
 
-  - title: GlideAjax
-    cards:
-      - title: Client side
-        code: |
-          var ga = new GlideAjax('UserLookupAjax');
-          ga.addParam('sysparm_name', 'getManager');
-          ga.addParam('sysparm_user', g_form.getValue('caller_id'));
-
-          ga.getXMLAnswer(function (answer) {
-              if (answer) {
-                  g_form.setValue('u_manager', answer);
-              }
-          });
-
-      - title: Script Include
-        code: |
-          var UserLookupAjax = Class.create();
-          UserLookupAjax.prototype = Object.extendsObject(
-              global.AbstractAjaxProcessor, {
-
-              getManager: function () {
-                  var id = this.getParameter('sysparm_user');
-                  var gr = new GlideRecord('sys_user');
-                  if (gr.get(id)) {
-                      return gr.getValue('manager');
-                  }
-                  return '';
-              },
-
-              type: 'UserLookupAjax'
-          });
-        note: Tick **Client callable** on the Script Include record, otherwise the call silently returns nothing.
-
-      - title: Returning JSON
-        code: |
-          // Script Include
-          getProfile: function () {
-              var gr = new GlideRecord('sys_user');
-              gr.get(this.getParameter('sysparm_user'));
-              return new global.JSON().encode({
-                  email: gr.getValue('email'),
-                  dept:  gr.getDisplayValue('department')
-              });
-          }
-
-          // Client
-          ga.getXMLAnswer(function (answer) {
-              var data = JSON.parse(answer);
-              g_form.setValue('email', data.email);
-          });
-
   - title: Business Rules
     cards:
       - title: Skeleton
@@ -479,20 +399,6 @@ sections:
           if (current.u_locked == true) {
               gs.addErrorMessage('This record is locked.');
               current.setAbortAction(true);
-          }
-
-      - title: Display rule to scratchpad
-        code: |
-          // Business Rule — When: display
-          (function executeRule(current, previous) {
-              var gr = new GlideRecord('sys_user');
-              gr.get(current.getValue('caller_id'));
-              g_scratchpad.callerVip = gr.getValue('vip') == '1';
-          })(current, previous);
-
-          // Client script
-          if (g_scratchpad.callerVip) {
-              g_form.addInfoMessage('VIP caller');
           }
 
   - title: Script Includes
@@ -536,18 +442,6 @@ sections:
           // usage — no instantiation
           MathUtils.round(3.14159, 2);
 
-      - title: Extending another include
-        code: |
-          var ChildUtils = Class.create();
-          ChildUtils.prototype = Object.extendsObject(ParentUtils, {
-
-              doThing: function () {
-                  return ParentUtils.prototype.doThing.call(this) + '!';
-              },
-
-              type: 'ChildUtils'
-          });
-
   - title: Integrations — REST
     cards:
       - title: Outbound REST call
@@ -583,29 +477,6 @@ sections:
           var resp = r.execute();
         note: Named REST Messages keep credentials and endpoints out of your code and make them updatable without a code change.
 
-      - title: Scripted REST resource
-        code: |
-          (function process(request, response) {
-
-              var id     = request.pathParams.id;
-              var active = request.queryParams.active;
-              var body   = request.body ? request.body.data : {};
-
-              var gr = new GlideRecord('incident');
-              if (!gr.get(id)) {
-                  response.setStatus(404);
-                  response.setBody({ error: 'Not found' });
-                  return;
-              }
-
-              response.setStatus(200);
-              response.setBody({
-                  number: gr.getValue('number'),
-                  state:  gr.getDisplayValue('state')
-              });
-
-          })(request, response);
-
       - title: Table API URLs
         lang: text
         code: |
@@ -619,72 +490,6 @@ sections:
           &sysparm_display_value=true      (or all)
           &sysparm_exclude_reference_link=true
           &sysparm_offset=100
-
-  - title: Flow Designer & Events
-    cards:
-      - title: Call a subflow from script
-        code: |
-          var inputs = { record: current };
-
-          sn_fd.FlowAPI.getRunner()
-              .subflow('global.provision_account')
-              .inBackground()
-              .withInputs(inputs)
-              .run();
-        note: Use `.inForeground()` when you need the outputs back synchronously — it blocks the transaction, so keep the subflow short.
-
-      - title: Fire and consume an event
-        code: |
-          // fire
-          gs.eventQueue('incident.escalated', current,
-                        gs.getUserID(), current.getValue('priority'));
-
-          // Script Action / Notification receives:
-          //   event.parm1, event.parm2, event.instance
-        note: Register the event name in **System Policy > Events > Registry** first, or it will be discarded silently.
-
-  - title: Useful Tables
-    cards:
-      - title: Core task tables
-        table:
-          headers: [Table, Contents]
-          rows:
-            - ["task", "Parent of all task types"]
-            - ["incident", "Incidents"]
-            - ["problem", "Problems"]
-            - ["change_request", "Changes"]
-            - ["sc_request", "Requests (REQ)"]
-            - ["sc_req_item", "Requested items (RITM)"]
-            - ["sc_task", "Catalog tasks (SCTASK)"]
-            - ["sysapproval_approver", "Approval records"]
-
-      - title: Users and access
-        table:
-          headers: [Table, Contents]
-          rows:
-            - ["sys_user", "Users"]
-            - ["sys_user_group", "Groups"]
-            - ["sys_user_grmember", "Group membership"]
-            - ["sys_user_role", "Roles"]
-            - ["sys_user_has_role", "Role assignments"]
-            - ["sys_security_acl", "ACLs"]
-
-      - title: Platform tables
-        table:
-          headers: [Table, Contents]
-          rows:
-            - ["sys_script", "Business rules"]
-            - ["sys_script_include", "Script includes"]
-            - ["sys_script_client", "Client scripts"]
-            - ["sys_ui_policy", "UI policies"]
-            - ["sys_properties", "System properties"]
-            - ["sys_dictionary", "Field definitions"]
-            - ["sys_db_object", "Table definitions"]
-            - ["sys_choice", "Choice list values"]
-            - ["sysauto_script", "Scheduled jobs"]
-            - ["syslog", "Log output"]
-            - ["ecc_queue", "MID Server traffic"]
-            - ["sys_update_xml", "Update set payloads"]
 
   - title: Navigation & Debugging
     cards:
@@ -719,14 +524,6 @@ sections:
           }
           gs.info('Affected rows: ' + count);
         note: Check the scope selector before running anything in **Scripts - Background**. Running in the wrong scope is the fastest way to a bad afternoon.
-
-      - title: Timing a script
-        code: |
-          var start = new GlideDateTime();
-          // ... work ...
-          var end = new GlideDateTime();
-          gs.info('Elapsed: ' +
-              GlideDateTime.subtract(start, end).getDisplayValue());
 
       - title: Common gotchas
         list:
