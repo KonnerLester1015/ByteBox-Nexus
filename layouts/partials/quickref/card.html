@@ -20,7 +20,7 @@
 {{- $cid := printf "qr-%s-c%d-%s" $sectionId (.index | default 0) (anchorize ($card.title | default "card")) -}}
 
 <article
-  class="qr-card"
+  class="qr-card{{ if $card.table }} qr-card-wide{{ end }}"
   data-qr-item
   data-qr-section="{{ $sectionId }}"
 >

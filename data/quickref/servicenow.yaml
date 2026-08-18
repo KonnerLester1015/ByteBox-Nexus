@@ -12,13 +12,27 @@ tags: [servicenow, javascript, glide, itsm]
 sections:
   - title: GlideRecord Basics
     cards:
+      - title: What is a GlideRecord?
+        list:
+          - "Used for database operations instead of writing SQL queries"
+          - "An object containing zero or more records from the same table (ordered list)"
+          - "Contains records (rows) and fields (columns)"
+          - "Executes server-side"
+
+      - title: Strategy for building a query
+        list:
+          - "1. Create a GlideRecord object for the table of interest"
+          - "2. Build the query condition(s) - addQuery()"
+          - "3. Execute the query - query()"
+          - "4. Process returned records with script logic"
+
       - title: Query builder methods
         table:
           headers: [Method, Purpose]
           rows:
             - ["addQuery(f, v)", "AND condition, defaults to `=`"]
             - ["addQuery(f, op, v)", "Explicit operator: `>`, `<=`, `IN`, `LIKE`"]
-            - ["addOrCondition(f, v)", "OR — called on the returned QueryCondition"]
+            - ["addOrCondition(f, v)", "OR - called on the returned QueryCondition"]
             - ["addEncodedQuery(q)", "Paste a query string from the list filter"]
             - ["addNullQuery(f)", "Field is empty"]
             - ["addNotNullQuery(f)", "Field is not empty"]
@@ -26,6 +40,25 @@ sections:
             - ["orderBy(f) / orderByDesc(f)", "Sort ascending / descending"]
             - ["setLimit(n)", "Cap rows returned"]
             - ["chooseWindow(a, b)", "Row-range window (pagination)"]
+
+      - title: Basic query example
+        code: |
+          var myObj = new GlideRecord('change_request');
+          myObj.addQuery('category', '=', 'Hardware');
+          myObj.addQuery('priority', '!=', 1);
+          myObj.query();
+        note: "Each addQuery() call adds a new AND'ed \"where\" clause (not seen by the user). query() executes the select statement and returns zero or more records."
+
+      - title: addOrCondition() - OR logic
+        code: |
+          var myObj = new GlideRecord('change_request');
+          var q1 = myObj.addQuery('category', '=', 'Hardware');
+          q1.addOrCondition('priority', '!=', 1);
+          myObj.query();
+
+          // Equivalent, chained in one line
+          myObj.addQuery('category', '=', 'Hardware').addOrCondition('priority', '!=', 1);
+        note: "Use addQuery() for the first condition, then call addOrCondition() on the returned QueryCondition to OR in a second: select * from change_request where category = 'Hardware' OR priority != 1."
 
   - title: Encoded Queries
     cards:
@@ -72,35 +105,330 @@ sections:
           assigned_to=javascript:gs.getUserID()
         note: Build these by filtering a list in the UI, then right-click the breadcrumb and choose **Copy query**.
 
+      - title: addEncodedQuery() usage
+        code: |
+          glideRecordObject.addEncodedQuery('where clauses');
+
+          myObj.addEncodedQuery('approval=approved^assigned_to=681b365ec0a80164000fb0b05854a0cd^ORassigned_to=sockmonkeysrule86753O9106c6be7f1^end_dateONThisyear@javascript:gs.beginningOfThisYear()@javascript:gs.endOfThisYear()');
+        note: Passes all query "where" clauses as a single argument, building the SQL select statement (not seen by the user) - the best option when you're in a hurry.
+
   - title: Insert, Update, Delete
+    cards:
+      - title: Update
+        code: |
+          var incGR = new GlideRecord('incident');
+          incGR.addQuery('problem_id', '=', current.sys_id);
+          incGR.query();
+
+          while (incGR.next()) {
+            incGR.work_notes = "Related Problem " + current.number + " closed with the following Close Notes:\n\n" + current.close_notes;
+            incGR.update();
+          }
+        note: Use the update() method to save changes to the records in the GlideRecord. If the record does not exist, it is inserted.
 
   - title: GlideAggregate
+    cards:
+      - title: Confirm records returned
+        code: |
+          var myObj = new GlideRecord('incident');
+          myObj.addQuery('caller_id', current.caller_id);
+          myObj.query();
+          var retRows = myObj.getRowCount();
+          gs.info("Returned number of rows = " + retRows);
+
+          var count = new GlideAggregate('incident');
+          count.addQuery('caller_id', current.caller_id);
+          count.addAggregate('COUNT');
+          count.query();
+          var incidents = 0;
+          if (count.next()) {
+            incidents = count.getAggregate('COUNT');
+          }
+          gs.info("Returned number of rows = " + incidents);
+        note: "getRowCount() takes less code but has a larger performance impact. GlideAggregate() takes more code but executes faster."
+
+  - title: GlideQuery
+    cards:
+      - title: An alternative to GlideRecord
+        list:
+          - "Server-side API for querying data"
+          - "Written in 100% JavaScript (global Script Include)"
+          - "Uses GlideRecord behind the scenes"
+        note: "Guided by three principles: **Fail Fast** -improve the feedback loop, surface errors as soon as possible. **Be JavaScript** -behaves like normal JavaScript, unlike GlideRecord's mix of Java and JavaScript elements. **Be Expressive** -do more with less code; fluent, chainable style."
+
+      - title: Create, Retrieve, Update, Delete (CRUD)
+        code: |
+          // Create
+          new GlideQuery('sys_user')
+            .insert({
+              user_name: 'sock.monkey',
+              first_name: 'Sock',
+              last_name: 'Monkey',
+              roles: 'admin'
+            })
+            .get();
+
+          // Retrieve
+          new GlideQuery('sys_user')
+            .where('user_name', 'sock.monkey')
+            .select('sys_id', 'roles')
+            .forEach(function(u) {
+              gs.info('sys_id = ' + u.sys_id + '\n' + 'roles = ' + u.roles);
+            });
+
+          // Update
+          new GlideQuery('sys_user')
+            .where('sys_id', '08a205f48749fd1024d4a71d0ebb35db')
+            .update({
+              roles: 'itil'
+            });
+
+          // Delete
+          new GlideQuery('sys_user')
+            .where('active', true)
+            .where('user_name', 'sock.monkey')
+            .deleteMultiple();
+        note: Chained where() calls are AND'ed together. forEach()/get() are what actually execute the query - comparable to query()/next() in GlideRecord.
 
   - title: GlideSystem (gs)
+    cards:
+      - title: What is gs?
+        list:
+          - "Server-side utility API - available almost everywhere server scripts run (Business Rules, Script Includes, Scheduled Jobs)"
+          - "Provides helpful utilities: logging, current-user info, system properties, date/time, events"
+          - "Not available client-side"
+
+      - title: Common methods
+        table:
+          headers: [Method, Purpose]
+          rows:
+            - ["gs.info/warn/error(msg)", "Write to the system log at that level"]
+            - ["gs.getUserID()", "sys_id of the currently logged-in user"]
+            - ["gs.getUserName()", "user_name of the currently logged-in user"]
+            - ["gs.getUser().getDisplayName()", "Full display name of the current user"]
+            - ["gs.hasRole(role)", "Check if the current user has a role"]
+            - ["gs.getProperty(name, default)", "Read a system property"]
+            - ["gs.nowDateTime()", "Current date/time as a UTC string"]
+            - ["gs.addInfoMessage(msg) / addErrorMessage(msg)", "Queue a message shown on the user's next page load"]
+            - ["gs.eventQueue(name, current, p1, p2)", "Fire an event for an Event Rule/Script Action to catch"]
+
+      - title: Logging pattern
+        code: |
+          gs.info("[MyScriptInclude] Processing record: " + current.number);
+
+          try {
+            // risky work
+          } catch (e) {
+            gs.error("[MyScriptInclude] Failed for " + current.sys_id + ": " + e.message);
+          }
+        note: Prefix log messages with the script's name - makes filtering `syslog_list.do` far easier once several scripts are logging.
 
   - title: GlideDateTime
+    cards:
+      - title: What is GlideDateTime?
+        list:
+          - "Represents a date/time value, stored and compared internally in UTC"
+          - "Converts to/from the current user's timezone for display"
+          - "Use it instead of the JavaScript `Date` object for anything saved to a date/time field"
 
-  - title: Client Scripts — g_form
+      - title: Common methods
+        table:
+          headers: [Method, Purpose]
+          rows:
+            - ["new GlideDateTime()", "Current date/time"]
+            - ["new GlideDateTime('2024-01-01 08:00:00')", "Parse a UTC-formatted string"]
+            - ["addDays(n) / addSeconds(n)", "Date math - also addWeeks(), addMonths()"]
+            - ["getDisplayValue()", "Value formatted in the user's timezone"]
+            - ["getValue()", "Raw UTC string, `yyyy-MM-dd HH:mm:ss`"]
+            - ["before(gdt) / after(gdt)", "Compare against another GlideDateTime"]
+            - ["compareTo(gdt)", "-1 / 0 / 1, like Java's compareTo"]
+
+      - title: Duration between two dates
+        code: |
+          var start = new GlideDateTime(current.opened_at);
+          var end = new GlideDateTime(current.closed_at);
+
+          var duration = GlideDateTime.subtract(start, end);
+          gs.info("Duration: " + duration.getDisplayValue());
+        note: "GlideDateTime.subtract() returns a GlideDuration - use getDisplayValue() for a human-readable `1 Day 02:15:00`, or getNumericValue() for milliseconds."
+
+  - title: Client Scripts - g_form
+    cards:
+      - title: The three script types
+        table:
+          headers: [Type, Runs when]
+          rows:
+            - ["onLoad", "The form finishes loading - good for setting initial field state"]
+            - ["onChange", "A specific field's value changes - receives oldValue/newValue"]
+            - ["onSubmit", "The form is submitted, before save - return `false` to stop the submit"]
+        note: A fourth type, onCellEdit, fires on inline list edits instead of a form.
+
+      - title: Common g_form methods
+        table:
+          headers: [Method, Purpose]
+          rows:
+            - ["g_form.getValue(field)", "Read a field's value"]
+            - ["g_form.setValue(field, value)", "Set a field's value"]
+            - ["g_form.getDisplayValue(field)", "Read a reference field's display value"]
+            - ["g_form.setMandatory(field, bool)", "Toggle mandatory"]
+            - ["g_form.setReadOnly(field, bool)", "Toggle read-only"]
+            - ["g_form.setVisible(field, bool)", "Show/hide a field"]
+            - ["g_form.addInfoMessage(msg) / addErrorMessage(msg)", "Show a message on the form immediately"]
+            - ["g_form.getReference(field, callback)", "Async-fetch the full record behind a reference field"]
+
+      - title: onChange skeleton
+        code: |
+          function onChange(control, oldValue, newValue, isLoading, isTemplate) {
+            if (isLoading || newValue === '') {
+              return;
+            }
+
+            if (newValue === 'critical') {
+              g_form.setMandatory('assignment_group', true);
+              g_form.addInfoMessage('Critical priority requires an assignment group.');
+            }
+          }
+        note: Always guard with `isLoading`/empty-value checks first - onChange fires while the form loads too, not just on user edits.
 
   - title: Business Rules
     cards:
       - title: When to run
         table:
-          headers: [Timing, Use for]
+          headers: [Timing, Runs, Use for]
           rows:
-            - ["before", "Modifying `current` before it is written — no `update()` needed"]
-            - ["after", "Updating *other* records once this one is saved"]
-            - ["async", "Slow work — runs in a scheduled job, no `previous`"]
-            - ["display", "Populating `g_scratchpad` for client scripts"]
-            - ["query", "Injecting row-level security filters"]
+            - ["before query", "Before the DB query executes (sync)", "Restrict/filter what records come back - no ACL-style \"rows removed\" message"]
+            - ["display", "After the query, before the form renders", "Populate `g_scratchpad` so client scripts can read values with no server round-trip"]
+            - ["before", "After submit, before the write (sync)", "Modifying `current` before it is written - no `update()` needed"]
+            - ["after", "After submit *and* after the write (sync)", "Cascading changes to *other* records once this one is saved"]
+            - ["async", "In the background as a scheduled job", "Slow work (notifications, SLA calcs), no `previous` - prefer over `after` when possible; order multiple with `priority`"]
+        note: "Order of execution: before query → display → before → after → async. Before/after/query rules run synchronously - each must finish before the next starts - while async runs independently so the user's transaction isn't held up."
 
-  - title: Script Includes
-
-  - title: Integrations — REST
+  - title: Script Includes 
     cards:
-      - title: Tips
-        list:
-          - "ServiceNow has something called the **REST API Explorer**: it generates sample code for you in JavaScript, Python, cURL, and more. and is an easy way to build query strings and see the response structure."
+      - title: Three types of Script Includes
+        table:
+          headers: [Type, Behavior]
+          rows:
+            - ["Store one classless function", "One re-usable function; server-side only; a.k.a. \"on demand\""]
+            - ["Define a new class", "Collection of functions; callable from client-side scripts; convention is to suffix the name with `Utils` (e.g. `TravelRequestUtils`)"]
+            - ["Extend an existing class", "Adds functionality to an existing class (typically `AbstractAjaxProcessor`); callable from client-side scripts"]
+
+      - title: Classless / on-demand Script Include
+        code: |
+          function hasRoleExactly(userSysID, roleString) {
+            try {
+              var roleGr = new GlideRecord("sys_user_role");
+              if (roleGr.get('name', roleString)) {
+
+                var role = roleGr.getValue('sys_id');
+                var gr = new GlideRecord("sys_user_has_role");
+                gr.addQuery("user", userSysID);
+                gr.addQuery("role", role);
+                gr.query();
+                if (gr.next()) {
+                  return true;
+                } else {
+                  return false;
+                }
+              }
+            } catch (error) {
+              gs.error("Error in Script Include hasRoleExactly: " + error);
+            }
+          }
+        note: Stores a single function and is **server-side only** -not callable from the client, even if "Client callable" is checked. The Script Include's name must be **identical** to the function name.
+
+      - title: Define a new class - global properties
+        code: |
+          var UserProfileUtils = Class.create();
+          UserProfileUtils.prototype = {
+            initialize: function() {
+              this.userRecord = new GlideRecord('sys_user');
+              this.userRecord.get(gs.getUserId());
+            },
+
+            getFullUserName: function() {
+              return this.userRecord.getDisplayValue('name');
+            },
+
+            getUserDept: function() {
+              return this.userRecord.getDisplayValue('department');
+            },
+
+            type: 'UserProfileUtils'
+          };
+        note: Anything set in `initialize()` becomes a **global property** available to every function in the class - declare shared setup (like the current user's record) once instead of repeating it. Convention is to suffix the class name with `Utils`.
+
+      - title: Extend AbstractAjaxProcessor
+        code: |
+          var HelloWorld = Class.create();
+          HelloWorld.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+            alertGreeting: function() {
+              return "Hello " + this.getParameter('sysparm_user_name') + "!";
+            }
+          });
+        note: Extending `AbstractAjaxProcessor` is what makes a class-based Script Include callable from client-side scripts via `GlideAjax`.
+
+      - title: Calling a Script Include client-side - GlideAjax
+        code: |
+          var greeting = new GlideAjax('HelloWorld');
+          greeting.addParam('sysparm_name', 'alertGreeting');
+          greeting.addParam('sysparm_user_name', 'Ruth');
+          greeting.getXML(HelloWorldParse);
+
+          function HelloWorldParse(response) {
+            var answerFromXML = response.responseXML
+              .documentElement.getAttribute("answer");
+            alert(answerFromXML);
+          }
+        note: "Steps: create a `GlideAjax` object for the Script Include of interest → pass parameters (all names begin with `sysparm_`; the reserved `sysparm_name` identifies which **method** to call) → the call is asynchronous, so a callback function processes the returned data. `getXML()` hands back a raw XML response - pull the value out manually with `response.responseXML.documentElement.getAttribute('answer')`."
+
+      - title: Returning JSON from a Script Include
+        code: |
+          var CallerIncidents = Class.create();
+          CallerIncidents.prototype = Object.extendsObject(AbstractAjaxProcessor, {
+
+            getCallersIncs: function() {
+              var incArray = []; //Create an empty array
+
+              var callersRecords = new GlideRecord('incident');
+              callersRecords.addQuery('caller_id', this.getParameter('sysparm_callerID'));
+              callersRecords.query();
+
+              while (callersRecords.next()) {
+                //Build the array of objects
+                var incDetails = {};
+                incDetails.number = callersRecords.number.toString();
+                incDetails.priority = callersRecords.priority.getDisplayValue();
+                incDetails.shortDesc = callersRecords.short_description.toString();
+                incArray.push(incDetails);
+              }
+
+              //Create a string from a JSON object and pass it back to the calling script
+              return JSON.stringify(incArray);
+            },
+
+            type: 'CallerIncidents'
+          });
+        note: "The stringified JSON comes back wrapped in an XML `answer` attribute, e.g. `<xml answer=\"[{...}]\" sysparm_name=\"callerIncidents\" ...></xml>`."
+
+      - title: Parsing a JSON response client-side
+        code: |
+          //Create a GlideAjax object and call the Script Include
+          var incGA = new GlideAjax('CallerIncidents');
+          incGA.addParam('sysparm_name', 'getCallersIncs');
+          incGA.addParam('sysparm_callerID', g_form.getValue('caller_id'));
+          incGA.getXMLAnswer(CallerIncidentsParse);
+
+          function CallerIncidentsParse(response) {
+            //Build an array of objects from the JSON object and take action
+            var myObj = JSON.parse(response);
+            g_form.addInfoMessage('User has raised the following incidents:');
+
+            for (var i = 0; i < myObj.length; i++) {
+              g_form.addInfoMessage(myObj[i].number + ': ' + myObj[i].shortDesc);
+            }
+          }
+        note: "`getXMLAnswer()` auto-extracts the `answer` attribute for you, so the callback can `JSON.parse(response)` directly - no manual `responseXML.documentElement.getAttribute(...)` needed like plain `getXML()`."
 
   - title: Navigation & Debugging
     cards:

@@ -4,7 +4,7 @@ lang: terraform
 icon: fa-cubes
 color: "#7B42BC"
 description: >-
-  The core Terraform workflow — initialise a working directory, preview what will
+  The core Terraform workflow - initialise a working directory, preview what will
   change, then apply it. Growing as I go.
 tags: [terraform, iac, devops]
 
@@ -14,7 +14,7 @@ sections:
       - title: terraform init
         code: |
           terraform init
-        note: Run this first, in the folder holding your `.tf` files. It downloads the providers the configuration needs and creates the `.terraform` directory. Safe to re-run — do so any time you add a provider or module.
+        note: Run this first, in the folder holding your `.tf` files. It downloads the providers the configuration needs and creates the `.terraform` directory. Safe to re-run - do so any time you add a provider or module.
 
       - title: terraform plan
         code: |

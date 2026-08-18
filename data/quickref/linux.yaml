@@ -5,7 +5,7 @@ lang: bash
 icon: fa-linux
 color: "#E8752A"
 description: >-
-  Day-to-day Linux administration — files and permissions, text processing,
+  Day-to-day Linux administration - files and permissions, text processing,
   systemd, networking, storage, and the bash scripting patterns worth memorising.
 tags: [linux, bash, sysadmin, cli]
 
@@ -33,7 +33,7 @@ sections:
           find . -type f -mmin -60          # changed in last hour
 
           find /tmp -type f -mtime +7 -delete
-        note: Use `-exec ... +` instead of `-exec ... \;` — it batches arguments and is far faster on large trees.
+        note: Use `-exec ... +` instead of `-exec ... \;` - it batches arguments and is far faster on large trees.
 
       - title: Disk usage
         code: |
@@ -49,7 +49,7 @@ sections:
           /dev/sda1      ext4    98G   41G    52G  45% /
           tmpfs          tmpfs  3.9G     0   3.9G   0% /dev/shm
           /dev/sdb1      xfs    500G  318G   182G  64% /data
-        note: If `df` and `du` disagree, a process is usually holding a deleted file open — find it with `lsof | grep deleted` and restart the process.
+        note: If `df` and `du` disagree, a process is usually holding a deleted file open - find it with `lsof | grep deleted` and restart the process.
 
       - title: Links and file info
         code: |
@@ -72,20 +72,20 @@ sections:
           chown user:group file
           chown -R www-data: /var/www
           chgrp developers file
-        note: Capital `X` in chmod applies the execute bit to directories and files that already have it — the right choice for recursive fixes.
+        note: Capital `X` in chmod applies the execute bit to directories and files that already have it - the right choice for recursive fixes.
 
       - title: Octal reference
         table:
           headers: [Digit, Permission]
           rows:
-            - ["7", "`rwx` — read + write + execute"]
-            - ["6", "`rw-` — read + write"]
-            - ["5", "`r-x` — read + execute"]
-            - ["4", "`r--` — read only"]
-            - ["0", "`---` — no access"]
+            - ["7", "`rwx` - read + write + execute"]
+            - ["6", "`rw-` - read + write"]
+            - ["5", "`r-x` - read + execute"]
+            - ["4", "`r--` - read only"]
+            - ["0", "`---` - no access"]
             - ["755", "Owner full, others read+execute"]
             - ["644", "Owner read+write, others read"]
-            - ["600", "Owner only — use for keys"]
+            - ["600", "Owner only - use for keys"]
 
       - title: sudo
         code: |
@@ -251,7 +251,7 @@ sections:
 
           # /etc/fstab
           # UUID=xxxx  /mnt/data  ext4  defaults,noatime  0 2
-        note: Always use `UUID=` in fstab rather than `/dev/sdX` — device names are not stable across reboots. Test with `mount -a` before rebooting.
+        note: Always use `UUID=` in fstab rather than `/dev/sdX` - device names are not stable across reboots. Test with `mount -a` before rebooting.
 
   - title: Users & Packages
     cards:
@@ -345,7 +345,7 @@ sections:
           if [[ "$a" == "$b" ]]; then :; fi
           if [[ "$s" =~ ^INC[0-9]+$ ]]; then :; fi
           if (( count > 10 )); then :; fi     # arithmetic
-        note: Prefer `[[ ]]` over `[ ]` in bash — it handles empty variables and regex without the quoting landmines.
+        note: Prefer `[[ ]]` over `[ ]` in bash - it handles empty variables and regex without the quoting landmines.
 
       - title: Loops and functions
         code: |

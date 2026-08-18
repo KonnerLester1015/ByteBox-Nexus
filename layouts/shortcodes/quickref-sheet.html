@@ -17,7 +17,7 @@
 
 {{- $lang := $d.lang | default "text" -}}
 {{- $total := 0 -}}
-{{- range $d.sections }}{{ $total = add $total (len .cards) }}{{ end -}}
+{{- range $d.sections }}{{ $total = add $total (len (.cards | default slice)) }}{{ end -}}
 
 <div class="qr-root qr-sheet" style="--qr-sheet-c: {{ $d.color | default "#3466cb" }};">
   {{ partial "quickref/assets.html" .Page }}
@@ -49,7 +49,7 @@
             <span class="qr-toc-dot" aria-hidden="true"></span>
             <span class="qr-toc-num">{{ printf "%02d" (add $i 1) }}</span>
             <span class="qr-toc-label">{{ $s.title }}</span>
-            <span class="qr-toc-count">{{ len $s.cards }}</span>
+            <span class="qr-toc-count">{{ len ($s.cards | default slice) }}</span>
           </a>
         {{- end }}
       </nav>
@@ -64,7 +64,7 @@
             <h2>{{ $s.title }}</h2>
           </div>
           <div class="qr-grid">
-            {{- range $ci, $c := $s.cards }}
+            {{- range $ci, $c := ($s.cards | default slice) }}
               {{ partial "quickref/card.html" (dict "card" $c "sectionId" $sid "index" $ci "lang" $lang) }}
             {{- end }}
           </div>

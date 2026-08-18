@@ -5,8 +5,152 @@ lang: powershell
 icon: fa-terminal
 color: "#2C6FD1"
 description: >-
-  Everyday PowerShell — the pipeline, objects, filtering, error handling, REST calls,
+  Everyday PowerShell - the pipeline, objects, filtering, error handling, REST calls,
   and the Active Directory cmdlets that make up most Windows automation.
 tags: [powershell, windows, automation, scripting]
 
 sections:
+  - title: Pipeline & Objects
+    cards:
+      - title: The pipeline passes objects, not text
+        list:
+          - "Each cmdlet outputs .NET objects with properties/methods - the next cmdlet in the pipeline receives those objects, not printed text"
+          - "Use `Get-Member` to see what properties and methods an object exposes"
+          - "Filter left, format right - narrow the object set before formatting, since formatting for display makes objects harder to reuse"
+
+      - title: Filter, sort, select, format
+        code: |
+          Get-Process |
+            Where-Object { $_.CPU -gt 50 } |
+            Sort-Object CPU -Descending |
+            Select-Object -First 5 Name, Id, CPU |
+            Format-Table -AutoSize
+        note: "`$_` is the current object in the pipeline. `Select-Object` picks properties (or `-First`/`-Last` N objects); `Format-*` is for display only - never pipe its output into another cmdlet."
+
+      - title: Common comparison & logical operators
+        table:
+          headers: [Operator, Meaning]
+          rows:
+            - ["-eq / -ne", "Equal / not equal"]
+            - ["-gt / -lt", "Greater than / less than"]
+            - ["-ge / -le", "Greater or equal / less or equal"]
+            - ["-like / -notlike", "Wildcard match (`*`, `?`)"]
+            - ["-match / -notmatch", "Regex match"]
+            - ["-contains / -in", "Collection contains value / value in collection"]
+            - ["-and / -or / -not", "Logical operators"]
+        note: Comparison operators are case-insensitive by default; prefix with `c` (e.g. `-ceq`, `-clike`) to force case-sensitive.
+
+      - title: Error handling
+        code: |
+          try {
+            Get-Item -Path 'C:\does-not-exist.txt' -ErrorAction Stop
+          } catch {
+            Write-Warning "Failed: $($_.Exception.Message)"
+          } finally {
+            Write-Host "Done."
+          }
+        note: "`-ErrorAction Stop` turns a non-terminating error into a terminating one so `catch` actually fires - most cmdlets don't throw by default."
+
+  - title: Active Directory Module
+    cards:
+      - title: Import the module
+        code: |
+          Import-Module ActiveDirectory
+        note: Ships with RSAT (Remote Server Administration Tools) - install via `Add-WindowsCapability -Online -Name Rsat.ActiveDirectory.DS-LDS.Tools~~~~0.0.1.0` on a client, or the AD-Domain-Services feature on a DC.
+
+      - title: Find a user
+        code: |
+          Get-ADUser -Identity jdoe -Properties *
+
+          Get-ADUser -Filter "Department -eq 'IT'" -Properties Title, EmailAddress |
+            Select-Object Name, Title, EmailAddress
+        note: "`-Identity` takes a SamAccountName, DN, GUID, or SID. `-Filter` uses PowerShell-style syntax (not LDAP) and needs `-Properties` to return anything beyond the default attribute set."
+
+      - title: Create / modify a user
+        code: |
+          New-ADUser -Name "Jane Doe" -SamAccountName jdoe `
+            -UserPrincipalName jdoe@contoso.com `
+            -Path "OU=Users,OU=Corp,DC=contoso,DC=com" `
+            -AccountPassword (Read-Host -AsSecureString "Password") `
+            -Enabled $true
+
+          Set-ADUser -Identity jdoe -Title "IT Analyst" -Department "IT"
+        note: New accounts are disabled by default unless `-Enabled $true` is passed and a compliant password is supplied.
+
+      - title: Groups & membership
+        code: |
+          Add-ADGroupMember -Identity "IT-Staff" -Members jdoe
+          Remove-ADGroupMember -Identity "IT-Staff" -Members jdoe -Confirm:$false
+
+          Get-ADGroupMember -Identity "IT-Staff" -Recursive |
+            Select-Object Name, SamAccountName
+        note: "`-Recursive` on `Get-ADGroupMember` expands nested groups to their effective member accounts."
+
+      - title: Common filters & lookups
+        table:
+          headers: [Task, Command]
+          rows:
+            - ["Locked-out users", "Search-ADAccount -LockedOut"]
+            - ["Disabled users", "Search-ADAccount -AccountDisabled"]
+            - ["Accounts expiring soon", "Search-ADAccount -AccountExpiring"]
+            - ["Password never expires", "Get-ADUser -Filter 'PasswordNeverExpires -eq $true'"]
+            - ["Computers by OS", "Get-ADComputer -Filter \"OperatingSystem -like '*Server*'\""]
+            - ["Unlock an account", "Unlock-ADAccount -Identity jdoe"]
+            - ["Reset a password", "Set-ADAccountPassword -Identity jdoe -Reset -NewPassword (Read-Host -AsSecureString)"]
+
+      - title: Organizational units
+        code: |
+          Get-ADOrganizationalUnit -Filter 'Name -like "*Sales*"' |
+            Select-Object Name, DistinguishedName
+
+          New-ADOrganizationalUnit -Name "Contractors" -Path "OU=Corp,DC=contoso,DC=com"
+        note: Always double-check `-Path` - it's the parent container's distinguished name, not the new OU's own DN.
+
+  - title: Microsoft Graph & Azure
+    cards:
+      - title: Connect with the Microsoft Graph SDK
+        code: |
+          Install-Module Microsoft.Graph -Scope CurrentUser
+
+          Connect-MgGraph -Scopes "User.Read.All", "Group.ReadWrite.All"
+          Get-MgContext | Select-Object Account, Scopes
+        note: "The Graph PowerShell SDK is the modern, supported replacement for the deprecated AzureAD / MSOnline modules. `Connect-MgGraph` triggers an interactive sign-in unless `-Identity` or a certificate/app credential is supplied."
+
+      - title: Read users & groups via Graph cmdlets
+        code: |
+          Get-MgUser -Filter "startsWith(displayName,'Jane')" -Property DisplayName, Mail, Id
+
+          Get-MgGroupMember -GroupId $groupId |
+            ForEach-Object { Get-MgUser -UserId $_.Id }
+        note: Graph filters use OData syntax (`startsWith`, `eq`, `and`) rather than the AD module's PowerShell-style `-Filter`.
+
+      - title: App-only auth for unattended scripts
+        code: |
+          $cert = Get-ChildItem Cert:\CurrentUser\My\<thumbprint>
+
+          Connect-MgGraph -ClientId $appId -TenantId $tenantId -Certificate $cert
+        note: For scheduled/unattended jobs, register an app in Entra ID, grant it application (not delegated) permissions with admin consent, and authenticate with a client certificate instead of a user login.
+
+      - title: Raw calls with Invoke-MgGraphRequest
+        code: |
+          Invoke-MgGraphRequest -Method GET -Uri "https://graph.microsoft.com/v1.0/me"
+
+          Invoke-MgGraphRequest -Method POST -Uri "https://graph.microsoft.com/v1.0/users" -Body @{
+            accountEnabled    = $true
+            displayName       = "Jane Doe"
+            mailNickname      = "jdoe"
+            userPrincipalName = "jdoe@contoso.com"
+            passwordProfile   = @{ forceChangePasswordNextSignIn = $true; password = "P@ssw0rd1!" }
+          }
+        note: Drop to `Invoke-MgGraphRequest` for endpoints that don't have a dedicated `Mg*` cmdlet yet, or for beta-only Graph API surface.
+
+      - title: Az module - resource management
+        code: |
+          Connect-AzAccount
+          Set-AzContext -Subscription "Contoso Prod"
+
+          Get-AzResourceGroup | Select-Object ResourceGroupName, Location
+
+          Get-AzVM -Status |
+            Select-Object Name, PowerState, ResourceGroupName
+        note: "`Az` (Az.Accounts, Az.Resources, Az.Compute, …) manages Azure infrastructure - VMs, resource groups, storage. It's a separate module family from `Microsoft.Graph`, which manages Entra ID / Microsoft 365 identity data."

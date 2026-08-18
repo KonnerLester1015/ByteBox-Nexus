@@ -10,7 +10,7 @@
   {{- $d := index $store .Params.quickref -}}
   {{- if $d -}}
     {{- $count := 0 -}}
-    {{- range $d.sections }}{{ $count = add $count (len .cards) }}{{ end -}}
+    {{- range $d.sections | default slice }}{{ $count = add $count (len (.cards | default slice)) }}{{ end -}}
     {{- $sheets = $sheets | append (dict "page" . "data" $d "count" $count) -}}
   {{- end -}}
 {{- end -}}

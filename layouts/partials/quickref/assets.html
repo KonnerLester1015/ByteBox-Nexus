@@ -343,6 +343,15 @@ html.dark .qr-sheet { --qr-sheet-ink: color-mix(in srgb, var(--qr-sheet-c, var(-
   align-items: start;
 }
 
+/* Cards built around a table need more width than the base 300px track
+   gives them, or their columns get crushed. Span two tracks wherever two
+   exist; below that the grid is already down to a single column, so
+   spanning would ask for a track that doesn't exist. */
+.qr-card-wide { grid-column: span 2; }
+@media (max-width: 640px) {
+  .qr-card-wide { grid-column: span 1; }
+}
+
 /* ---------- Entrance animation ----------
    Cards and tiles are visible by default so the page still reads with
    JavaScript blocked or broken. The script adds .qr-anim to the root only
@@ -455,7 +464,7 @@ html.dark .qr-copy.qr-copied { color: #4ade80; }
 .qr-copy.qr-copied .qr-copy-i-idle { display: none; }
 .qr-copy.qr-copied .qr-copy-i-done { display: block; }
 
-.qr-card-body { padding: 0; position: relative; }
+.qr-card-body { padding: 0; position: relative; overflow-x: auto; }
 
 /* ---------- Card tabs (Script / Output / Notes) ---------- */
 .qr-tabs {
