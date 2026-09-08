@@ -252,6 +252,17 @@ sections:
           gs.info("Duration: " + duration.getDisplayValue());
         note: "GlideDateTime.subtract() returns a GlideDuration - use getDisplayValue() for a human-readable `1 Day 02:15:00`, or getNumericValue() for milliseconds."
 
+      - title: Check current time against a schedule
+        code: |
+          var schedule = new GlideSchedule("090eecae0a0a0b260077e1dfa71da828");
+          var currentDateTime = new GlideDateTime();
+          if (schedule.isInSchedule(currentDateTime)) {
+              gs.print("The schedule is active.");
+          } else {
+              gs.print("The schedule is not active.");
+          }
+        note: "Pass the sys_id of a cmn_schedule record to GlideSchedule, then use isInSchedule() to check a GlideDateTime against it"
+
   - title: Client Scripts - g_form
     cards:
       - title: The three script types

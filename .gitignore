@@ -4,6 +4,6 @@ resources/
 .hugo_build.lock
 
 # Editor
-docs/
+/docs/
 .vscode/
 .claude/

@@ -11,5 +11,6 @@ Email Scripts are template based scripts executed when notifications are sent fr
 This section documents Email Script patterns and implementations.
 
 {{< cards >}}
+  {{< card link="cc-bcc-in-notifications/" title="CC/BCC in Notifications" icon="mail" >}}
   {{< card link="ritm-approval-history/" title="RITM Approval History" icon="calendar" >}}
 {{< /cards >}}

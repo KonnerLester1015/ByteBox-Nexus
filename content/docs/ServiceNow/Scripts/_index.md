@@ -17,5 +17,6 @@ Scripting is central to ServiceNow customization—from automating business logi
   {{< card link="client-scripts/" title="Client Scripts" icon="terminal" >}}
   {{< card link="email-scripts/" title="Email Scripts" icon="mail" >}}
   {{< card link="background-scripts/" title="Background Scripts" icon="lightning-bolt" >}}
+  {{< card link="script-includes/" title="Script Includes" icon="puzzle" >}}
   {{< card link="question-regular-expressions/" title="Question Regular Expressions" icon="code" >}}
 {{< /cards >}}

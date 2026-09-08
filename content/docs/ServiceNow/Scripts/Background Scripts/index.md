@@ -329,7 +329,7 @@ Ensures a requested date has sufficient lead time based on a specific schedule (
   When enforcing lead times for processes like Change Management or Catalog Requests, it is difficult to accurately calculate if a user has provided enough notice. A simple date subtraction doesn't account for weekends, holidays, or after-hours.
 
   ### The Solution
-  This script uses ServiceNow's `GlideSchedul` API to calculate the exact amount of working time between a start date and an end date based on a specific schedule (e.g., 8 AM - 5 PM). It then checks if that working duration is at least 3 business days (which equals 27 business hours in an 8-5 schedule) and returns a success or failure message.
+  This script uses ServiceNow's `GlideSchedule` API to calculate the exact amount of working time between a start date and an end date based on a specific schedule (e.g., 8 AM - 5 PM). It then checks if that working duration is at least 3 business days (which equals 27 business hours in an 8-5 schedule) and returns a success or failure message.
   {{< /tab >}}
 
   {{< tab name="Script" >}}
@@ -413,5 +413,230 @@ RESULT: ✘ Insufficient lead time. Missing 9.00 business hours.
 
 {{< /tab >}}
 
+
+{{< /tabs >}}
+
+## Find Fields with Duplicate Values
+
+Several ways to find duplicate values in a field, ranging from a no-script UI method to background scripts that look up display names or build a URL straight to the offending records.
+
+### Method 1 - Group By Column (No Script)
+
+For a quick, one-off check with no script required:
+
+1. Navigate to the list view of the table.
+2. Right-click the column header you want to check and select **Group By [column name]**.
+3. Any group with more than one record under it contains a duplicate value.
+
+### Method 2 - Basic Duplicate Check (GlideAggregate)
+
+The simplest script-based approach. `GlideAggregate` groups records by a field, counts how many rows share each value, then filters with `addHaving()` to only keep groups with more than one record.
+
+{{< tabs >}}
+
+  {{< tab name="Usage" >}}
+  ### The Problem
+  Finding duplicate values by eye in a large list is slow, and Group By only shows counts in the UI without an easy way to act on the results in a script.
+
+  ### The Solution
+  This script queries any table/field pair and prints every value that occurs more than once, along with its count. Swap `table` and `field` for whatever you need to check.
+  {{< /tab >}}
+
+  {{< tab name="Script" >}}
+  **Please note the highlighted line(s) for where to change inputs**
+
+  ```javascript {linenos=table,hl_lines=[1,2],linenostart=1,filename="FindDuplicateValues.js"}
+var table = 'alm_asset';
+var field = 'serial_number';
+
+var gaDupCheck = new GlideAggregate(table);
+gaDupCheck.addAggregate('COUNT', field);
+gaDupCheck.addNotNullQuery(field);
+gaDupCheck.groupBy(field);
+gaDupCheck.addHaving('COUNT', '>', 1);
+gaDupCheck.query();
+
+while (gaDupCheck.next()) {
+    gs.print(gaDupCheck.getValue(field) + ': ' + gaDupCheck.getAggregate('COUNT', field));
+}
+```
+  {{< /tab >}}
+
+{{< tab name="Sample Output" >}}
+```text {linenos=table,linenostart=1}
+*** Script: RX7Y2KQP: 2
+*** Script: GT4M9WZL: 3
+```
+Only the raw field value and count are shown — good for quickly spotting *that* a duplicate exists, but not *who* or *what* it belongs to on a reference field.
+{{< /tab >}}
+
+{{< /tabs >}}
+
+### Method 3 - Duplicate Check with Display Name (Reference Fields)
+
+When the duplicated field is a reference (e.g. `approver` pointing to `sys_user`), the raw value returned is a sys_id. This variation looks up each duplicated sys_id against its source table to print a human-readable name instead.
+
+{{< tabs >}}
+
+  {{< tab name="Usage" >}}
+  ### The Problem
+  Running the basic duplicate check against a reference field returns a list of sys_ids, which isn't useful without manually looking each one up.
+
+  ### The Solution
+  After finding duplicated values, this script looks up each one on the referenced table (e.g. `sys_user`) and prints a display field of your choice — such as `name` — instead of the sys_id.
+  {{< /tab >}}
+
+  {{< tab name="Script" >}}
+  **Please note the highlighted line(s) for where to change inputs**
+
+  ```javascript {linenos=table,hl_lines=[1,2,3,4],linenostart=1,filename="FindDuplicateValuesWithName.js"}
+var approvalTable = 'sysapproval_approver';
+var approvalField = 'approver';
+var userTable = 'sys_user';
+var userField = 'sys_id';
+
+var gaDupCheck = new GlideAggregate(approvalTable);
+gaDupCheck.addAggregate('COUNT', approvalField);
+gaDupCheck.addNotNullQuery(approvalField);
+gaDupCheck.groupBy(approvalField);
+gaDupCheck.addHaving('COUNT', '>', 1);
+gaDupCheck.query();
+
+while (gaDupCheck.next()) {
+    var userId = gaDupCheck.getValue(approvalField);
+    var userGR = new GlideRecord(userTable);
+    if (userGR.get(userField, userId)) {
+        var displayName = userGR.getValue('name'); // change 'name' to whatever field you would like to print
+        gs.print(displayName + ': ' + gaDupCheck.getAggregate('COUNT', approvalField));
+    }
+}
+```
+  {{< /tab >}}
+
+{{< tab name="Sample Output" >}}
+```text {linenos=table,linenostart=1}
+*** Script: Jane Smith: 4
+*** Script: John Doe: 2
+```
+Same underlying duplicate check as Method 2, but the extra lookup trades the raw sys_id for a readable name — worth the added query when the duplicated field is a reference.
+{{< /tab >}}
+
+{{< /tabs >}}
+
+### Method 4 - Duplicate Serial Numbers with Generated URL
+
+Once you know a field has duplicates, it's useful to jump straight to those records instead of searching for each value manually. Both variations below build a list URL filtered to just the duplicate values found.
+
+{{< tabs >}}
+
+  {{< tab name="Usage" >}}
+  ### The Problem
+  Knowing *that* duplicates exist still leaves the manual work of pulling up each record to compare and resolve them.
+
+  ### The Solution
+  Two variations, depending on whether you already have a specific list of serial numbers to check, or want to scan the whole table:
+
+  - **Check a specific list** — pass in known serial numbers and confirm which of them are actually duplicated.
+  - **Scan the whole table** — same duplicate logic as Method 2, but collects the results into an array instead of just printing them.
+
+  Both build an `IN` encoded query from the duplicate values and print a ready-to-click list URL.
+  {{< /tab >}}
+
+  {{< tab name="Script" >}}
+  **Check a specific list of serial numbers**
+
+  ```javascript {linenos=table,hl_lines=[2,8],linenostart=1,filename="FindDuplicateSerials_Input.js"}
+// List of serial numbers to check
+var serialNumbersToCheck = [
+    'RX7Y2KQP', 'GT4M9WZL', 'PL2X8YHQ'
+];
+
+var table = 'alm_asset';
+var field = 'serial_number';
+var duplicateSerialNumbers = [];
+
+for (var i = 0; i < serialNumbersToCheck.length; i++) {
+    var serialNumber = serialNumbersToCheck[i];
+
+    var gaDupCheck = new GlideAggregate(table);
+    gaDupCheck.addQuery(field, serialNumber);
+    gaDupCheck.addAggregate('COUNT', field);
+    gaDupCheck.query();
+
+    if (gaDupCheck.next()) {
+        var count = gaDupCheck.getAggregate('COUNT', field);
+        if (count > 1) {
+            duplicateSerialNumbers.push(serialNumber);
+            gs.print(serialNumber + ': ' + count);
+        }
+    }
+}
+
+// Construct the URL with duplicate serial numbers
+if (duplicateSerialNumbers.length > 0) {
+    var baseUrl = 'https://yourinstance.service-now.com/alm_asset_list.do?sysparm_query=';
+    var serialNumberQuery = 'serial_numberIN' + duplicateSerialNumbers.join(',');
+    var fullUrl = baseUrl + encodeURIComponent(serialNumberQuery) + '&sysparm_view=';
+
+    gs.print('URL to view duplicate assets: ' + fullUrl);
+} else {
+    gs.print('No duplicate serial numbers found.');
+}
+```
+
+  **Scan the whole table**
+
+  ```javascript {linenos=table,linenostart=1,filename="FindDuplicateSerials_FullScan.js"}
+var table = 'alm_asset';
+var field = 'serial_number';
+var gaDupCheck = new GlideAggregate(table);
+gaDupCheck.addAggregate('COUNT', field);
+gaDupCheck.addNotNullQuery(field);
+gaDupCheck.groupBy(field);
+gaDupCheck.addHaving('COUNT', '>', 1);
+gaDupCheck.query();
+
+// Array to hold duplicate serial numbers
+var duplicateSerialNumbers = [];
+
+while (gaDupCheck.next()) {
+    var serialNumber = gaDupCheck.getValue(field);
+    duplicateSerialNumbers.push(serialNumber);
+    gs.print(serialNumber + ': ' + gaDupCheck.getAggregate('COUNT', field));
+}
+
+// Construct the URL with duplicate serial numbers
+if (duplicateSerialNumbers.length > 0) {
+    var baseUrl = 'https://yourinstance.service-now.com/alm_asset_list.do?sysparm_query=';
+    var serialNumberQuery = 'serial_numberIN' + duplicateSerialNumbers.join(',');
+    var fullUrl = baseUrl + encodeURIComponent(serialNumberQuery) + '&sysparm_view=';
+
+    gs.print('URL to view duplicate assets: ' + fullUrl);
+} else {
+    gs.print('No duplicate serial numbers found.');
+}
+```
+  {{< /tab >}}
+
+{{< tab name="Sample Output" >}}
+**Check a specific list of serial numbers** — only serials from your input list that are confirmed duplicates are reported:
+
+```text {linenos=table,linenostart=1}
+*** Script: RX7Y2KQP: 2
+*** Script: URL to view duplicate assets: https://yourinstance.service-now.com/alm_asset_list.do?sysparm_query=serial_numberINRX7Y2KQP&sysparm_view=
+```
+
+`GT4M9WZL` and `PL2X8YHQ` were in the input list but turned out not to be duplicated, so they're silently skipped.
+
+**Scan the whole table** — every duplicated serial number in the table is reported, not just ones you already suspected:
+
+```text {linenos=table,linenostart=1}
+*** Script: RX7Y2KQP: 2
+*** Script: GT4M9WZL: 3
+*** Script: URL to view duplicate assets: https://yourinstance.service-now.com/alm_asset_list.do?sysparm_query=serial_numberINRX7Y2KQP,GT4M9WZL&sysparm_view=
+```
+
+This variant catches duplicates you didn't already know to check for, at the cost of scanning the entire table.
+{{< /tab >}}
 
 {{< /tabs >}}
