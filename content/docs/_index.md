@@ -24,4 +24,6 @@ Everything you need to know!
 {{< card link="ceph" title="Ceph Docs" subtitle="Deploy and configure a Ceph storage cluster." icon="server" >}}
 {{< card link="linux" title="Linux" subtitle="Guides and tutorials for various Linux distributions and tools." icon="terminal" >}}
 {{< card link="servicenow" title="ServiceNow" subtitle="Learn to develop and administrate a ServiceNow instance." icon="globe-alt" >}}
+{{< card link="terraform" title="Terraform" subtitle="State management and HCP Terraform workspace guides." icon="cube" >}}
+{{< card link="windows" title="Windows" subtitle="Guides and tutorials for Windows administration and tooling." icon="desktop-computer" >}}
 {{< /cards >}}
