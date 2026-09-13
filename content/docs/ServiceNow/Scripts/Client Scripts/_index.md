@@ -17,4 +17,6 @@ This section covers patterns and examples for Client Scripts.
 
 {{< card link="hide-section/" title="Hide Section" icon="eye-off" >}}
 
+{{< card link="field-uniqueness-validation-via-glideajax/" title="Field Uniqueness Validation via GlideAjax" icon="shield-check" >}}
+
 {{< /cards >}}

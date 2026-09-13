@@ -416,6 +416,336 @@ RESULT: ✘ Insufficient lead time. Missing 9.00 business hours.
 
 {{< /tabs >}}
 
+## Bulk Attachment Deletion (Dry-Run)
+Permanently deletes every attachment on a specific record, with a dry-run flag to preview what would be destroyed before actually running the deletion.
+
+{{< callout type="warning" >}}
+This script **permanently deletes attachments** when `dryRun` is set to `false` — `deleteAttachment()` wipes both the `sys_attachment` metadata record and the underlying binary data in `sys_attachment_doc`, with no soft-delete or recycle bin to recover from. Always run with `dryRun = true` first and confirm `tableName`/`recordSysId` point at the intended record before flipping it to `false`.
+{{< /callout >}}
+
+{{< tabs >}}
+
+  {{< tab name="Usage" >}}
+  ### The Problem
+  Cleaning up attachments on a record (before deleting the record itself, removing sensitive or erroneous files, or as part of a data cleanup effort) is manual and easy to get wrong when done one attachment at a time through the UI, especially against the wrong record.
+
+  ### The Solution
+  This script queries `sys_attachment` for every attachment tied to a given `table_name` and `table_sys_id`, then uses the `GlideSysAttachment` API to destroy each one. A `dryRun` flag controls whether it only prints what it *would* delete, or actually performs the deletion.
+  {{< /tab >}}
+
+  {{< tab name="Script" >}}
+  **Please note the highlighted line(s) for where to change inputs**
+
+  ```javascript {linenos=table,hl_lines=[2,3,7],linenostart=1,filename="Delete Record Attachments.js"}
+// 1. Define the table and record sys_id
+var tableName = ''; // Add target table (e.g incident)
+var recordSysId = ''; // Add record's sys_id
+
+// 2. Set dryRun to true to preview attachments without deleting them.
+//    Set to false to actually perform the permanent deletion.
+var dryRun = true;
+
+// 3. Query the sys_attachment table
+var attGr = new GlideRecord('sys_attachment');
+attGr.addQuery('table_name', tableName);
+attGr.addQuery('table_sys_id', recordSysId);
+attGr.query();
+
+var deleteCount = 0;
+var gsa = new GlideSysAttachment(); // Call the native Attachment API
+
+if (dryRun) {
+    gs.print('--- DRY RUN MODE: No attachments will be deleted ---');
+}
+
+// 4. Loop through and permanently wipe each attachment (or preview if dryRun)
+while (attGr.next()) {
+    var fileName = attGr.getValue('file_name');
+    var attSysId = attGr.getUniqueValue();
+
+    if (dryRun) {
+        gs.print('Would permanently destroy: ' + fileName + ' (' + attSysId + ')');
+    } else {
+        // deleteAttachment() permanently destroys the sys_attachment record 
+        // AND instantly wipes the binary data chunks in sys_attachment_doc
+        gsa.deleteAttachment(attSysId);
+        gs.print('Permanently destroyed: ' + fileName + ' (' + attSysId + ')');
+    }
+
+    deleteCount++;
+}
+
+if (dryRun) {
+    gs.print('Total attachments that WOULD BE wiped from ' + tableName + ' (' + recordSysId + '): ' + deleteCount);
+} else {
+    gs.print('Total attachments permanently wiped from ' + tableName + ' (' + recordSysId + '): ' + deleteCount);
+}
+```
+  {{< /tab >}}
+
+{{< /tabs >}}
+
+## Generic Table-Field Dumper
+Quickly query any table/field combination and format the output as tab-delimited (paste into Excel/Sheets) or comma-delimited quoted values, with no CSV export needed.
+
+{{< tabs >}}
+
+  {{< tab name="Usage" >}}
+  ### The Problem
+  Pulling a quick list of field values off a table for a spreadsheet or a one-off `IN` query usually means exporting a list to CSV or copy-pasting from a list view, which is slower than just running a script when you already know the table, field, and filter you want.
+
+  ### The Solution
+  This script queries any `tableName`/`fieldNames` pair against an `encodedQuery`, then prints the results twice: once as tab-delimited rows (paste straight into a spreadsheet), and once as quoted, comma-separated values (handy for building an `IN` clause). `useDisplayValues` toggles between human-readable and raw backend values, and `rowLimit` optionally caps how many rows are returned.
+  {{< /tab >}}
+
+  {{< tab name="Script" >}}
+  **Please note the highlighted line(s) for where to change inputs**
+
+  ```javascript {linenos=table,hl_lines=[7,8,9,10,11],linenostart=1,filename="Query Value Dumper.js"}
+// ============================================
+// Generic Table/Field/Query Value Dumper
+// Outputs field values for easy copy-paste (no CSV export needed)
+// ============================================
+
+// ---- CONFIG ----
+var tableName   = 'sc_req_item';                 // table to query
+var fieldNames  = ['number'];                     // fields to pull (dot-walk supported, e.g. 'assigned_to.name')
+var encodedQuery = 'active=true^stage=complete';  // your encoded query
+var useDisplayValues = true;                      // true = human-readable values, false = raw backend values
+var rowLimit = 0;                                 // 0 = no limit, otherwise caps results
+
+// ---- QUERY ----
+var gr = new GlideRecord(tableName);
+gr.addEncodedQuery(encodedQuery);
+gr.query();
+
+var rows = [];
+var count = 0;
+
+while (gr.next()) {
+    if (rowLimit > 0 && count >= rowLimit) break;
+
+    var rowValues = [];
+    for (var i = 0; i < fieldNames.length; i++) {
+        var field = fieldNames[i];
+        var val = useDisplayValues ? gr.getDisplayValue(field) : gr.getValue(field);
+        rowValues.push(val === null || val === undefined ? '' : val.toString());
+    }
+    rows.push(rowValues);
+    count++;
+}
+
+// Helper to safely quote a value (escapes any embedded double quotes)
+function quoteValue(val) {
+    return '"' + val.replace(/"/g, '""') + '"';
+}
+
+// ============================================
+// Output
+// ============================================
+gs.print('=== ' + tableName + ' | ' + count + ' record(s) | Query: ' + encodedQuery + ' ===');
+gs.print('');
+
+// Header row
+gs.print(fieldNames.join('\t'));
+
+// Tab-delimited rows (paste directly into Excel/Sheets)
+for (var r = 0; r < rows.length; r++) {
+    gs.print(rows[r].join('\t'));
+}
+
+gs.print('');
+gs.print('--- Quoted Value Version ---');
+
+if (fieldNames.length === 1) {
+    // Single field: list one value per line, trailing comma on all but the last
+    for (var r1 = 0; r1 < rows.length; r1++) {
+        var line = quoteValue(rows[r1][0]);
+        if (r1 < rows.length - 1) {
+            line += ',';
+        }
+        gs.print(line);
+    }
+} else {
+    // Multiple fields: header + comma-separated row per line
+    gs.print(fieldNames.map(quoteValue).join(', '));
+    for (var r2 = 0; r2 < rows.length; r2++) {
+        var quotedRow = rows[r2].map(quoteValue);
+        gs.print(quotedRow.join(', '));
+    }
+}
+```
+  {{< /tab >}}
+
+  {{< tab name="Sample Output" >}}
+  ```text {filename="Output"}
+=== sc_req_item | 2 record(s) | Query: active=true^stage=complete ===
+
+number
+RITM0067965
+RITM0072770
+
+--- Quoted Value Version ---
+"RITM0067965",
+"RITM0072770"
+```
+  {{< /tab >}}
+
+{{< /tabs >}}
+
+## Audit Assets Missing CI or Multiple Contracts
+Two related HAM (Hardware Asset Management) data-integrity checks: one flags serial numbers that don't have a matching record on both the Asset and CI tables, the other flags assets linked to more than one contract.
+
+{{< tabs >}}
+
+  {{< tab name="Asset-CI Exists Check" >}}
+  **Please note the highlighted line(s) for where to change inputs**
+
+  ```javascript {linenos=table,hl_lines=[21,22,23,24],linenostart=1,filename="Asset-CI exists check.js"}
+/**
+ * Script Name: Asset-CI Exists Check
+ * Description: Validates that serial numbers exist in both the Hardware Asset table and Computer CI table.
+ * 
+ * Usage: Background script to audit asset and CI records for consistency.
+ * 
+ * Example Output:
+ * *** Script: Starting validation for 18 serial numbers...
+    *** Script: === VALIDATION SUMMARY ===
+    *** Script: 
+    ❌ MISSING BOTH (No Asset and No CI) [1]:
+    *** Script: --------------------------------------------------
+    *** Script: JGJFNSGJU3
+ * 
+ * Author: Konner Lester
+ * Date Created: 6/1/2026
+ */
+
+(function() {
+    // Paste a raw, line-separated list of serials inside the template literal
+	var rawSerials = `
+	MXL8htfg4h
+	MXLghvbtyi
+	MXL634dfg5
+	`;
+
+	// This splits the block line-by-line into a clean array automatically
+	var serialsToCheck = rawSerials.split('\n');
+
+    var missingAssets = [];
+    var missingCIs = [];
+    var missingBoth = [];
+    
+    gs.print("Starting validation for " + serialsToCheck.length + " serial numbers...\n");
+
+    for (var i = 0; i < serialsToCheck.length; i++) {
+        // Clean up the string to ensure a reliable query
+        var serial = serialsToCheck[i].trim();
+        if (!serial) continue;
+
+        var hasAsset = false;
+        var hasCI = false;
+
+        // Check Hardware Asset Table
+        var assetGR = new GlideRecord('alm_hardware');
+        assetGR.addQuery('serial_number', serial);
+        assetGR.setLimit(1); // Efficiency: stop looking after finding one
+        assetGR.query();
+        if (assetGR.next()) {
+            hasAsset = true;
+        }
+
+        // Check Computer CI Table
+        var ciGR = new GlideRecord('cmdb_ci_computer');
+        ciGR.addQuery('serial_number', serial);
+        ciGR.setLimit(1);
+        ciGR.query();
+        if (ciGR.next()) {
+            hasCI = true;
+        }
+
+        // Categorize results
+        if (!hasAsset && !hasCI) {
+            missingBoth.push(serial);
+        } else if (!hasAsset) {
+            missingAssets.push(serial);
+        } else if (!hasCI) {
+            missingCIs.push(serial);
+        }
+    }
+
+    // 2. Output the Results
+    gs.print("=== VALIDATION SUMMARY ===");
+    
+    if (missingBoth.length === 0 && missingAssets.length === 0 && missingCIs.length === 0) {
+        gs.print("SUCCESS: All serial numbers have matching Assets AND CIs!");
+        return;
+    }
+
+    if (missingBoth.length > 0) {
+        gs.print("\n❌ MISSING BOTH (No Asset and No CI) [" + missingBoth.length + "]:");
+        gs.print("--------------------------------------------------");
+        gs.print(missingBoth.join("\n"));
+    }
+
+    if (missingAssets.length > 0) {
+        gs.print("\n⚠️ MISSING ASSET RECORD ONLY (CI Exists) [" + missingAssets.length + "]:");
+        gs.print("--------------------------------------------------");
+        gs.print(missingAssets.join("\n"));
+    }
+
+    if (missingCIs.length > 0) {
+        gs.print("\n⚠️ MISSING CI RECORD ONLY (Asset Exists) [" + missingCIs.length + "]:");
+        gs.print("--------------------------------------------------");
+        gs.print(missingCIs.join("\n"));
+    }
+
+})();
+```
+  {{< /tab >}}
+
+  {{< tab name="Identify Assets With More Than One Contract" >}}
+
+  ```javascript {linenos=table,linenostart=1,filename="Identify Assets With More Than One Contract.js"}
+/**
+ * Script Name: Identify Duplicate Asset-Lease M2M Records
+ * Description: Identifies assets linked to more than one contract record on the 'clm_m2m_contract_asset' table. It groups by the unique asset reference (sys_id) and counts occurrences to find data integrity issues or overlapping lease assignments.
+ * 
+ * Usage: This script is utilized within the ServiceNow instance in Background Scripts. 
+ * 
+ * Context: Manual execution as a check for HAM cleanup. Used to verify that there are no redundant relationship records.
+ * Author: Konner Lester
+ * Date Created: 2026-01-06
+ * Last Modified: 2026-01-06
+ * 
+ * Note: Uses GlideAggregate for optimized performance. Results should be reviewed manually before any mass-deletion of duplicate M2M records.
+ */
+
+// Initialize GlideAggregate on the M2M table
+var m2mGa = new GlideAggregate('clm_m2m_contract_asset');
+m2mGa.addAggregate('COUNT', 'asset');
+m2mGa.groupBy('asset');
+
+// Only return assets that are associated with more than 1 contract record
+m2mGa.addHaving('COUNT', '>', 1); 
+m2mGa.query();
+
+gs.print('--- Duplicate Lease Associations Found ---');
+
+while (m2mGa.next()) {
+    var count = m2mGa.getAggregate('COUNT', 'asset');
+    var assetID = m2mGa.asset; // This is the sys_id of the asset
+
+    // Get the Serial Number and Model from the actual Asset record
+    var assetGr = new GlideRecord('alm_asset');
+    if (assetGr.get(assetID)) {
+        gs.print('Serial: ' + assetGr.serial_number + ' | Model: ' + assetGr.model.getDisplayValue() + ' | Count: ' + count);
+    }
+}
+```
+  {{< /tab >}}
+
+{{< /tabs >}}
+
 ## Find Fields with Duplicate Values
 
 Several ways to find duplicate values in a field, ranging from a no-script UI method to background scripts that look up display names or build a URL straight to the offending records.

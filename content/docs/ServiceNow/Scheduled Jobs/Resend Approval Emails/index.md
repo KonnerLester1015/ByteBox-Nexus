@@ -8,6 +8,8 @@ In ServiceNow, approval workflows are critical for ensuring that requests and ch
 
 This guide outlines how to create a **Scheduled Script Execution** record in ServiceNow that runs daily, checks for 'requested' approvals older than 7 days, and resends the appropriate email notifications.
 
+A companion **UI Action** lets a user manually re-fire the same approval-inserted event for a single record on demand, instead of waiting for the scheduled job's next run.
+
 ## 1. Problem Statement
 
 Approvers occasionally miss or accidentally delete the original approval notification email. This can result in outstanding approvals remaining unaddressed, causing bottlenecks in workflows and delayed service delivery.
@@ -71,7 +73,51 @@ while (record.next()) {
 }
 ```
 
-### 3 Verification
+## 3. Manual Resend (UI Action)
+
+For a one-off resend on a single record, without waiting for the scheduled job to run, a UI Action button fires the same event queue call directly from the record.
+
+{{< tabs >}}
+
+  {{< tab name="Manual Resend (UI Action)" >}}
+
+```javascript {linenos=table,linenostart=1,filename="Resend Approval Email.js"}
+/**
+ * Script Name: Resend Approval Email
+ * Description: This UI Action script resends the approval email for the current record. 
+ *              It triggers the appropriate approval event for either Change Requests or other tables and displays a confirmation message to the user.
+ * 
+ * Usage: This script is utilized as a UI Action on records where approval emails may need to be resent, such as Change Requests or other approval-based tables.
+ *      Example record:
+ *         Name: Resend Approval Email
+ *         Table: sys_ui_action
+ * 
+ * Context: Triggered when the user clicks the "Resend Approval Email" UI Action button. 
+ *          Sends the approval event and redirects the user to the current record.
+ * 
+ * Author: Konner Lester
+ * Date Created: 05/26/2023
+ * Last Modified: 06/10/2025
+ * 
+ */
+
+if (current.source_table == "change_request"){
+    gs.eventQueue("change_request.approval.inserted", current, gs.getUserID(), gs.getUserName());
+    gs.addInfoMessage("Approval email resent.");
+    action.setRedirectURL(current);
+}
+else{
+    gs.eventQueue("approval.inserted", current, gs.getUserID(), gs.getUserName());
+    gs.addInfoMessage("Approval email resent.");
+    action.setRedirectURL(current);
+}
+```
+
+{{< /tab >}}
+
+{{< /tabs >}}
+
+### 4 Verification
 
 After implementing the scheduled job:
 

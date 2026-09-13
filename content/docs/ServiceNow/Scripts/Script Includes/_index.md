@@ -14,4 +14,6 @@ This section covers patterns and examples for Script Includes.
 
 {{< card link="list-collector-show-group-members-only/" title="List Collector Show Group Members Only" icon="users" >}}
 
+{{< card link="abstractajaxprocessor-existing-request-check/" title="AbstractAjaxProcessor Existing-Request Check" icon="clock" >}}
+
 {{< /cards >}}

@@ -15,4 +15,8 @@ Business Rules are server-side scripts that execute when a record is inserted, u
 
 {{< card link="sync-comments-between-sctask-and-ritm/" title="Sync Comments Between SCTASK and RITM" icon="switch-horizontal" >}}
 
+{{< card link="autofill-description-from-template/" title="Autofill Description from Template" icon="document-text" >}}
+
+{{< card link="auto-approve-via-delegate-or-duplicate/" title="Auto-Approve via Delegate or Duplicate" icon="check-circle" >}}
+
 {{< /cards >}}
