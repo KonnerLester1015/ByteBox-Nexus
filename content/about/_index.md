@@ -10,10 +10,10 @@ type: blog # used to hide the sidebar
   <div class="intro-text">
     <h2>Welcome! 👋</h2>
     <p>
-      I'm <strong>Konner Lester</strong>, an undergraduate student at Purdue University majoring in <a href="https://polytechnic.purdue.edu/degrees/computing-infrastructure-and-network-engineering-technology" target="_blank">Computing Infrastructure and Network Engineering Technology</a>. I'm passionate about building scalable systems, automating workflows, and creating efficient IT solutions.
+      I'm <strong>Konner Lester</strong>, a Purdue University graduate with a degree in <a href="https://polytechnic.purdue.edu/degrees/computing-infrastructure-and-network-engineering-technology" target="_blank">Computing Infrastructure and Network Engineering Technology</a>. I'm passionate about building scalable systems, automating workflows, and creating efficient IT solutions.
     </p>
     <p>
-      My journey combines hands-on experience from industry internships with academic rigor, giving me a unique perspective on both theoretical foundations and real-world applications. Whether it's designing ServiceNow integrations, managing high-performance computing infrastructure, or architecting homelab environments, I'm driven by the challenge of solving complex technical problems.
+      I currently work as a <strong>System Administrator</strong>, where I'm passionate about leveraging technology to solve complex enterprise problems. Whether it's designing ServiceNow integrations, managing high-performance computing infrastructure, or architecting homelab environments, I'm driven by the challenge of solving complex technical problems.
     </p>
   </div>
 </div>
