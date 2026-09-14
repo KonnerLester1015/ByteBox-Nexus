@@ -87,7 +87,27 @@ menu:
       weight: 2
 
 params:
-  description: "Welcome to my personal website! I'm Konner Lester, a student and tech enthusiast. Here, you'll find my projects, blog posts, technologies I have worked with, and more about me. Feel free to explore and connect with me!"
+  analytics:
+    umami:
+      serverURL: "https://cloud.umami.is"
+      websiteID: "1d29efcc-027e-49a0-abe2-31ed3d8dba64"
+      # scriptName: "script.js" # optional (default: script.js)
+      # https://umami.is/docs/tracker-configuration#data-host-url
+      # hostURL: "http://stats.example.org" # optional
+      # https://umami.is/docs/tracker-configuration#data-auto-track
+      # autoTrack: "false" # optional
+      # https://umami.is/docs/tracker-configuration#data-tag
+      # domains: "example.net,example.org" # optional
+      # https://umami.is/docs/tracker-configuration#data-exclude-search
+      # tag: "umami-eu" # optional
+      # https://umami.is/docs/tracker-configuration#data-exclude-hash
+      # excludeSearch: "true" # optional
+      # https://umami.is/docs/tracker-configuration#data-do-not-track
+      # excludeHash: "true" # optional
+      # https://umami.is/docs/tracker-configuration#data-domains
+      # doNotTrack: "true" # optional
+  
+  description: "Welcome to my personal website! I'm Konner Lester. Here, you'll find my projects, blog posts, technologies I have worked with, and more about me. Feel free to explore and connect with me!"
 
   externalLinkDecoration: true
 
