@@ -9,6 +9,7 @@ This section collects guides, how-tos, and reference material for administering 
 
 {{< cards >}}
   {{< card link="iis/" title="IIS Configuration" icon="globe-alt" >}}
+  {{< card link="identifying-dfs-target-paths" title="Identifying DFS Target Paths" icon="folder" >}}
   <!-- {{< card link="powershell/" title="PowerShell & Scripting" icon="terminal" >}}
   {{< card link="active-directory/" title="Active Directory" icon="users" >}}
   {{< card link="troubleshooting/" title="Troubleshooting" icon="exclamation-circle" >}} -->
