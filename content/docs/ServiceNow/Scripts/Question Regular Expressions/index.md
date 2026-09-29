@@ -178,6 +178,38 @@ Validates 10-digit US phone numbers with optional country code and common separa
 
 {{< /tabs >}}
 
+## Phone Number Validation (International)
+
+Validates international phone numbers with a required plus sign and country code.
+
+{{< tabs >}}
+
+  {{< tab name="Regex" >}}
+  **Regex**
+  ```text {linenos=table,linenostart=1,filename="InternationalPhoneNumber.regex"}
+^\+(?=(?:\D*\d){7,15}\D*$)[1-9][\d\s().-]*$
+```
+
+  **Explanation**
+  Requires a leading plus sign and country code, allows common separators, and limits the number to 7-15 digits.
+
+  **Validation Message**
+  Enter number with + and country code, e.g. +1 555 123 4567
+  {{< /tab >}}
+
+  {{< tab name="Sample Values" >}}
+  **Valid**
+  - +1 555 123 4567
+  - +44 20 7946 0958
+
+  **Invalid**
+  - 5551234567
+  - +1 555
+  - +0 555 123 4567
+  {{< /tab >}}
+
+{{< /tabs >}}
+
 ## Server Name Validation
 
 Enforces server naming with only letters, numbers, and hyphens. No leading or trailing hyphens.
