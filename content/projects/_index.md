@@ -6,7 +6,7 @@ sidebar:
 ---
 <div class="hx-mt-4"></div>
 
-### Technical Projects {{< icon "fa-compass-drafting" >}}
+### Technical Projects {{< icon "fa-compass-code" >}}
 
 {{< cards >}}
 
@@ -62,17 +62,16 @@ sidebar:
 
 ---
 
-### Creative Projects {{< icon "fa-dice" >}}
+### Creative Projects {{< icon "fa-palette" >}}
 
 {{< cards >}}
 
 {{< card
-     link="https://konnerlester1015.github.io/R6GeoGuessr/"
+     link="r6-geoguessr"
      title="R6 GeoGuessr"
      subtitle="A tactical web based guessing game where players identify Rainbow Six Siege maps based on floor plan blueprints."
      image="/R6GeoGuesser.png"
      imageStyle="object-fit:cover; aspect-ratio:16/9;"
-     target="_blank"
 >}}
 
 {{< /cards >}}
