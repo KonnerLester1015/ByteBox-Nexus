@@ -6,7 +6,7 @@ sidebar:
 ---
 <div class="hx-mt-4"></div>
 
-### Technical Projects {{< icon "fa-compass-code" >}}
+### Technical Projects {{< icon "fa-code" >}}
 
 {{< cards >}}
 
