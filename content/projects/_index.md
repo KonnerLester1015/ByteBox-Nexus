@@ -66,6 +66,14 @@ sidebar:
 
 {{< cards >}}
 
+   {{< card
+        link="detour"
+        title="Detour - playdetour.com"
+        subtitle="A small arcade of polished browser games with daily puzzles and online rooms, built with no accounts."
+        image="/detour-landing.png"
+        imageStyle="object-fit:cover; aspect-ratio:16/9;"
+   >}}
+
 {{< card
      link="r6-geoguessr"
      title="R6 GeoGuessr"
