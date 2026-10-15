@@ -641,6 +641,7 @@
 {{ $badgeClaude := .Page.Resources.GetMatch "claude-logo.jpg" }}
 {{ $badgeGitHubFoundations := .Page.Resources.GetMatch "gitHub-foundations-badge.png" }}
 {{ $badgeAzureFundamentals := .Page.Resources.GetMatch "microsoft-certified-fundamentals-badge.svg" }}
+{{ $badgeKubernetsAdmin := .Page.Resources.GetMatch "kubernetes-admin.png" }}
 
 {{ $badgeCsaUrl := "" }}{{ with $badgeCsa }}{{ $badgeCsaUrl = .RelPermalink }}{{ end }}
 {{ $badgeAwsUrl := "" }}{{ with $badgeAws }}{{ $badgeAwsUrl = .RelPermalink }}{{ end }}
@@ -658,6 +659,7 @@
 {{ $badgeGoogleSupportUrl := "" }}{{ with $badgeGoogleSupport }}{{ $badgeGoogleSupportUrl = .RelPermalink }}{{ end }}
 {{ $badgeGitHubFoundationsUrl := "" }}{{ with $badgeGitHubFoundations }}{{ $badgeGitHubFoundationsUrl = .RelPermalink }}{{ end }}
 {{ $badgeAzureFundamentalsUrl := "" }}{{ with $badgeAzureFundamentals }}{{ $badgeAzureFundamentalsUrl = .RelPermalink }}{{ end }}
+{{ $badgeKubernetsAdminUrl := "" }}{{ with $badgeKubernetsAdmin }}{{ $badgeKubernetsAdminUrl = .RelPermalink }}{{ end }}
 
 {{ $certs := slice
   (dict "id" "cert-csa" "title" "ServiceNow Certified System Administrator" "org" "ServiceNow" "tier" "cert" "tierLabel" "Certification" "tagLabel" "Certification"
@@ -889,6 +891,24 @@
         </div>
         <div class="planned-card-description">
           Demonstrate foundational knowledge of cloud concepts, core Azure services, plus Azure management and governance features and tools.
+        </div>
+      </div>
+
+      <div class="planned-card">
+        <div class="planned-card-top">
+          {{ if $badgeKubernetsAdminUrl }}
+          <img class="planned-card-badge" src="{{ $badgeKubernetsAdminUrl }}" alt="Certified Kubernetes Administrator (CKA)">
+          {{ else }}
+          <div class="planned-card-badge fallback">CKA</div>
+          {{ end }}
+          <div>
+            <div class="planned-card-title">Certified Kubernetes Administrator (CKA)</div>
+            <div class="planned-card-org">Cloud Native Computing Foundation</div>
+          </div>
+          <span class="planned-card-pill">Planned</span>
+        </div>
+        <div class="planned-card-description">
+          Validate practical skills in Kubernetes cluster architecture, installation and configuration, workloads and scheduling, networking, storage, and troubleshooting.
         </div>
       </div>
     </div>
