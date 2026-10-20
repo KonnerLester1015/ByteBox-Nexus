@@ -1,0 +1,276 @@
+# Authoring guide: docs/quickref-authoring.md
+title: Exchange PowerShell
+kicker: Messaging Cheat Sheet
+lang: powershell
+icon: fa-envelope
+color: "#147EB3"
+description: >-
+  Copy-ready Exchange PowerShell commands for connecting to Exchange Online or on-premises Exchange,
+  checking mailbox and database health, and investigating mail flow.
+tags: [exchange, powershell, windows, messaging]
+
+sections:
+  - title: Connect to Exchange Online
+    cards:
+      - title: Install the Exchange Online module
+        code: |
+          Install-Module ExchangeOnlineManagement -Scope CurrentUser
+          Import-Module ExchangeOnlineManagement
+        output: |
+          PackageManagement\\Install-Package : Module ExchangeOnlineManagement was installed successfully.
+        note: Install the module once on the workstation. Use an account with permission to administer Exchange Online, and follow your organization's PowerShell execution and sign-in policies.
+
+      - title: Connect with an interactive sign-in
+        code: |
+          Connect-ExchangeOnline -UserPrincipalName admin@contoso.com
+        output: |
+          Account                         DelegatedOrganization ConnectionId
+          -------                         --------------------- ------------
+          admin@contoso.com                                     2b7f...
+        note: "`Connect-ExchangeOnline` uses modern authentication and supports MFA. The `-UserPrincipalName` value selects the account; the interactive sign-in window handles the password and MFA challenge."
+
+      - title: Verify the Exchange Online connection
+        code: |
+          Get-ConnectionInformation |
+            Format-Table UserPrincipalName, ConnectionUri, State, TokenStatus
+        output: |
+          UserPrincipalName   ConnectionUri                              State    TokenStatus
+          ------------------  -------------                              -----    -----------
+          admin@contoso.com   https://outlook.office365.com/PowerShell-LiveID/ Open    Valid
+
+      - title: Connect using a certificate-based app
+        code: |
+          Connect-ExchangeOnline `
+            -AppId $AppId `
+            -Organization contoso.onmicrosoft.com `
+            -CertificateThumbprint $CertificateThumbprint
+        output: |
+          Connection established using app-only authentication.
+        note: Use app-only authentication for unattended automation. Register the application, grant the required Exchange application permissions, upload the certificate, and assign the appropriate Exchange role group before running this command.
+
+      - title: Disconnect from Exchange Online
+        code: |
+          Disconnect-ExchangeOnline -Confirm:$false
+        note: Disconnect at the end of scripts and interactive sessions. This removes the remote session and imported Exchange Online cmdlets from the current PowerShell process.
+
+  - title: Exchange Online Essentials
+    cards:
+      - title: Find cloud mailboxes
+        code: |
+          Get-EXOMailbox -ResultSize 10 |
+            Select-Object DisplayName, UserPrincipalName, PrimarySmtpAddress, RecipientTypeDetails |
+            Format-Table -AutoSize
+        output: |
+          DisplayName       UserPrincipalName      PrimarySmtpAddress     RecipientTypeDetails
+          -----------       -----------------      ------------------     --------------------
+          Jane Doe          jane.doe@contoso.com   jane.doe@contoso.com    UserMailbox
+          Help Desk         helpdesk@contoso.com   helpdesk@contoso.com    SharedMailbox
+        note: The `Get-EXO*` cmdlets are REST-backed and are generally preferred for Exchange Online administration. Use `-ResultSize Unlimited` deliberately because large result sets can take longer and consume more resources.
+
+      - title: Check cloud mailbox statistics
+        code: |
+          Get-EXOMailboxStatistics -Identity jane.doe@contoso.com |
+            Select-Object DisplayName, ItemCount, TotalItemSize, LastLogonTime |
+            Format-List
+        output: |
+          DisplayName    : Jane Doe
+          ItemCount      : 18432
+          TotalItemSize  : 2.14 GB (2,297,... bytes)
+          LastLogonTime  : 10/20/2026 8:41:00 AM
+
+      - title: Search message traces
+        code: |
+          Get-MessageTraceV2 `
+            -StartDate (Get-Date).AddHours(-2) `
+            -EndDate (Get-Date) `
+            -RecipientAddress user@contoso.com |
+            Select-Object Received, SenderAddress, RecipientAddress, Subject, Status |
+            Format-Table -AutoSize
+        output: |
+          Received             SenderAddress       RecipientAddress     Subject          Status
+          --------             --------------       -----------------     -------          ------
+          10/20/2026 09:12 AM sender@external.net  user@contoso.com      Project update   Delivered
+        note: Use `Get-MessageTraceV2` for current Exchange Online message trace searches. Trace availability, date range, and retained data depend on the service and tenant licensing.
+
+  - title: Connect to On-Premises Exchange
+    cards:
+      - title: Create a remote Exchange session
+        code: |
+          $UserCredential = Get-Credential
+          $Session = New-PSSession -ConfigurationName Microsoft.Exchange `
+            -ConnectionUri http://FQDN/PowerShell/ `
+            -Authentication Kerberos `
+            -Credential $UserCredential
+          Import-PSSession $Session -DisableNameChecking
+        output: |
+          cmdlet Get-Credential at command pipeline position 1
+          Supply values for the following parameters:
+          Credential
+
+          Name                           Value
+          ----                           -----
+          ExchangeServer                 {Microsoft.Exchange.Commands...}
+        note: Replace `FQDN` with the Exchange server's fully qualified domain name. Run the commands from a domain-joined computer with network and Kerberos access to the server.
+
+      - title: Close the session
+        code: |
+          Remove-PSSession $Session
+        note: Close the session when finished so imported Exchange cmdlets and the remote runspace do not remain open.
+
+      - title: Confirm imported Exchange commands
+        code: |
+          Get-Command Get-MailboxDatabase
+          Get-PSSession | Select-Object ComputerName, State, ConfigurationName
+        output: |
+          CommandType     Name                    Version    Source
+          -----------     ----                    -------    ------
+          Function        Get-MailboxDatabase     15.2.1118  tmp_EXCH...
+
+          ComputerName    State  ConfigurationName
+          ------------    -----  -----------------
+          ex01.contoso.com Open  Microsoft.Exchange
+
+  - title: Database Health
+    cards:
+      - title: List mounted mailbox databases
+        code: |
+          Get-MailboxDatabase -Status |
+            Sort Name |
+            Format-Table Name, Server, Mounted
+        output: |
+          Name             Server              Mounted
+          ----             ------              -------
+          DB01             EX01                True
+          DB02             EX02                True
+          DB03             EX01                False
+        note: The user's original command is useful for a quick mount check. A database with `Mounted` set to `False` needs investigation before it can serve mailboxes.
+
+      - title: Inspect database copy health
+        code: |
+          Get-MailboxDatabaseCopyStatus * |
+            Format-Table Name, Status, CopyQueueLength, ReplayQueueLength, ContentIndexState
+        output: |
+          Name             Status  CopyQueueLength ReplayQueueLength ContentIndexState
+          ----             ------  ---------------- ----------------- -----------------
+          DB01\\EX01        Mounted 0                0                 Healthy
+          DB01\\EX02        Healthy 0                2                 Healthy
+
+      - title: Find mailbox database statistics
+        code: |
+          Get-MailboxDatabase -Status |
+            Select-Object Name, DatabaseSize, AvailableNewMailboxSpace, LastFullBackup |
+            Format-Table -AutoSize
+        output: |
+          Name DatabaseSize AvailableNewMailboxSpace LastFullBackup
+          ---- ------------ ------------------------ --------------
+          DB01 48.7 GB      12.4 GB                  10/20/2026 1:15 AM
+          DB02 91.2 GB      8.1 GB                   10/20/2026 2:03 AM
+
+  - title: Mail Flow and Queues
+    cards:
+      - title: Review transport queues
+        code: |
+          Get-Queue
+        output: |
+          Identity             DeliveryType Status MessageCount Velocity
+          --------             ------------ ------ ------------ --------
+          EX01\\Submission      Undefined    Ready  0            -
+          EX01\\contoso.com     SmtpDelivery Active 12           4.2
+          EX01\\Poison          Undefined    Ready  0            -
+        note: Look for queues with a growing `MessageCount`, a `Retry` status, or a low/negative `Velocity`. Add `-Server EX01` to query a specific transport server.
+
+      - title: Show messages in a queue
+        code: |
+          Get-Queue -Server EX01 |
+            Get-Message |
+            Format-Table Identity, Subject, FromAddress, Status, LastError
+        output: |
+          Identity        Subject                 FromAddress       Status LastError
+          --------        -------                 -----------       ------ ---------
+          EX01\\12345       Weekly report            sender@contoso.com Ready
+          EX01\\12346       Invoice 4821             billing@vendor.net Retry  451 4.4.0 DNS query failed
+
+      - title: Test mail flow
+        code: |
+          Test-Mailflow -TargetEmailAddress administrator@contoso.com
+        output: |
+          TestMailflowEventId        : 3e2b...
+          TestMailflowResult          : Success
+          MessageLatencyTime          : 00:00:04.2180000
+          IsRemoteTest                : False
+        note: Use a monitored test mailbox for repeatable checks. `Test-Mailflow` verifies submission and delivery through the transport pipeline.
+
+  - title: Mailbox Administration
+    cards:
+      - title: Find a mailbox
+        code: |
+          Get-Mailbox -Identity jdoe |
+            Format-List DisplayName, PrimarySmtpAddress, Database, RecipientTypeDetails
+        output: |
+          DisplayName           : Jane Doe
+          PrimarySmtpAddress    : jane.doe@contoso.com
+          Database              : DB01
+          RecipientTypeDetails  : UserMailbox
+
+      - title: List mailbox sizes
+        code: |
+          Get-MailboxStatistics -Database DB01 |
+            Sort-Object TotalItemSize -Descending |
+            Select-Object DisplayName, ItemCount, TotalItemSize, LastLogonTime |
+            Format-Table -AutoSize
+        output: |
+          DisplayName       ItemCount TotalItemSize LastLogonTime
+          -----------       --------- ------------- -------------
+          Jane Doe          18432     2.14 GB       10/20/2026 8:41 AM
+          Help Desk         9211      846.7 MB      10/20/2026 8:37 AM
+        note: "`TotalItemSize` is an Exchange size object. For reporting or filtering, use `Get-ExchangeDiagnosticInfo` or convert the value deliberately rather than treating the displayed string as a number."
+
+      - title: Move a mailbox
+        code: |
+          New-MoveRequest -Identity jdoe -TargetDatabase DB02
+
+          Get-MoveRequest -Identity jdoe |
+            Get-MoveRequestStatistics |
+            Select-Object DisplayName, Status, PercentComplete, BytesTransferred
+        output: |
+          DisplayName Status      PercentComplete BytesTransferred
+          ----------- ------      --------------- ----------------
+          Jane Doe    InProgress  62              1.31 GB
+        note: Confirm the target database and maintenance window before starting a move. Run `Remove-MoveRequest -Identity jdoe` only after understanding why the request is stuck or failed.
+
+  - title: Troubleshooting
+    cards:
+      - title: Search message tracking logs
+        code: |
+          Get-MessageTrackingLog -Start (Get-Date).AddHours(-2) `
+            -Recipients user@contoso.com |
+            Select-Object Timestamp, EventId, Source, Sender, Recipients, MessageSubject |
+            Format-Table -AutoSize
+        output: |
+          Timestamp            EventId Source Sender             Recipients           MessageSubject
+          ---------            ------- ------ ------             ----------           --------------
+          10/20/2026 09:12 AM RECEIVE SMTP   sender@external.net {user@contoso.com}  Project update
+          10/20/2026 09:12 AM DELIVER STOREDRIVER EX01\\Microsoft... {user@contoso.com} Project update
+        note: Add `-Sender`, `-MessageSubject`, or `-MessageId` to narrow a search. Message tracking retention and available fields vary by Exchange version and configuration.
+
+      - title: Check Exchange services
+        code: |
+          Test-ServiceHealth |
+            Format-Table Role, RequiredServicesRunning, ServicesNotRunning
+        output: |
+          Role                 RequiredServicesRunning ServicesNotRunning
+          ----                 ----------------------- ------------------
+          Mailbox             True                    {}
+          ClientAccess         True                    {}
+
+      - title: Check a receive connector
+        code: |
+          Get-ReceiveConnector -Server EX01 |
+            Select-Object Name, Enabled, Bindings, RemoteIPRanges |
+            Format-List
+        output: |
+          Name           : Default Frontend EX01
+          Enabled        : True
+          Bindings       : {0.0.0.0:25, [::]:25}
+          RemoteIPRanges : {0.0.0.0-255.255.255.255}
+        note: Treat connector changes as a security-sensitive operation. Verify the allowed IP ranges and authentication settings before changing them.
