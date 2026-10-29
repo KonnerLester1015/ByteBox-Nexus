@@ -82,4 +82,12 @@ sidebar:
      imageStyle="object-fit:cover; aspect-ratio:16/9;"
 >}}
 
+{{< card
+  link="fantasy-football"
+  title="Fantasy Football"
+  subtitle="A Sleeper league dashboard that turns standings, playoff odds, weekly recaps, and history into an approachable visual story."
+  image="/fantasyfootball.jpg"
+  imageStyle="object-fit:cover; aspect-ratio:16/9;"
+>}}
+
 {{< /cards >}}
