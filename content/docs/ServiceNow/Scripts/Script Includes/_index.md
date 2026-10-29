@@ -16,4 +16,6 @@ This section covers patterns and examples for Script Includes.
 
 {{< card link="abstractajaxprocessor-existing-request-check/" title="AbstractAjaxProcessor Existing-Request Check" icon="clock" >}}
 
+{{< card link="user-criteria-check/" title="User Criteria Check" icon="user" >}}
+
 {{< /cards >}}
