@@ -1,0 +1,56 @@
+/* ---------------------------------------------------------------------------
+   Ambient background: faint dot grid + soft blue glow.
+   Hextra sets dark mode as the `dark` class on <html> (assets/js/head/theme.js).
+   To tune the strength, change only the alpha values below.
+   --------------------------------------------------------------------------- */
+:root {
+  --bg-dot:   rgba(15, 23, 42, 0.12);
+  --bg-glow:  rgba(21, 96, 214, 0.085);
+  --bg-glow2: rgba(14, 165, 233, 0.06);
+}
+html.dark {
+  --bg-dot:   rgba(255, 255, 255, 0.09);
+  --bg-glow:  rgba(46, 140, 255, 0.12);
+  --bg-glow2: rgba(56, 189, 248, 0.065);
+}
+
+/* Stacking context: z-index:-1 layers sit above body's background, below content. */
+body { isolation: isolate; }
+
+body::before,
+body::after {
+  content: "";
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+}
+
+/* Dots, fading out toward the bottom and sides */
+body::before {
+  background-image: radial-gradient(circle at center, var(--bg-dot) 1px, transparent 1.6px);
+  background-size: 24px 24px;
+  -webkit-mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, #000 30%, transparent 100%);
+          mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, #000 30%, transparent 100%);
+}
+
+/* Glow behind the hero: strongest top-left, fainter top-right */
+body::after {
+  background-image:
+    radial-gradient(ellipse 900px 520px at 22% 0%, var(--bg-glow), transparent 70%),
+    radial-gradient(ellipse 700px 420px at 90% 6%, var(--bg-glow2), transparent 70%);
+}
+
+/* Feature cards' inline gradients fade to transparent; give them the page's
+   base color underneath so the pattern doesn't show through and they look as before.
+   !important is needed because the inline `background:` shorthand resets the color. */
+.hextra-feature-card { background-color: var(--hx-color-white) !important; }
+html.dark .hextra-feature-card { background-color: var(--hx-color-dark) !important; }
+
+@media print {
+  body::before,
+  body::after { display: none; }
+}
+
+/* Navbar: Hextra's .hextra-nav-container-blur is already translucent with
+   backdrop blur, so no override is needed here. */
