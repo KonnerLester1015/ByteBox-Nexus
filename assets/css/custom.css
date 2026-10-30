@@ -4,14 +4,10 @@
    To tune the strength, change only the alpha values below.
    --------------------------------------------------------------------------- */
 :root {
-  --bg-dot:   rgba(15, 23, 42, 0.12);
-  --bg-glow:  rgba(21, 96, 214, 0.085);
-  --bg-glow2: rgba(14, 165, 233, 0.06);
+  --bg-dot: rgba(15, 23, 42, 0.12);
 }
 html.dark {
-  --bg-dot:   rgba(255, 255, 255, 0.09);
-  --bg-glow:  rgba(46, 140, 255, 0.12);
-  --bg-glow2: rgba(56, 189, 248, 0.065);
+  --bg-dot: rgba(255, 255, 255, 0.09);
 }
 
 /* Stacking context: z-index:-1 layers sit above body's background, below content. */
@@ -32,13 +28,6 @@ body::before {
   background-size: 24px 24px;
   -webkit-mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, #000 30%, transparent 100%);
           mask-image: radial-gradient(ellipse 85% 70% at 50% 0%, #000 30%, transparent 100%);
-}
-
-/* Glow behind the hero: strongest top-left, fainter top-right */
-body::after {
-  background-image:
-    radial-gradient(ellipse 900px 520px at 22% 0%, var(--bg-glow), transparent 70%),
-    radial-gradient(ellipse 700px 420px at 90% 6%, var(--bg-glow2), transparent 70%);
 }
 
 /* Feature cards' inline gradients fade to transparent; give them the page's
