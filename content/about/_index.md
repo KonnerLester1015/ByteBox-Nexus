@@ -33,14 +33,19 @@ Here are a few of the core technologies and platforms I work with:
 
 <div class="skills-tags-container">
   <span class="skill-tag">ServiceNow</span>
-  <span class="skill-tag">Docker</span>
-  <span class="skill-tag">Python & JavaScript</span>
-  <span class="skill-tag">Network Virtualization</span>
   <span class="skill-tag">Active Directory</span>
-  <span class="skill-tag">Ceph Storage</span>
-  <span class="skill-tag">VDI & Thin Clients</span>
-  <span class="skill-tag">REST API</span>
+  <span class="skill-tag">Microsoft Entra ID</span>
   <span class="skill-tag">Linux</span>
+  <span class="skill-tag">Bash Scripting</span>
+  <span class="skill-tag">Ansible</span>
+  <span class="skill-tag">Terraform</span>
+  <span class="skill-tag">Docker</span>
+  <span class="skill-tag">Virtualization</span>
+  <span class="skill-tag">Ceph Storage</span>
+  <span class="skill-tag">QEMU / KVM</span>
+  <span class="skill-tag">REST APIs</span>
+  <span class="skill-tag">Python & JavaScript</span>
+  <span class="skill-tag">Flow Designer & IntegrationHub</span>
   <span class="skill-tag">Git & CI/CD</span>
 </div>
 

@@ -1,110 +1,171 @@
 <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.1/css/all.min.css" integrity="sha256-2XFplPlrFClt0bIdPgpz8H7ojnk10H69xRqd9+uTShA=" crossorigin="anonymous" />
 <style>
-  .hex-timeline { position: relative; max-width: 100%; margin: 3rem auto; font-family: inherit; }
-  .hex-timeline::after { 
-    content: ''; 
-    position: absolute; 
-    width: 2px; 
-    border-right: 2px dashed #dee2e6; 
-    top: 0; 
-    bottom: 0; 
-    left: 50%; 
-    margin-left: -1px;
-    opacity: 0.6;
+  /* Branch-graph timeline: each row = decorative graph column + role card.
+     Lane positions and sizes are variables so the mobile layout only resizes. */
+  .bg-timeline {
+    --bg-main: #2563eb;      /* Subaru (light mode, darker for contrast) */
+    --bg-branch: #8a6410;    /* Purdue */
+    --bg-page: #ffffff;
+    --bg-card: rgba(150, 150, 150, 0.05);
+    --bg-border: rgba(150, 150, 150, 0.2);
+    --bg-graph-w: 100px;
+    --bg-lane-main: 30px;
+    --bg-lane-branch: 70px;
+    --bg-line: 3px;
+    --bg-node: 14px;
+    --bg-top: 32px;          /* node centre from row top (aligned to card title) */
+    --bg-bottom: 48px;       /* node centre from row bottom */
+    margin: 2rem 0 3rem;
   }
-  .hex-container { padding: 10px 40px; position: relative; background-color: inherit; width: 50%; box-sizing: border-box; }
-  .hex-container::after { content: ''; position: absolute; width: 16px; height: 16px; background-color: #f89d36; border: 3px solid rgba(150, 150, 150, 0.2); border-radius: 50%; top: 24px; z-index: 1; box-shadow: 0 0 0 2px #dee2e6; }
-  .hex-left { left: 0; }
-  .hex-right { left: 50%; }
-  .hex-left::after { right: -8px; }
-  .hex-right::after { left: -8px; }
-  .hex-content { 
-    padding: 24px; 
-    border-radius: 8px; 
-    background-color: rgba(150, 150, 150, 0.05); 
-    border: 1px solid rgba(150, 150, 150, 0.2); 
-    transition: transform 0.2s ease; 
-    position: relative; 
-    overflow: hidden; 
+  html.dark .bg-timeline {
+    --bg-main: #4f8cff;
+    --bg-branch: #d9b45a;
+    --bg-page: #0b0d10;
+    --bg-card: #12151a;
+    --bg-border: #23282f;
   }
-  .hex-right .hex-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    left: 0;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(90deg, rgba(52, 102, 203, 0.05), transparent);
-    z-index: 1;
-    pointer-events: none;
+
+  .bg-legend { display: flex; flex-wrap: wrap; gap: 0.5rem 1.5rem; margin-bottom: 1.25rem; font-size: 0.85rem; }
+  .bg-legend span { display: inline-flex; align-items: center; gap: 0.5rem; }
+  .bg-legend i { display: inline-block; width: 22px; height: var(--bg-line); border-radius: 2px; }
+  .bg-legend .bg-key-main { background: var(--bg-main); }
+  .bg-legend .bg-key-branch { background: var(--bg-branch); }
+
+  .bg-list { list-style: none; margin: 0; padding: 0; }
+  .bg-row { display: flex; align-items: stretch; margin: 0; }
+
+  .bg-graph { position: relative; flex: 0 0 var(--bg-graph-w); }
+  .bg-ln { position: absolute; width: var(--bg-line); left: calc(var(--bg-lane-main) - var(--bg-line) / 2); background: var(--bg-main); }
+  .bg-ln.faded { opacity: 0.4; }
+  .bg-ln.branch { left: calc(var(--bg-lane-branch) - var(--bg-line) / 2); background: var(--bg-branch); }
+  .bg-conn { position: absolute; height: var(--bg-line); left: var(--bg-lane-main); width: calc(var(--bg-lane-branch) - var(--bg-lane-main)); background: var(--bg-branch); }
+  .bg-conn.top { top: calc(var(--bg-top) - var(--bg-line) / 2); }
+  .bg-conn.bottom { bottom: calc(var(--bg-bottom) - var(--bg-line) / 2); }
+  .bg-dot {
+    position: absolute; box-sizing: border-box; z-index: 1;
+    width: var(--bg-node); height: var(--bg-node); border-radius: 50%;
+    left: calc(var(--bg-lane-main) - var(--bg-node) / 2);
+    background: var(--bg-main);
+    box-shadow: 0 0 0 3px var(--bg-page);
   }
-  .hex-left .hex-content::before {
-    content: '';
-    position: absolute;
-    top: 0;
-    right: 0;
-    width: 40%;
-    height: 100%;
-    background: linear-gradient(270deg, rgba(52, 102, 203, 0.05), transparent);
-    z-index: 1;
-    pointer-events: none;
+  .bg-dot.branch { left: calc(var(--bg-lane-branch) - var(--bg-node) / 2); background: var(--bg-branch); }
+  .bg-dot.ring { background: var(--bg-page); border: 3px solid var(--bg-main); }
+  .bg-dot.top { top: calc(var(--bg-top) - var(--bg-node) / 2); }
+  .bg-dot.bottom { bottom: calc(var(--bg-bottom) - var(--bg-node) / 2); }
+
+  .bg-cell { flex: 1 1 auto; min-width: 0; padding-bottom: 24px; }
+  .bg-card {
+    position: relative; padding: 24px; border-radius: 8px;
+    background-color: var(--bg-card); border: 1px solid var(--bg-border);
   }
-  .hex-content h3 { margin-top: 0; margin-bottom: 0.25rem; font-size: 1.25rem; font-weight: 600; position: relative; z-index: 2; }
-  .hex-content h4 { margin: 0 0 0.5rem 0; font-size: 0.95rem; font-weight: 500; position: relative; z-index: 2; }
-  .hex-date { display: inline-block; background-color: rgba(0, 138, 230, 0.15); color: #008ae6; padding: 4px 12px; border-radius: 20px; font-size: 0.8rem; font-weight: 600; margin-bottom: 1rem; position: relative; z-index: 2; }
-  .hex-content ul { list-style-type: disc; padding-left: 1.25rem; margin-top: 0; margin-bottom: 0; position: relative; z-index: 2; }
-  .hex-content li { margin-bottom: 0.5rem; font-size: 0.95rem; line-height: 1.6; opacity: 0.85; }
-  .hex-icon { margin-right: 8px; color: #2a52c3; }
-  .hex-logo { position: absolute; top: 15px; width: 80px; height: 80px; object-fit: contain; border-radius: 8px; background-color: white; padding: 5px; box-shadow: 0 4px 6px rgba(0,0,0,0.1); z-index: 2; }
-  .hex-left .hex-logo { left: calc(100% + 40px); }
-  .hex-right .hex-logo { right: calc(100% + 40px); }
-  @media screen and (max-width: 768px) {
-    .hex-timeline::after { left: 31px; }
-    .hex-container { width: 100%; padding-left: 70px; padding-right: 15px; }
-    .hex-left::after, .hex-right::after { left: 23px; }
-    .hex-right { left: 0%; }
-    .hex-left .hex-logo, .hex-right .hex-logo { left: auto; right: -10px; top: 10px; width: 80px; height: 80px; opacity: 0.08; box-shadow: none; background: transparent; padding: 0; pointer-events: none; }
+  .bg-card header { padding-right: 64px; }
+  .bg-card h3 { margin: 0 0 0.25rem; font-size: 1.25rem; font-weight: 600; line-height: 1.4; }
+  .bg-card h4 { margin: 0 0 0.5rem; font-size: 0.95rem; font-weight: 500; }
+  .bg-icon { margin-right: 8px; color: var(--bg-main); }
+  .bg-purdue .bg-icon { color: var(--bg-branch); }
+  .bg-date {
+    display: inline-block; padding: 4px 12px; border-radius: 20px; margin-bottom: 1rem;
+    font-size: 0.8rem; font-weight: 600;
+    color: var(--bg-main); background-color: color-mix(in srgb, var(--bg-main) 15%, transparent);
+  }
+  .bg-purdue .bg-date { color: var(--bg-branch); background-color: color-mix(in srgb, var(--bg-branch) 15%, transparent); }
+  .bg-card ul { list-style-type: disc; padding-left: 1.25rem; margin: 0; }
+  .bg-card li { margin-bottom: 0.5rem; font-size: 0.95rem; line-height: 1.6; }
+  .bg-logo {
+    position: absolute; top: 20px; right: 20px; width: 48px; height: 48px;
+    object-fit: contain; border-radius: 8px; background-color: white; padding: 4px;
+    box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+  }
+
+  @media screen and (max-width: 640px) {
+    .bg-timeline { --bg-graph-w: 56px; --bg-lane-main: 16px; --bg-lane-branch: 40px; }
+    .bg-card { padding: 18px; }
+    .bg-card header { padding-right: 48px; }
+    .bg-logo { top: 14px; right: 14px; width: 36px; height: 36px; }
   }
 </style>
-<div class="hx-mt-8">
-  <div class="hex-timeline">
-    <div class="hex-container hex-left">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Subaru_of_Indiana_Automotive_Logo.png" alt="Subaru Logo" class="hex-logo">
-      <div class="hex-content">
-        <h3><i class="fas fa-cogs hex-icon"></i>Subaru of Indiana Automotive</h3>
-        <h4>System Administrator (Full-time)</h4>
-        <div class="hex-date">July 2026 - Present</div>
-        <ul>
-          <li>Continuing to support enterprise ServiceNow environments, IT infrastructure, and end-user platforms as a full-time System Administrator.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hex-container hex-right">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Subaru_of_Indiana_Automotive_Logo.png" alt="Subaru Logo" class="hex-logo">
-      <div class="hex-content">
-        <h3><i class="fas fa-cogs hex-icon"></i>Subaru of Indiana Automotive</h3>
-        <h4>System Administrator (Internship)</h4>
-        <div class="hex-date">June 2021 - July 2026</div>
-        <ul>
-          <li>Designed and optimized development, test, and production ServiceNow environments while maintaining adherence to CMDB governance and CSDM data model standards.</li>
-          <li>Improved IT operational efficiency by developing workflow automations and supporting seamless integrations between ServiceNow and external systems.</li>
-          <li>Implemented and maintained Single Sign-On (SSO) integrations to streamline authentication and improve security posture.</li>
-          <li>Automated asset discovery and ingestion workflows to ensure accurate and timely CMDB population.</li>
-          <li>Managed Active Directory user and group provisioning, supporting access control and lifecycle management.</li>
-          <li>Administered both on-premises and cloud-based VDI environments, ensuring high availability, performance optimization, and controlled version management for thin-client infrastructure.</li>
-        </ul>
-      </div>
-    </div>
-    <div class="hex-container hex-left">
-      <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Purdue_Boilermakers_logo.svg" alt="Purdue Logo" class="hex-logo">
-      <div class="hex-content">
-        <h3><i class="fas fa-network-wired hex-icon"></i>Purdue IT Research Computing</h3>
-        <h4>Research Support Developer</h4>
-        <div class="hex-date">May 2024 - Aug 2024</div>
-        <ul>
-          <li>Deployed and configured a Ceph storage cluster to provision fast, highly efficient virtual machines, directly supporting researchers in a high-performance computing (HPC) environment.</li>
-        </ul>
-      </div>
-    </div>
+<div class="bg-timeline">
+  <div class="bg-legend" aria-hidden="true">
+    <span><i class="bg-key-main"></i>Subaru of Indiana Automotive</span>
+    <span><i class="bg-key-branch"></i>Purdue IT Research Computing</span>
   </div>
+  <ol class="bg-list">
+    <li class="bg-row">
+      <div class="bg-graph" aria-hidden="true">
+        <div class="bg-ln" style="top: var(--bg-top); bottom: var(--bg-bottom);"></div>
+        <div class="bg-ln faded" style="bottom: 0; height: var(--bg-bottom);"></div>
+        <div class="bg-dot ring top"></div>
+        <div class="bg-dot bottom"></div>
+      </div>
+      <div class="bg-cell">
+        <article class="bg-card">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Subaru_of_Indiana_Automotive_Logo.png" alt="Subaru Logo" class="bg-logo">
+          <header>
+            <h3><i class="fas fa-cogs bg-icon"></i>Subaru of Indiana Automotive</h3>
+            <h4>System Administrator (Full-time)</h4>
+          </header>
+          <div class="bg-date">July 2026 - Present</div>
+          <ul>
+            <li>Administer and maintain ServiceNow development, test, and production environments supporting a 7,000+ user organization, ensuring CMDB accuracy and alignment with CSDM standards.</li>
+            <li>Develop custom Business Rules, Client Scripts, Script Includes, and UI Policies to extend ServiceNow functionality across ITSM and Hardware Asset Management (HAM).</li>
+            <li>Build automated workflows, custom ServiceNow spokes, and REST API integrations using Flow Designer and IntegrationHub to streamline enterprise processes and system integrations.</li>
+            <li>Manage asset discovery and ingestion through Service Graph Connectors and custom REST integrations, improving CMDB accuracy and automating asset lifecycle processes.</li>
+            <li>Oversee day-to-day ServiceNow operations, including service catalog enhancements, MID Server deployments, platform upgrades, and system optimization.</li>
+            <li>Administer identity and access management across Active Directory and Microsoft Entra ID, including user and group provisioning, permissions, and SSO integrations.</li>
+            <li>Administer on-premises and cloud-based server and virtual desktop environments across an 800+ server infrastructure, leveraging Ansible and Terraform for automation and provisioning.</li>
+            <li>Support infrastructure maintenance, including disaster recovery planning, server patching, and update cycles to maintain system reliability and minimize downtime.</li>
+            <li>Support enterprise certificate lifecycle management through Venafi, helping maintain certificate validity and reduce the risk of expiration-related service disruptions.</li>
+          </ul>
+        </article>
+      </div>
+    </li>
+    <li class="bg-row bg-purdue">
+      <div class="bg-graph" aria-hidden="true">
+        <div class="bg-ln faded" style="top: 0; bottom: 0;"></div>
+        <div class="bg-conn top"></div>
+        <div class="bg-conn bottom"></div>
+        <div class="bg-ln branch" style="top: var(--bg-top); bottom: var(--bg-bottom);"></div>
+        <div class="bg-dot branch top"></div>
+        <div class="bg-dot branch bottom"></div>
+      </div>
+      <div class="bg-cell">
+        <article class="bg-card">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/3/35/Purdue_Boilermakers_logo.svg" alt="Purdue Logo" class="bg-logo">
+          <header>
+            <h3><i class="fas fa-network-wired bg-icon"></i>Purdue IT Research Computing</h3>
+            <h4>Research Support Developer</h4>
+          </header>
+          <div class="bg-date">May 2024 - Aug 2024</div>
+          <ul>
+            <li>Deployed and configured a Ceph storage cluster to provide fault-tolerant, high-performance storage for virtual machines supporting research computing workloads.</li>
+            <li>Developed Bash scripts to automate Ceph cluster maintenance and QEMU virtual machine provisioning, integrating Ceph RADOS Block Devices (RBD) to provide persistent block storage for virtual machines.</li>
+          </ul>
+        </article>
+      </div>
+    </li>
+    <li class="bg-row">
+      <div class="bg-graph" aria-hidden="true">
+        <div class="bg-ln faded" style="top: 0; bottom: var(--bg-bottom);"></div>
+        <div class="bg-dot bottom"></div>
+      </div>
+      <div class="bg-cell">
+        <article class="bg-card">
+          <img src="https://upload.wikimedia.org/wikipedia/commons/e/e9/Subaru_of_Indiana_Automotive_Logo.png" alt="Subaru Logo" class="bg-logo">
+          <header>
+            <h3><i class="fas fa-cogs bg-icon"></i>Subaru of Indiana Automotive</h3>
+            <h4>System Administrator (Internship)</h4>
+          </header>
+          <div class="bg-date">June 2021 - July 2026</div>
+          <ul>
+            <li>Designed and optimized development, test, and production ServiceNow environments while maintaining adherence to CMDB governance and CSDM data model standards.</li>
+            <li>Improved IT operational efficiency by developing workflow automations and supporting seamless integrations between ServiceNow and external systems.</li>
+            <li>Implemented and maintained Single Sign-On (SSO) integrations to streamline authentication and improve security posture.</li>
+            <li>Automated asset discovery and ingestion workflows to ensure accurate and timely CMDB population.</li>
+            <li>Managed Active Directory user and group provisioning, supporting access control and lifecycle management.</li>
+            <li>Administered both on-premises and cloud-based VDI environments, ensuring high availability, performance optimization, and controlled version management for thin-client infrastructure.</li>
+          </ul>
+        </article>
+      </div>
+    </li>
+  </ol>
 </div>
