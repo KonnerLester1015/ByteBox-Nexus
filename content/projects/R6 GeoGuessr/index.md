@@ -17,7 +17,7 @@ The entire game is built with plain **HTML, CSS, and JavaScript**. There are no 
   **Source code:** [github.com/KonnerLester1015/R6GeoGuessr](https://github.com/KonnerLester1015/R6GeoGuessr) (GPL-3.0)
 {{< /callout >}}
 
-![R6 GeoGuessr gameplay](/R6GeoGuesserGame.png)
+<video controls src="brag.mp4" title="Title"></video>
 
 ## Objectives
 
