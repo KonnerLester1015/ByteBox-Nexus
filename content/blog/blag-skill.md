@@ -50,13 +50,13 @@ Once it's installed, you point it at a project and tell your agent to brag about
 Here are three videos I made with it.
 
 **Example 1: PlayDetour**
-{{< video src="projects/Detour/brag.mp4" title="PlayDetour showcase" >}}
+{{< video src="projects/detour/brag.mp4" title="PlayDetour showcase" >}}
 
 **Example 2: Fantasy Football**
 {{< video src="projects/fantasy-football/brag.mp4" title="Fantasy Football dashboard showcase" >}}
 
 **Example 3: R6 GeoGuessr**
-{{< video src="projects/R6-GeoGuessr/brag.mp4" title="R6 GeoGuessr showcase" >}}
+{{< video src="projects/r6-geoguessr/brag.mp4" title="R6 GeoGuessr showcase" >}}
 
 ### The Bonus: Free Infographics
 
